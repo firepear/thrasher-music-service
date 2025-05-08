@@ -41,6 +41,9 @@
               grid-row-start: 1;
               grid-row-end: 3;
               background-color: #ddd;
+              overflow: scroll;
+              font-family: monospace;
+              font-size: small;
             }
 
       #foot { grid-column-start: 1;
@@ -85,7 +88,7 @@
       </div>
       <div id="main"> </div>
       <div id="foot">
-        Filter <input id="filter" type="text" size="30"></input>
+        Filter <input id="filter" type="text" size="30" onChange="sendFilter();"></input>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -94,9 +97,29 @@
       var facetdivs = [];
       var artistdivs = [];
       var trks = [];
+      var filterMeta = [];
 
-      var elnames = ["facetlist", "artistlist", "artistfilter"];
+      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main"];
       elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
+
+      function sendFilter() {
+          main.replaceChildren();
+          const regex = /\//g;
+          const filter = els["filter"].value.replaceAll(regex, "%2F");
+          console.log(filter);
+          const url = `http://10.1.10.210:8080/f/${filter}`;
+          (async() => {
+              filterMeta = await fetch(encodeURI(url)).then((r) => {return r.json() });
+              const main = els["main"];
+              const url2 = `http://10.1.10.210:8080/q`;
+              (async() => {
+                  trks = await fetch(encodeURI(url2)).then((r) => {return r.json() });
+                  trks.forEach((trk) => {
+                      main.insertAdjacentHTML("beforeend", `<div>${trk}</div>`);
+                  });
+              })();
+          })();
+      }
 
       function filterArtists() {
           const v = els["artistfilter"].firstChild.value.toLowerCase();
@@ -110,17 +133,16 @@
       }
 
       (async() => {
-      const regex = /["'& ]/g;
-          const catAF = await fetch("http://10.1.10.210:8080/init")
-                .then((response) => { return response.json() });
+          const regex = /["'& ]/g;
+          const catAF = await fetch("http://10.1.10.210:8080/init").then((r) => { return r.json() });
           catAF.facets.forEach((facet) => {
               const nfacet = facet.replaceAll(regex, "");
-              els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}"/>${facet}</div>`);
+              els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}"/><label for="fc${nfacet}">${facet}</label></div>`);
               facetdivs[nfacet] = document.getElementById(`fd${nfacet}`);
           });
           catAF.artists.forEach((artist) => {
               const nartist = artist.replaceAll(regex, "");
-              els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}"/>${artist}</div>`);
+              els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}"/><label for="ac${nartist}">${artist}</label></div>`);
               artistdivs[nartist] = document.getElementById(`ad${nartist}`);
           });
       })();

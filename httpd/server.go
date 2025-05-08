@@ -37,8 +37,9 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir(clientDir)))
 	http.Handle("/music", http.FileServer(http.Dir(musicDir)))
 	http.HandleFunc("GET /init", tms.HandleInit)
-	//http.HandleFunc("GET /f/{format}", handleFilter)
-	///http.HandleFunc("GET /q/{orderby}/{limit}/{offset}", handleQuery)
+	http.HandleFunc("GET /f/{format}", tms.HandleFilter)
+	http.HandleFunc("GET /q", tms.HandleQuery)
+	//http.HandleFunc("GET /q/{orderby}/{limit}/{offset}", tms.HandleQuery)
 	//http.HandleFunc("GET /i/{trk}", handleTrkInfo)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

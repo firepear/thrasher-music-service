@@ -100,9 +100,6 @@
 
       function filterArtists() {
           const v = els["artistfilter"].firstChild.value.toLowerCase();
-          if (v == "") {
-              return
-          }
           for (const [name, div] of Object.entries(artistdivs)) {
               if (name.toLowerCase().includes(v)) {
                   div.style.display = "block";

@@ -3,6 +3,7 @@ package main
 import (
 	///"encoding/json"
 	"flag"
+	//"fmt"
 	"log"
 	"net/http"
 
@@ -22,7 +23,6 @@ func init() {
 	flag.StringVar(&musicDir, "m", "", "dir for serving music files")
 	flag.StringVar(&musicPrefix, "p", "", "leading musicdir path which will be stripped from filter results")
 	flag.Parse()
-	c.TrimPrefix = musicPrefix
 }
 
 ///////////
@@ -30,10 +30,10 @@ func init() {
 ///////////
 
 func main() {
-	err := tms.Init(dbFile, "tmshttp")
+	err := tms.Init(dbFile, "tmshttpd", musicPrefix)
 	if err != nil {
-	log.Fatal(err)
-}
+		log.Fatal(err)
+	}
 	http.Handle("/", http.FileServer(http.Dir(clientDir)))
 	http.Handle("/music", http.FileServer(http.Dir(musicDir)))
 	http.HandleFunc("GET /init", tms.HandleInit)
@@ -42,6 +42,3 @@ func main() {
 	//http.HandleFunc("GET /i/{trk}", handleTrkInfo)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
-
-
-// const x = await fetch("http://10.1.10.210:8080/init").then(response => {return response.json()});

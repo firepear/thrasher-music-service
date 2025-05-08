@@ -1,16 +1,138 @@
-<!-- <!DOCTYPE html> -->
+<!DOCTYPE html>
 <html>
   <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+      html { height: 99%; }
+      body { height: 99%;
+             background-color: #333;
+             border: medium solid #556;
+             margin: 0;
+           }
+      #container { display: grid;
+                   grid-template-columns: 1fr 3fr;
+                   grid-template-rows: 1fr 1fr 2em;
+                   height: 98vh;
+                 }
+
+      #facets {
+          background-color: #ddd;
+          grid-row-start: 1;
+          grid-row-end: 2;
+          border-right: medium solid #556;
+          overflow: hidden;
+          font-family: sans-serif
+      }
+      #facetlist {height: 100%; overflow: scroll;}
+
+      #artists {
+          background-color: #ddd;
+          grid-row-start: 2;
+          grid-row-end: 3;
+          border-right: medium solid #556;
+          overflow: hidden;
+          font-family: sans-serif
+      }
+      #artistlist {height: 100%; overflow: scroll;}
+
+      #main { padding: 0.2em;
+              grid-row-start: 1;
+              grid-row-end: 3;
+              background-color: #ddd;
+            }
+
+      #foot { grid-column-start: 1;
+              grid-column-end: 3;
+              padding-left: 0.3em;
+              padding-bottom: 0.2em;
+              background-color: #9999bb;
+              border-top: medium solid #556;
+              font-family: "Barlow Semi Condensed";
+              font-weight: 400;
+              font-size: large;
+            }
+
+      .title { font-family: "Barlow Semi Condensed";
+               font-weight: 500;
+               font-size: x-large;
+               background-color: #bbd;
+               padding: 0.15em;
+             }
+
+      .listfilter { padding: 2px; }
+
+      input { font-family: monospace;
+              background-color: #ddd;
+              border: thin solid #556;
+              border-radius: 0.25em;
+            }
+    </style>
+    <script>
+    </script>
   </head>
   <body>
+    <div id="container">
+      <div id="facets">
+        <div class="title">Facets</div>
+        <div id="facetlist"></div>
+      </div>
+      <div id="artists">
+        <div class="title">Artists</div>
+        <div class="listfilter" id="artistfilter" onKeyUp="filterArtists();"><input/></div>
+        <div id="artistlist"></div>
+      </div>
+      <div id="main"> </div>
+      <div id="foot">
+        Filter <input id="filter" type="text" size="30"></input>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-      var sound = new Howl({
-          src: ['http://10.1.10.210:8000/15%20Que%20Sabe%20Voce%20De%20Mim.mp3'],
-          html5: true
-      });
+      var els = {};
+      var facetdivs = [];
+      var artistdivs = [];
+      var trks = [];
 
-      sound.play();
+      var elnames = ["facetlist", "artistlist", "artistfilter"];
+      elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
+
+      function filterArtists() {
+          const v = els["artistfilter"].firstChild.value.toLowerCase();
+          if (v == "") {
+              return
+          }
+          for (const [name, div] of Object.entries(artistdivs)) {
+              if (name.toLowerCase().includes(v)) {
+                  div.style.display = "block";
+              } else {
+                  div.style.display = "none";
+              }
+          }
+      }
+
+      (async() => {
+      const regex = /["'& ]/g;
+          const catAF = await fetch("http://10.1.10.210:8080/init")
+                .then((response) => { return response.json() });
+          catAF.facets.forEach((facet) => {
+              const nfacet = facet.replaceAll(regex, "");
+              els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}"/>${facet}</div>`);
+              facetdivs[nfacet] = document.getElementById(`fd${nfacet}`);
+          });
+          catAF.artists.forEach((artist) => {
+              const nartist = artist.replaceAll(regex, "");
+              els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}"/>${artist}</div>`);
+              artistdivs[nartist] = document.getElementById(`ad${nartist}`);
+          });
+      })();
+
+      //var sound = new Howl({
+      //    src: ['http://10.1.10.210:8000/15%20Que%20Sabe%20Voce%20De%20Mim.mp3'],
+      //    html5: true
+      //});
+      //sound.play();
     </script>
   </body>
 </html>

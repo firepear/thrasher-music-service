@@ -25,22 +25,23 @@
           overflow: hidden;
           font-family: sans-serif
       }
-      #facetlist {height: 100%; overflow: scroll;}
+      #facetlist {overflow: scroll;}
 
       #artists {
           background-color: #ddd;
           grid-row-start: 2;
           grid-row-end: 3;
+          border-top: medium solid #556;
           border-right: medium solid #556;
           overflow: hidden;
           font-family: sans-serif
       }
-      #artistlist {height: 100%; overflow: scroll;}
+      #artistlist {overflow: scroll;}
 
       #main { padding: 0.2em;
               grid-row-start: 1;
               grid-row-end: 3;
-              background-color: #ddd;
+              background-color: #dddddd;
               overflow: scroll;
               font-family: monospace;
               font-size: small;
@@ -48,13 +49,13 @@
 
       #foot { grid-column-start: 1;
               grid-column-end: 3;
-              padding-left: 0.3em;
-              padding-bottom: 0.2em;
-              background-color: #9999bb;
+              background-color: #bbd;
               border-top: medium solid #556;
               font-family: "Barlow Semi Condensed";
               font-weight: 400;
               font-size: large;
+              padding-left: 0.3em;
+              padding-bottom: 0.2em;
             }
 
       .title { font-family: "Barlow Semi Condensed";
@@ -64,10 +65,14 @@
                padding: 0.15em;
              }
 
-      .listfilter { padding: 2px; }
+      .listfilter { padding: .2em;
+                    background-color: #cce;
+                    font-family: "Barlow Semi Condensed";
+                    font-weight: 400;
+                  }
 
       input { font-family: monospace;
-              background-color: #ddd;
+              background-color: #eee;
               border: thin solid #556;
               border-radius: 0.25em;
             }
@@ -83,12 +88,12 @@
       </div>
       <div id="artists">
         <div class="title">Artists</div>
-        <div class="listfilter" id="artistfilter" onKeyUp="filterArtists();"><input/></div>
+        <div class="listfilter">Filter <input id="artistfilter" onKeyUp="filterArtists();" /></div>
         <div id="artistlist"></div>
       </div>
       <div id="main"> </div>
       <div id="foot">
-        Filter <input id="filter" type="text" size="30" onChange="sendFilter();"></input>
+        Search <input id="filter" type="text" size="40" onKeyUp="sendFilter(event);"></input>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -102,15 +107,21 @@
       var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main"];
       elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
-      function sendFilter() {
+      function sendFilter(evt) {
+          if (evt.key != "Enter") {
+              return;
+          }
+          const main = els["main"];
           main.replaceChildren();
           const regex = /\//g;
           const filter = els["filter"].value.replaceAll(regex, "%2F");
-          console.log(filter);
           const url = `http://10.1.10.210:8080/f/${filter}`;
           (async() => {
               filterMeta = await fetch(encodeURI(url)).then((r) => {return r.json() });
-              const main = els["main"];
+              if (filterMeta.FltrCount == 0) {
+                  main.insertAdjacentHTML("beforeend", `<div>No results matching '${filter}'</div>`);
+                  return
+              }
               const url2 = `http://10.1.10.210:8080/q`;
               (async() => {
                   trks = await fetch(encodeURI(url2)).then((r) => {return r.json() });
@@ -122,7 +133,7 @@
       }
 
       function filterArtists() {
-          const v = els["artistfilter"].firstChild.value.toLowerCase();
+          const v = els["artistfilter"].value.toLowerCase();
           for (const [name, div] of Object.entries(artistdivs)) {
               if (name.toLowerCase().includes(v)) {
                   div.style.display = "block";
@@ -145,6 +156,10 @@
               els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}"/><label for="ac${nartist}">${artist}</label></div>`);
               artistdivs[nartist] = document.getElementById(`ad${nartist}`);
           });
+          // set facetlit height
+          els["facetlist"].style.height = (els["facetlist"].parentNode.clientHeight - els["facetlist"].previousElementSibling.clientHeight) + "px";
+          // set artistlist height
+          els["artistlist"].style.height = (els["artistlist"].parentNode.clientHeight - els["artistlist"].previousElementSibling.clientHeight - els["artistlist"].previousElementSibling.previousElementSibling.clientHeight) + "px";
       })();
 
       //var sound = new Howl({
@@ -155,3 +170,7 @@
     </script>
   </body>
 </html>
+
+<!--
+    a:raye||((f:funk&&((y:1972//1973))))
+-->

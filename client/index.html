@@ -4,6 +4,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
     <style>
       html { height: 99%; }
       body { height: 99%;
@@ -18,23 +19,23 @@
                  }
 
       #facets {
-          background-color: #ddd;
+          background-color: #aab;
           grid-row-start: 1;
           grid-row-end: 2;
           border-right: medium solid #556;
           overflow: hidden;
-          font-family: sans-serif
+          font-family: "Lato", sans-serif;
       }
       #facetlist {overflow: scroll;}
 
       #artists {
-          background-color: #ddd;
+          background-color: #aab;
           grid-row-start: 2;
           grid-row-end: 3;
           border-top: medium solid #556;
           border-right: medium solid #556;
           overflow: hidden;
-          font-family: sans-serif
+          font-family: "Lato", sans-serif;
       }
       #artistlist {overflow: scroll;}
 
@@ -42,7 +43,7 @@
               grid-row-end: 3;
               background-color: #556;
               overflow: hidden;
-              font-family: sans-serif;
+              font-family: "Lato", sans-serif;
             }
 
       #player { font-family: "Barlow Semi Condensed";
@@ -84,13 +85,22 @@
 
       #tracklist { overflow: scroll; }
 
-      #maintable { width: 100%; margin: 0; }
+      #maintable { width: 100%;
+                   margin: 0;
+                   border-spacing: 0 0;
+                 }
 
-      .track td { background-color: #c0c0c0;
+
+      .track td { background-color: #bbc;
                   padding: 0.2em;
-                  font-size: small;
-                  margin: 0;
+                  border-top: medium solid #556;
                 }
+
+      .trackf td { background-color: #bbc;
+                   padding: 0.3em;
+                   font-size: small;
+                   border-bottom: thick solid #556;
+                 }
 
       input { font-family: monospace;
               background-color: #eee;
@@ -105,6 +115,7 @@
                    padding-bottom: 0.3em;
                    padding-left: 0.3em;
                    padding-right: 0.3em;
+                   margin-right: 0.3em;
                    border: solid thin #556;
                    border-radius: 0.25em;
                  }
@@ -128,6 +139,8 @@
                 padding-bottom: 0;
               }
 
+
+      #fdata { margin-left: 2em; }
     </style>
     <script>
     </script>
@@ -161,6 +174,7 @@
                     <button id="playbtn" onClick="startPlaying();">⏵</button>
                     <button id="stopbtn" onClick="stopPlaying();">⏸</button>
                     <button id="nextbtn" onClick="playNext();">⏭</button>
+                    <!-- <button id="shuflbtn" onClick="toglShufl();">🔀</button> -->
                   </span>
               </td></tr>
           </tbody></table>
@@ -171,6 +185,7 @@
       </div>
       <div id="foot">
         Search <input id="filter" type="text" size="40" onKeyUp="setFilter(event);"></input>
+        <span id="fdata">...</span>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -186,21 +201,27 @@
       var playing = false;
       var sound;
 
-      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "tracklist", "curtitle", "curaay", "curfacets", "curnum"];
+      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "tracklist", "curtitle", "curaay", "curfacets", "curnum", "fdata"];
       elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
       async function setFilter(evt) {
           if (evt.key != "Enter") {
               return;
           }
-          const filter = els["filter"].value.replaceAll(/\//g, "%2F");
-          const url = `http://${host}/f/${filter}`;
+          setFilterNet(els["filter"].value);
+      }
 
-          filterMeta = await fetch(encodeURI(url)).then((r) => { return r.json() });
+      async function setFilterNet(filter) {
+          filter = filter.replaceAll(/\//g, "%2F");
+          let url = `http://${host}/f/${filter}`;
+          url = encodeURI(url)
+          //console.log(url)
+          filterMeta = await fetch(url).then((r) => { return r.json() });
+          els["fdata"].replaceChildren()
+          els["fdata"].insertAdjacentHTML("beforeend", `${filterMeta.FltrCount} selected tracks`);
           if (filterMeta.FltrCount == 0) {
-              main.insertAdjacentHTML("beforeend", `<div>No results matching '${filter}'</div>`);
               return
-          }
+l          }
           getTrks();
       }
 
@@ -208,7 +229,6 @@
           const url = `http://${host}/q/b,n/0/0`;
           const mt = els["maintable"].firstChild;
           mt.replaceChildren();
-          console.log(url);
           trks = await fetch(encodeURI(url)).then((r) => { return r.json() });
           trkInfo = [];
           i = 0;
@@ -216,7 +236,7 @@
               const turl = `http://${host}/i/${trk.replaceAll(/\//g, "%2F")}`;
               ti = await fetch(encodeURI(turl)).then((r) => { return r.json() });
               trkInfo.push(ti);
-              mt.insertAdjacentHTML("beforeend", `<tr class="track" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td><td>${ti.Facets}</td></tr>`);
+              mt.insertAdjacentHTML("beforeend", `<tr class="track" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
               i++;
           }
       }
@@ -224,7 +244,7 @@
       function filterArtists() {
           const v = els["artistfilter"].value.toLowerCase();
           for (const [name, div] of Object.entries(artistdivs)) {
-              if (name.toLowerCase().includes(v)) {
+              if (div.textContent.toLowerCase().includes(v)) {
                   div.style.display = "block";
               } else {
                   div.style.display = "none";
@@ -238,6 +258,19 @@
           return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
       }
 
+      function expandFacets(i) {
+          let fj = [];
+          let fs = ""
+          try {
+              fj = JSON.parse(trkInfo[i].Facets);
+          } catch (error) {
+              return fs;
+          }
+          fj.forEach((facet) => { fs = `${fs}${facet}, `; });
+          fs = fs.slice(0, -2);
+          return fs
+      }
+
       function updateCurrent() {
           els["curtitle"].replaceChildren();
           els["curaay"].replaceChildren();
@@ -245,13 +278,8 @@
           els["curnum"].replaceChildren();
           els["curtitle"].insertAdjacentHTML("beforeend", `${trkInfo[trkIdx].Title}`);
           els["curaay"].insertAdjacentHTML("beforeend", `${trkInfo[trkIdx].Artist} / ${trkInfo[trkIdx].Album} / ${trkInfo[trkIdx].Year}`);
-          try {
-              fj = JSON.parse(trkInfo[trkIdx].Facets);
-              fj.forEach((facet) => { els["curfacets"].insertAdjacentHTML("beforeend", `${facet} `) });
-          } catch (error) {
-              console.log(error);
-          }
           els["curnum"].insertAdjacentHTML("beforeend", `${trkIdx + 1} of ${filterMeta.FltrCount} / <span id="curdur"></span> / <span id="curtime"></span>`);
+          els["curfacets"].insertAdjacentHTML("beforeend", `${expandFacets(trkIdx)}`);
       }
 
       function playTrk(i) {
@@ -321,23 +349,41 @@
               return;
           }
           if (!playing) {
-              console.log("not playing");
               return;
           }
           if (!sound.playing()) {
               // we haven't said stop, but the current track is over
               if (trkIdx == trks.length - 1) {
                   // we played the last track in the queue; nothing to do
-                  console.log("end of queue");
                   return;
               }
               trkIdx++;
               playTrk(trkIdx);
               return;
           }
+          // playing! update time
           time = document.getElementById("curtime");
           time.replaceChildren();
           time.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.seek())));
+      }
+
+      function buildArtistQuery() {
+          let q = "a:"
+          artistdivs.forEach((div) => {
+              const box = div.firstChild;
+              if (box.checked) {
+                  if (q == "a:") {
+                      q = `${q}${box.value}`;
+                  } else {
+                      q = `${q}//${box.value}`;
+                  }
+              }
+          });
+          if (q == "a:") {
+              q = "a:=a\\\\=b";
+              els["maintable"].firstChild.replaceChildren();
+          }
+          setFilterNet(q);
       }
 
       (async() => {
@@ -345,13 +391,14 @@
           const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
           catAF.facets.forEach((facet) => {
               const nfacet = facet.replaceAll(regex, "");
-              els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}"/><label for="fc${nfacet}">${facet}</label></div>`);
-              facetdivs[nfacet] = document.getElementById(`fd${nfacet}`);
+              els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" /><label for="fc${nfacet}">${facet}</label></div>`);
+              facetdivs.push(document.getElementById(`fd${nfacet}`));
           });
           catAF.artists.forEach((artist) => {
-              const nartist = artist.replaceAll(regex, "");
-              els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}"/><label for="ac${nartist}">${artist}</label></div>`);
-              artistdivs[nartist] = document.getElementById(`ad${nartist}`);
+              let nartist = artist.replaceAll(regex, "");
+              artist = artist.replaceAll(/"/g, "&quot;");
+              els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}" value="${artist}" onClick="buildArtistQuery();"/><label for="ac${nartist}">${artist}</label></div>`);
+              artistdivs.push(document.getElementById(`ad${nartist}`));
           });
           // set facetlit height
           els["facetlist"].style.height = (els["facetlist"].parentNode.clientHeight - els["facetlist"].previousElementSibling.clientHeight) + "px";
@@ -365,7 +412,3 @@
     </script>
   </body>
 </html>
-
-<!--
-    a:raye||((f:funk&&((y:1972//1973))))
--->

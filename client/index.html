@@ -38,8 +38,7 @@
       }
       #artistlist {overflow: scroll;}
 
-      #main { padding: 0.2em;
-              grid-row-start: 1;
+      #main { grid-row-start: 1;
               grid-row-end: 3;
               background-color: #556;
               overflow: hidden;
@@ -47,7 +46,7 @@
             }
 
       #player { font-family: "Barlow Semi Condensed";
-                font-weight: 500;
+                font-weight: 400;
                 font-size: x-large;
                 background-color: #bbd;
                 padding: 0.15em;
@@ -66,7 +65,7 @@
             }
 
       .title { font-family: "Barlow Semi Condensed";
-               font-weight: 500;
+               font-weight: 400;
                font-size: x-large;
                background-color: #bbd;
                padding: 0.15em;
@@ -85,11 +84,12 @@
 
       #tracklist { overflow: scroll; }
 
-      #maintable { width: 100%; }
+      #maintable { width: 100%; margin: 0; }
 
       .track td { background-color: #c0c0c0;
                   padding: 0.2em;
                   font-size: small;
+                  margin: 0;
                 }
 
       input { font-family: monospace;
@@ -98,7 +98,7 @@
               border-radius: 0.25em;
             }
 
-      h2 { margin-top: 0; }
+      h2 { margin-top: 0; margin-right: 0.7em; margin-bottom: 0.5em; font-weight: 400; }
 
       #buttonbox { background-color: #444;
                    padding-top: 0;
@@ -108,6 +108,26 @@
                    border: solid thin #556;
                    border-radius: 0.25em;
                  }
+
+      #current { border-left: solid medium #556;
+                 margin-left: 1em;
+                 padding-left: 1em;
+                 vertical-align: top;
+               }
+      #curtitle { margin-top: 0.2em;}
+      #curaay {font-size: large;
+               margin-bottom: 0;
+               padding-bottom: 0;
+              }
+      #curfacets { font-size: large;
+                   margin-bottom: 0;
+                   padding-bottom: 0;
+                 }
+      #curnum { font-size: large;
+                margin-bottom: 0;
+                padding-bottom: 0;
+              }
+
     </style>
     <script>
     </script>
@@ -125,13 +145,25 @@
       </div>
       <div id="main">
         <div id="player">
-          <h2>Shawnify</h2>
-          <span id="buttonbox">
-            <button id="prevbtn" onClick="playPrev();">⏮</button>
-            <button id="playbtn" onClick="startPlaying();">⏵</button>
-            <button id="stopbtn" onClick="stopPlaying();">⏸</button>
-            <button id="nextbtn" onClick="playNext();">⏭</button>
-          </span>
+          <table><tbody>
+              <tr>
+                <td><h2>Shawnify</h2></td>
+                <td id="current" rowspan="2">
+                  <div id="curtitle">This is where</div>
+                  <div id="curaay">current track info</div>
+                  <div id="curfacets">will go</div>
+                  <div id="curnum"></div>
+                </td>
+              </tr>
+              <tr><td style="vertical-align: top;">
+                  <span id="buttonbox">
+                    <button id="prevbtn" onClick="playPrev();">⏮</button>
+                    <button id="playbtn" onClick="startPlaying();">⏵</button>
+                    <button id="stopbtn" onClick="stopPlaying();">⏸</button>
+                    <button id="nextbtn" onClick="playNext();">⏭</button>
+                  </span>
+              </td></tr>
+          </tbody></table>
         </div>
         <div id="tracklist">
           <table id="maintable"><tbody></tbody></table>
@@ -154,7 +186,7 @@
       var playing = false;
       var sound;
 
-      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "tracklist"];
+      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "tracklist", "curtitle", "curaay", "curfacets", "curnum"];
       elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
       async function setFilter(evt) {
@@ -200,6 +232,28 @@
           }
       }
 
+      function formatTime(secs) {
+          var minutes = Math.floor(secs / 60) || 0;
+          var seconds = (secs - minutes * 60) || 0;
+          return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+      }
+
+      function updateCurrent() {
+          els["curtitle"].replaceChildren();
+          els["curaay"].replaceChildren();
+          els["curfacets"].replaceChildren();
+          els["curnum"].replaceChildren();
+          els["curtitle"].insertAdjacentHTML("beforeend", `${trkInfo[trkIdx].Title}`);
+          els["curaay"].insertAdjacentHTML("beforeend", `${trkInfo[trkIdx].Artist} / ${trkInfo[trkIdx].Album} / ${trkInfo[trkIdx].Year}`);
+          try {
+              fj = JSON.parse(trkInfo[trkIdx].Facets);
+              fj.forEach((facet) => { els["curfacets"].insertAdjacentHTML("beforeend", `${facet} `) });
+          } catch (error) {
+              console.log(error);
+          }
+          els["curnum"].insertAdjacentHTML("beforeend", `${trkIdx + 1} of ${filterMeta.FltrCount} / <span id="curdur"></span> / <span id="curtime"></span>`);
+      }
+
       function playTrk(i) {
           trkIdx = i;
           const trkURL = encodeURI(`http://${host}/music/${trks[i]}`);
@@ -212,6 +266,12 @@
           });
           sound.play();
           playing = true;
+          updateCurrent();
+          sound.once("load", () => {
+              const d = document.getElementById("curdur");
+              d.replaceChildren();
+              d.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.duration())));
+          });
       }
 
       function startPlaying() {
@@ -273,7 +333,11 @@
               }
               trkIdx++;
               playTrk(trkIdx);
+              return;
           }
+          time = document.getElementById("curtime");
+          time.replaceChildren();
+          time.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.seek())));
       }
 
       (async() => {

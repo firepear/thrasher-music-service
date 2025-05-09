@@ -35,11 +35,11 @@ func main() {
 		log.Fatal(err)
 	}
 	http.Handle("/", http.FileServer(http.Dir(clientDir)))
-	http.Handle("/music", http.FileServer(http.Dir(musicDir)))
+	http.Handle("/music/", http.StripPrefix("/music/", http.FileServer(http.Dir(musicDir))))
 	http.HandleFunc("GET /init", tms.HandleInit)
 	http.HandleFunc("GET /f/{format}", tms.HandleFilter)
-	http.HandleFunc("GET /q", tms.HandleQuery)
-	//http.HandleFunc("GET /q/{orderby}/{limit}/{offset}", tms.HandleQuery)
-	//http.HandleFunc("GET /i/{trk}", handleTrkInfo)
+	//http.HandleFunc("GET /q", tms.HandleQuery)
+	http.HandleFunc("GET /q/{orderby}/{limit}/{offset}", tms.HandleQuery)
+	http.HandleFunc("GET /i/{trk}", tms.HandleTrkInfo)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

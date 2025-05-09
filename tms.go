@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"strconv"
 
 	tmc "github.com/firepear/thrasher-music-catalog"
 )
@@ -35,8 +36,10 @@ func HandleInit(w http.ResponseWriter, _ *http.Request) {
 	io.WriteString(w, string(j))
 }
 
-func HandleQuery(w http.ResponseWriter, _ *http.Request) {
-	trks, err := c.Query("", 0, 0)
+func HandleQuery(w http.ResponseWriter, r *http.Request) {
+	l, _ := strconv.Atoi(r.PathValue("limit"))
+	o, _ := strconv.Atoi(r.PathValue("offset"))
+	trks, err := c.Query(r.PathValue("orderby"), l, o)
 	if err != nil {
 		log.Println(err)
 		return
@@ -45,10 +48,14 @@ func HandleQuery(w http.ResponseWriter, _ *http.Request) {
 	io.WriteString(w, string(j))
 }
 
+func HandleTrkInfo(w http.ResponseWriter, r *http.Request) {
+	trk := strings.ReplaceAll(r.PathValue("trk"), "%2F", "/")
+	j, _ := json.Marshal(c.TrkInfo(trk))
+	io.WriteString(w, string(j))
+}
+
 func HandleFilter(w http.ResponseWriter, r *http.Request) {
-	format := r.PathValue("format")
-	format = strings.ReplaceAll(format, "%2F", "/")
-	err := c.Filter(format)
+	err := c.Filter(strings.ReplaceAll(r.PathValue("format"), "%2F", "/"))
 	if err != nil {
 		log.Println(err)
 		return

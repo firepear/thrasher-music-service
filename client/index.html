@@ -41,11 +41,18 @@
       #main { padding: 0.2em;
               grid-row-start: 1;
               grid-row-end: 3;
-              background-color: #dddddd;
-              overflow: scroll;
-              font-family: monospace;
-              font-size: small;
+              background-color: #556;
+              overflow: hidden;
+              font-family: sans-serif;
             }
+
+      #player { font-family: "Barlow Semi Condensed";
+                font-weight: 500;
+                font-size: x-large;
+                background-color: #bbd;
+                padding: 0.15em;
+                height: 5em;
+      }
 
       #foot { grid-column-start: 1;
               grid-column-end: 3;
@@ -71,11 +78,36 @@
                     font-weight: 400;
                   }
 
+      .track { color: #000;
+               padding-top: 0.5em;
+               margin-bottom: 0.5em;
+             }
+
+      #tracklist { overflow: scroll; }
+
+      #maintable { width: 100%; }
+
+      .track td { background-color: #c0c0c0;
+                  padding: 0.2em;
+                  font-size: small;
+                }
+
       input { font-family: monospace;
               background-color: #eee;
               border: thin solid #556;
               border-radius: 0.25em;
             }
+
+      h2 { margin-top: 0; }
+
+      #buttonbox { background-color: #444;
+                   padding-top: 0;
+                   padding-bottom: 0.3em;
+                   padding-left: 0.3em;
+                   padding-right: 0.3em;
+                   border: solid thin #556;
+                   border-radius: 0.25em;
+                 }
     </style>
     <script>
     </script>
@@ -91,45 +123,70 @@
         <div class="listfilter">Filter <input id="artistfilter" onKeyUp="filterArtists();" /></div>
         <div id="artistlist"></div>
       </div>
-      <div id="main"> </div>
+      <div id="main">
+        <div id="player">
+          <h2>Shawnify</h2>
+          <span id="buttonbox">
+            <button id="prevbtn" onClick="playPrev();">⏮</button>
+            <button id="playbtn" onClick="startPlaying();">⏵</button>
+            <button id="stopbtn" onClick="stopPlaying();">⏸</button>
+            <button id="nextbtn" onClick="playNext();">⏭</button>
+          </span>
+        </div>
+        <div id="tracklist">
+          <table id="maintable"><tbody></tbody></table>
+        </div>
+      </div>
       <div id="foot">
-        Search <input id="filter" type="text" size="40" onKeyUp="sendFilter(event);"></input>
+        Search <input id="filter" type="text" size="40" onKeyUp="setFilter(event);"></input>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+      var host = "10.1.10.210:8080";
       var els = {};
       var facetdivs = [];
       var artistdivs = [];
       var trks = [];
+      var trkInfo = [];
+      var trkIdx = 0;
       var filterMeta = [];
+      var playing = false;
+      var sound;
 
-      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main"];
+      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "tracklist"];
       elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
-      function sendFilter(evt) {
+      async function setFilter(evt) {
           if (evt.key != "Enter") {
               return;
           }
-          const main = els["main"];
-          main.replaceChildren();
-          const regex = /\//g;
-          const filter = els["filter"].value.replaceAll(regex, "%2F");
-          const url = `http://10.1.10.210:8080/f/${filter}`;
-          (async() => {
-              filterMeta = await fetch(encodeURI(url)).then((r) => {return r.json() });
-              if (filterMeta.FltrCount == 0) {
-                  main.insertAdjacentHTML("beforeend", `<div>No results matching '${filter}'</div>`);
-                  return
-              }
-              const url2 = `http://10.1.10.210:8080/q`;
-              (async() => {
-                  trks = await fetch(encodeURI(url2)).then((r) => {return r.json() });
-                  trks.forEach((trk) => {
-                      main.insertAdjacentHTML("beforeend", `<div>${trk}</div>`);
-                  });
-              })();
-          })();
+          const filter = els["filter"].value.replaceAll(/\//g, "%2F");
+          const url = `http://${host}/f/${filter}`;
+
+          filterMeta = await fetch(encodeURI(url)).then((r) => { return r.json() });
+          if (filterMeta.FltrCount == 0) {
+              main.insertAdjacentHTML("beforeend", `<div>No results matching '${filter}'</div>`);
+              return
+          }
+          getTrks();
+      }
+
+      async function getTrks() {
+          const url = `http://${host}/q/b,n/0/0`;
+          const mt = els["maintable"].firstChild;
+          mt.replaceChildren();
+          console.log(url);
+          trks = await fetch(encodeURI(url)).then((r) => { return r.json() });
+          trkInfo = [];
+          i = 0;
+          for (const trk of trks) {
+              const turl = `http://${host}/i/${trk.replaceAll(/\//g, "%2F")}`;
+              ti = await fetch(encodeURI(turl)).then((r) => { return r.json() });
+              trkInfo.push(ti);
+              mt.insertAdjacentHTML("beforeend", `<tr class="track" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td><td>${ti.Facets}</td></tr>`);
+              i++;
+          }
       }
 
       function filterArtists() {
@@ -143,9 +200,85 @@
           }
       }
 
+      function playTrk(i) {
+          trkIdx = i;
+          const trkURL = encodeURI(`http://${host}/music/${trks[i]}`);
+          if (sound != undefined) {
+              sound.stop();
+          }
+          sound = new Howl({
+              src: [trkURL],
+              html5: true
+          });
+          sound.play();
+          playing = true;
+      }
+
+      function startPlaying() {
+          if (playing) {
+              return
+          }
+          if (sound != undefined) {
+              sound.play();
+              playing = true;
+          }
+      }
+
+      function stopPlaying() {
+          if (!playing) {
+              return
+          }
+          if (sound != undefined) {
+              sound.pause();
+              playing = false;
+          }
+      }
+
+      function playNext() {
+          if (trkIdx == trks.length - 1) {
+              return
+          }
+          if (sound != undefined) {
+              sound.stop();
+          }
+          trkIdx++;
+          playTrk(trkIdx);
+      }
+
+      function playPrev() {
+          if (trkIdx == 0) {
+              return
+          }
+          if (sound != undefined) {
+              sound.stop();
+          }
+          trkIdx--;
+          playTrk(trkIdx);
+      }
+
+      function isPlaying() {
+          if (sound == undefined) {
+              return;
+          }
+          if (!playing) {
+              console.log("not playing");
+              return;
+          }
+          if (!sound.playing()) {
+              // we haven't said stop, but the current track is over
+              if (trkIdx == trks.length - 1) {
+                  // we played the last track in the queue; nothing to do
+                  console.log("end of queue");
+                  return;
+              }
+              trkIdx++;
+              playTrk(trkIdx);
+          }
+      }
+
       (async() => {
           const regex = /["'& ]/g;
-          const catAF = await fetch("http://10.1.10.210:8080/init").then((r) => { return r.json() });
+          const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
           catAF.facets.forEach((facet) => {
               const nfacet = facet.replaceAll(regex, "");
               els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}"/><label for="fc${nfacet}">${facet}</label></div>`);
@@ -160,13 +293,11 @@
           els["facetlist"].style.height = (els["facetlist"].parentNode.clientHeight - els["facetlist"].previousElementSibling.clientHeight) + "px";
           // set artistlist height
           els["artistlist"].style.height = (els["artistlist"].parentNode.clientHeight - els["artistlist"].previousElementSibling.clientHeight - els["artistlist"].previousElementSibling.previousElementSibling.clientHeight) + "px";
+          // set tracklist height
+          els["tracklist"].style.height = (els["tracklist"].parentNode.clientHeight - els["tracklist"].previousElementSibling.clientHeight) + "px";
+          // start the isPlaying ticket
+          setInterval(isPlaying, 333);
       })();
-
-      //var sound = new Howl({
-      //    src: ['http://10.1.10.210:8000/15%20Que%20Sabe%20Voce%20De%20Mim.mp3'],
-      //    html5: true
-      //});
-      //sound.play();
     </script>
   </body>
 </html>

@@ -1,0 +1,139 @@
+html { height: 99%; }
+body { height: 99%;
+       background-color: #333;
+       border: medium solid #556;
+       margin: 0;
+     }
+#container { display: grid;
+             grid-template-columns: 1fr 3fr;
+             grid-template-rows: 1fr 1fr 2em;
+             height: 98vh;
+           }
+
+#facets {
+    background-color: #aab;
+    grid-row-start: 1;
+    grid-row-end: 2;
+    border-right: medium solid #556;
+    overflow: hidden;
+    font-family: "Lato", sans-serif;
+}
+#facetlist {overflow: scroll;}
+
+#artists {
+    background-color: #aab;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    border-top: medium solid #556;
+    border-right: medium solid #556;
+    overflow: hidden;
+    font-family: "Lato", sans-serif;
+}
+#artistlist {overflow: scroll;}
+
+#main { grid-row-start: 1;
+        grid-row-end: 3;
+        background-color: #556;
+        overflow: hidden;
+        font-family: "Lato", sans-serif;
+      }
+
+#player { font-family: "Barlow Semi Condensed";
+          font-weight: 400;
+          font-size: x-large;
+          background-color: #bbd;
+          padding: 0.15em;
+          height: 5em;
+        }
+
+#foot { grid-column-start: 1;
+        grid-column-end: 3;
+        background-color: #bbd;
+        border-top: medium solid #556;
+        font-family: "Barlow Semi Condensed";
+        font-weight: 400;
+        font-size: large;
+        padding-left: 0.3em;
+        padding-bottom: 0.2em;
+      }
+
+.title { font-family: "Barlow Semi Condensed";
+         font-weight: 400;
+         font-size: x-large;
+         background-color: #bbd;
+         padding: 0.15em;
+       }
+
+.listfilter { padding: .2em;
+              background-color: #cce;
+              font-family: "Barlow Semi Condensed";
+              font-weight: 400;
+            }
+
+.track { color: #000;
+         padding-top: 0.5em;
+         margin-bottom: 0.5em;
+       }
+
+#tracklist { overflow: scroll; }
+
+#maintable { width: 100%;
+             margin: 0;
+             border-spacing: 0 0;
+           }
+
+
+.track td { background-color: #bbc;
+            padding: 0.2em;
+            border-top: medium solid #556;
+          }
+
+.trackf td { background-color: #bbc;
+             padding: 0.3em;
+             font-size: small;
+             border-bottom: thick solid #556;
+           }
+
+input { font-family: monospace;
+        background-color: #eee;
+        border: thin solid #556;
+        border-radius: 0.25em;
+      }
+
+h2 { margin-top: 0; margin-right: 0.7em; margin-bottom: 0.5em; font-weight: 400; }
+
+#buttonbox { background-color: #444;
+             padding-top: 0;
+             padding-bottom: 0.3em;
+             padding-left: 0.3em;
+             padding-right: 0.3em;
+             margin-right: 0.3em;
+             border: solid thin #556;
+             border-radius: 0.25em;
+           }
+
+#current { border-left: solid medium #556;
+           margin-left: 1em;
+           padding-left: 1em;
+           vertical-align: top;
+         }
+#curtitle { margin-top: 0.2em;}
+#curaay {font-size: large;
+         margin-bottom: 0;
+         padding-bottom: 0;
+        }
+#curfacets { font-size: large;
+             margin-bottom: 0;
+             padding-bottom: 0;
+           }
+#curnum { font-size: large;
+          margin-bottom: 0;
+          padding-bottom: 0;
+        }
+
+
+#fdata { margin-left: 2em; }
+
+.alertify-notifier.ajs-right .ajs-message.ajs-visible { background-color: #99a !important;
+                                                        border: solid medium #556;
+                                                      }

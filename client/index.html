@@ -5,6 +5,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/alertify.min.css" integrity="sha512-IXuoq1aFd2wXs4NqGskwX2Vb+I8UJ+tGJEu/Dc0zwLNKeQ7CW3Sr6v0yU3z5OQWe3eScVIkER4J9L7byrgR/fA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/themes/default.min.css" integrity="sha512-RgUjDpwjEDzAb7nkShizCCJ+QTSLIiJO1ldtuxzs0UIBRH4QpOjUU9w47AF9ZlviqV/dOFGWF6o7l3lttEFb6g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
       html { height: 99%; }
       body { height: 99%;
@@ -141,9 +143,11 @@
 
 
       #fdata { margin-left: 2em; }
+
+      .alertify-notifier.ajs-right .ajs-message.ajs-visible { background-color: #99a !important;
+                                                              border: solid medium #556;
+                                                            }
     </style>
-    <script>
-    </script>
   </head>
   <body>
     <div id="container">
@@ -185,10 +189,10 @@
       </div>
       <div id="foot">
         Search <input id="filter" type="text" size="40" onKeyUp="setFilter(event);"></input>
-        <span id="fdata">...</span>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js" integrity="sha512-JnjG+Wt53GspUQXQhc+c4j8SBERsgJAoHeehagKHlxQN+MtCCmFDghX9/AcbkkNRZptyZU4zC8utK59M5L45Iw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
       var host = "10.1.10.210:8080";
       var els = {};
@@ -201,7 +205,7 @@
       var playing = false;
       var sound;
 
-      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "tracklist", "curtitle", "curaay", "curfacets", "curnum", "fdata"];
+      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "tracklist", "curtitle", "curaay", "curfacets", "curnum"];
       elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
       async function setFilter(evt) {
@@ -217,8 +221,7 @@
           url = encodeURI(url)
           //console.log(url)
           filterMeta = await fetch(url).then((r) => { return r.json() });
-          els["fdata"].replaceChildren()
-          els["fdata"].insertAdjacentHTML("beforeend", `${filterMeta.FltrCount} selected tracks`);
+          alertify.message(`${filterMeta.FltrCount} selected tracks`);
           if (filterMeta.FltrCount == 0) {
               return
 l          }
@@ -239,6 +242,34 @@ l          }
               mt.insertAdjacentHTML("beforeend", `<tr class="track" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
               i++;
           }
+      }
+
+      function buildCheckQuery(type) {
+          let q = ""
+          let el;
+          if (type == "artist") {
+              el = artistdivs;
+              q = "a:"
+          } else {
+              el = facetdivs;
+              q = "f:"
+          }
+          el.forEach((div) => {
+              const box = div.firstChild;
+              if (box.checked) {
+                  if (q == "a:" || q == "f:") {
+                      q = `${q}${box.value}`;
+                  } else {
+                      q = `${q}//${box.value}`;
+                  }
+              }
+          });
+          console.log(type, q);
+          if (q == "a:" || q == "f:") {
+              q = "a:=a\\\\=b";
+              els["maintable"].firstChild.replaceChildren();
+          }
+          setFilterNet(q);
       }
 
       function filterArtists() {
@@ -268,7 +299,7 @@ l          }
           }
           fj.forEach((facet) => { fs = `${fs}${facet}, `; });
           fs = fs.slice(0, -2);
-          return fs
+          return fs;
       }
 
       function updateCurrent() {
@@ -367,37 +398,18 @@ l          }
           time.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.seek())));
       }
 
-      function buildArtistQuery() {
-          let q = "a:"
-          artistdivs.forEach((div) => {
-              const box = div.firstChild;
-              if (box.checked) {
-                  if (q == "a:") {
-                      q = `${q}${box.value}`;
-                  } else {
-                      q = `${q}//${box.value}`;
-                  }
-              }
-          });
-          if (q == "a:") {
-              q = "a:=a\\\\=b";
-              els["maintable"].firstChild.replaceChildren();
-          }
-          setFilterNet(q);
-      }
-
       (async() => {
           const regex = /["'& ]/g;
           const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
           catAF.facets.forEach((facet) => {
               const nfacet = facet.replaceAll(regex, "");
-              els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" /><label for="fc${nfacet}">${facet}</label></div>`);
+              els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery('facet');" /><label for="fc${nfacet}">${facet}</label></div>`);
               facetdivs.push(document.getElementById(`fd${nfacet}`));
           });
           catAF.artists.forEach((artist) => {
               let nartist = artist.replaceAll(regex, "");
               artist = artist.replaceAll(/"/g, "&quot;");
-              els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}" value="${artist}" onClick="buildArtistQuery();"/><label for="ac${nartist}">${artist}</label></div>`);
+              els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}" value="${artist}" onClick="buildCheckQuery('artist');" /><label for="ac${nartist}">${artist}</label></div>`);
               artistdivs.push(document.getElementById(`ad${nartist}`));
           });
           // set facetlit height
@@ -406,7 +418,7 @@ l          }
           els["artistlist"].style.height = (els["artistlist"].parentNode.clientHeight - els["artistlist"].previousElementSibling.clientHeight - els["artistlist"].previousElementSibling.previousElementSibling.clientHeight) + "px";
           // set tracklist height
           els["tracklist"].style.height = (els["tracklist"].parentNode.clientHeight - els["tracklist"].previousElementSibling.clientHeight) + "px";
-          // start the isPlaying ticket
+          // start the isPlaying ticker
           setInterval(isPlaying, 333);
       })();
     </script>

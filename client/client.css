@@ -68,6 +68,7 @@ body { height: 99%;
               background-color: #cce;
               font-family: "Barlow Semi Condensed";
               font-weight: 400;
+              text-align: right;
             }
 
 .track { color: #000;
@@ -134,6 +135,7 @@ h2 { margin-top: 0; margin-right: 0.7em; margin-bottom: 0.5em; font-weight: 400;
 
 #fdata { margin-left: 2em; }
 
-.alertify-notifier.ajs-right .ajs-message.ajs-visible { background-color: #99a !important;
+.alertify-notifier.ajs-right .ajs-message.ajs-visible { background-color: #bbc;
                                                         border: solid medium #556;
+                                                        bottom: 2.5em;
                                                       }

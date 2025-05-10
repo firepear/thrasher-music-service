@@ -11,10 +11,12 @@ async function setFilterNet(filter) {
     url = encodeURI(url)
     //console.log(url)
     filterMeta = await fetch(url).then((r) => { return r.json() });
-    alertify.message(`${filterMeta.FltrCount} selected tracks`);
+    alertify.message(`${filterMeta.FltrCount} tracks in queue`);
     if (filterMeta.FltrCount == 0) {
-        return
-        l          }
+        playing == "auto" ? playing = "single" : Function.prototype();
+        trks = [];
+        return;
+    }
     getTrks();
 }
 
@@ -32,6 +34,10 @@ async function getTrks() {
         mt.insertAdjacentHTML("beforeend", `<tr class="track" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
         i++;
     }
+    // handle the case of loading a new queue during playback
+    playing == "single" ? playing = "auto" : Function.prototype();
+    playing == "auto" ? trkIdx = -1 : trkIdx = 0;
+    console.log(filterMeta.FltrCount, playing);
 }
 
 function buildCheckQuery(type) {
@@ -113,9 +119,13 @@ function playTrk(i) {
         src: [trkURL],
         html5: true
     });
+    sound.once("loaderror", () => {
+        alertify.message(`Could not load track, likely due to a networking issue`);
+        playing = "no";
+    });
     sound.once("playerror", () => {
-        alertify.message(`Couldn't play track, likely due to a networking issue; stopping playback of queue.`);
-        playing = false;
+        alertify.message(`Encountered a playback error, likely due to a networking issue; stopping autoplay`);
+        playing = "no";
     });
     sound.once("load", () => {
         const d = document.getElementById("curdur");
@@ -124,17 +134,23 @@ function playTrk(i) {
     });
 
     sound.play();
-    playing = true;
+    playing = "auto";
     updateCurrent();
 }
 
 function startPlaying() {
-    if (playing) {
+    if (playing == "auto" || playing == "single" ) {
         return
     }
-    if (sound != undefined) {
+    if (sound == undefined) {
+        playTrk(trkIdx);
+    } else {
         sound.play();
-        playing = true;
+        if (filterMeta.FltrCount > 1) {
+            playing = "auto";
+        } else {
+            playing = "single";
+        }
     }
 }
 
@@ -144,12 +160,12 @@ function stopPlaying() {
     }
     if (sound != undefined) {
         sound.pause();
-        playing = false;
+        playing = "paused";
     }
 }
 
 function playNext() {
-    if (trkIdx == trks.length - 1) {
+    if (trkIdx >= trks.length - 1) {
         return
     }
     if (sound != undefined) {
@@ -160,7 +176,7 @@ function playNext() {
 }
 
 function playPrev() {
-    if (trkIdx == 0) {
+    if (trkIdx <= 0 || trks.length == 0) {
         return
     }
     if (sound != undefined) {
@@ -174,20 +190,24 @@ function isPlaying() {
     if (sound == undefined) {
         return;
     }
-    if (!playing) {
+    if (playing == "no" || playing == "paused") {
         return;
     }
     if (!sound.playing()) {
         // we haven't said stop, but the current track is over
         if (trkIdx == trks.length - 1) {
             // we played the last track in the queue; nothing to do
+            playing = "paused";
             return;
         }
-        trkIdx++;
-        playTrk(trkIdx);
-        return;
+        if (playing == "auto") {
+            // auto mode; play the next track
+            trkIdx++;
+            playTrk(trkIdx);
+            return;
+        }
     }
-    // playing! update time
+    // we're playing! update time
     time = document.getElementById("curtime");
     time.replaceChildren();
     time.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.seek())));

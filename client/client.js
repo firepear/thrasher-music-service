@@ -34,34 +34,24 @@ async function getTrks() {
         mt.insertAdjacentHTML("beforeend", `<tr class="track" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
         i++;
     }
+    shflHist = [];
     // handle the case of loading a new queue during playback
     playing == "single" ? playing = "auto" : Function.prototype();
     playing == "auto" ? trkIdx = -1 : trkIdx = 0;
-    console.log(filterMeta.FltrCount, playing);
 }
 
 function buildCheckQuery(type) {
     let q = ""
-    let el;
-    if (type == "artist") {
-        el = artistdivs;
-        q = "a:"
-    } else {
-        el = facetdivs;
-        q = "f:"
-    }
-    el.forEach((div) => {
-        const box = div.firstChild;
-        if (box.checked) {
-            if (q == "a:" || q == "f:") {
-                q = `${q}${box.value}`;
-            } else {
-                q = `${q}//${box.value}`;
+    for (const l of [artistdivs, facetdivs]) {
+        l.forEach((div) => {
+            const box = div.firstChild;
+            if (box.checked) {
+                div.id.startsWith("ad") ? q = `${q}a:${box.value}||` : q = `${q}f:${box.value}||`;
             }
-        }
-    });
-    console.log(type, q);
-    if (q == "a:" || q == "f:") {
+        });
+    }
+    q = q.replace(/\|\|$/, "");
+    if (q == "") {
         q = "a:=a\\\\=b";
         els["maintable"].firstChild.replaceChildren();
     }
@@ -143,6 +133,9 @@ function startPlaying() {
         return
     }
     if (sound == undefined) {
+        if (shuffle) {
+            trkIdx = getShflIdx();
+        }
         playTrk(trkIdx);
     } else {
         sound.play();
@@ -165,22 +158,23 @@ function stopPlaying() {
 }
 
 function playNext() {
-    if (trkIdx >= trks.length - 1) {
+    if (!shuffle && trkIdx >= trks.length - 1) {
         return
     }
-    if (sound != undefined) {
-        sound.stop();
+    if (shuffle) {
+        trkIdx = getShflIdx();
+        if (trkIdx == -1) {
+            return
+        }
+    } else {
+        trkIdx++;
     }
-    trkIdx++;
     playTrk(trkIdx);
 }
 
 function playPrev() {
     if (trkIdx <= 0 || trks.length == 0) {
         return
-    }
-    if (sound != undefined) {
-        sound.stop();
     }
     trkIdx--;
     playTrk(trkIdx);
@@ -211,4 +205,37 @@ function isPlaying() {
     time = document.getElementById("curtime");
     time.replaceChildren();
     time.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.seek())));
+}
+
+function shuffleMode() {
+    if (shuffle) {
+        shuffle = false;
+        document.getElementById("shuffle").style.backgroundColor = "#bbb";
+        return;
+    }
+    shuffle = true;
+    document.getElementById("shuffle").style.backgroundColor = "#cec";
+}
+
+function getShflIdx() {
+    let maxShfl = false;
+    let i = Math.floor(Math.random() * trks.length);
+    while (shflHist.includes(i)) {
+        if (shflHist.length == trks.length - 1) {
+            maxShfl = true;
+            break;
+        }
+        i = Math.floor(Math.random() * trks.length);
+    }
+    if (maxShfl) {
+        shuffleMode();
+        playing = "no";
+        alertify.message(`Every traack in queue has been played; ending shuffle`);
+        return -1;
+    }
+    shflHist.push(i);
+    if (shflHist.length > 50) {
+        shflHist.shift();
+    }
+    return i;
 }

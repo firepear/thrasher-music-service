@@ -119,9 +119,9 @@ h2 { margin-top: 0; margin-right: 0.7em; margin-bottom: 0.5em; font-weight: 400;
            vertical-align: top;
          }
 #curtitle { margin-top: 0.2em;}
-#curaay {font-size: large;
-         margin-bottom: 0;
-         padding-bottom: 0;
+#curaay { font-size: large;
+          margin-bottom: 0;
+          padding-bottom: 0;
         }
 #curfacets { font-size: large;
              margin-bottom: 0;
@@ -135,7 +135,15 @@ h2 { margin-top: 0; margin-right: 0.7em; margin-bottom: 0.5em; font-weight: 400;
 
 #fdata { margin-left: 2em; }
 
+button { font-family: "Lato", sans-serif;
+         background-color: #bbb;
+         box-shadow: none;
+         border: solid thin #556;
+         border-radius: 0.4em;
+       }
+
 .alertify-notifier.ajs-right .ajs-message.ajs-visible { background-color: #bbc;
                                                         border: solid medium #556;
                                                         bottom: 2.5em;
+                                                        font-family: "Lato", sans-serif;
                                                       }

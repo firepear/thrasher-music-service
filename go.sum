@@ -16,6 +16,10 @@ github.com/firepear/thrasher-music-catalog v0.2.0 h1:Txkk8aQdE7v1oXiDOq5/qxm1oLP
 github.com/firepear/thrasher-music-catalog v0.2.0/go.mod h1:4+RHItBMShj+jjuG2sAezsWY+oz7CWm6Uw75v3d76pg=
 github.com/firepear/thrasher-music-catalog v0.3.0 h1:a0TEOgFnO3m1pI9HPHIu4BSCkGkbdrUV3y3GQHaClus=
 github.com/firepear/thrasher-music-catalog v0.3.0/go.mod h1:4+RHItBMShj+jjuG2sAezsWY+oz7CWm6Uw75v3d76pg=
+github.com/firepear/thrasher-music-catalog v0.3.1-0.20250510234459-c593907affa6 h1:NuM1fP+dUzPGCyerNFniI3cfUztM3rzTtSMsKoovLH8=
+github.com/firepear/thrasher-music-catalog v0.3.1-0.20250510234459-c593907affa6/go.mod h1:4+RHItBMShj+jjuG2sAezsWY+oz7CWm6Uw75v3d76pg=
+github.com/firepear/thrasher-music-catalog v0.4.0 h1:2yKnqeOMqUDYWFJGLwh14DMNSPbs8KmOem+OMcMELRY=
+github.com/firepear/thrasher-music-catalog v0.4.0/go.mod h1:4+RHItBMShj+jjuG2sAezsWY+oz7CWm6Uw75v3d76pg=
 github.com/mattn/go-sqlite3 v1.14.28 h1:ThEiQrnbtumT+QMknw63Befp/ce/nUPgBPMlRFEum7A=
 github.com/mattn/go-sqlite3 v1.14.28/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

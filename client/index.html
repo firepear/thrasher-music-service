@@ -38,7 +38,6 @@
                     <button id="playbtn" onClick="startPlaying();">⏵</button>
                     <button id="stopbtn" onClick="stopPlaying();">⏸</button>
                     <button id="nextbtn" onClick="playNext();">⏭</button>
-                    <!-- <button id="shuflbtn" onClick="toglShufl();">🔀</button> -->
                   </span>
               </td></tr>
           </tbody></table>
@@ -49,6 +48,7 @@
       </div>
       <div id="foot">
         Adv Search <input id="filter" type="text" size="40" onKeyUp="setFilter(event);"></input>
+        <button id="shuffle" onClick="shuffleMode();">Shuffle</button>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -64,9 +64,12 @@
       var trkIdx = 0;
       var filterMeta = [];
       var playing = "no";
+      var shuffle = false;
+      var shflHist = [];
       var sound;
 
-      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "tracklist", "curtitle", "curaay", "curfacets", "curnum"];
+      var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable",
+                     "tracklist", "curtitle", "curaay", "curfacets", "curnum"];
       elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
       (async() => {

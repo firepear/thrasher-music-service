@@ -17,7 +17,7 @@
       </div>
       <div id="artists">
         <div class="title">Artists</div>
-        <div class="listfilter">Filter <input id="artistfilter" onKeyUp="filterArtists();" /></div>
+        <div class="listfilter">Filter <input id="artistfilter" onKeyUp="filterArtists(event);" /></div>
         <div id="artistlist"></div>
       </div>
       <div id="main">
@@ -26,9 +26,9 @@
               <tr>
                 <td><h2>Shawnify</h2></td>
                 <td id="current" rowspan="2">
-                  <div id="curtitle">This is where</div>
-                  <div id="curaay">current track info</div>
-                  <div id="curfacets">will go</div>
+                  <div id="curtitle"><!--This is where--></div>
+                  <div id="curaay"><!--current track info--></div>
+                  <div id="curfacets"><!--will go--></div>
                   <div id="curnum"></div>
                 </td>
               </tr>
@@ -47,9 +47,26 @@
         </div>
       </div>
       <div id="foot">
-        Adv Search <input id="filter" type="text" size="40" onKeyUp="setFilter(event);"></input>
+        Adv Search <input id="filter" type="text" size="30" onKeyUp="setFilter(event);"></input>
         <button id="shuffle" onClick="shuffleMode();">Shuffle</button>
+        <button id="uncheck" onClick="uncheckAll();">Uncheck All</button>
       </div>
+      <div id="footv">
+        <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" />
+        <span id="helpmark" onClick="helpPopup();"></span>
+      </div>
+    </div>
+    <div id="help">
+      <h3>Keyboard shortcuts</h3>
+      <table><tbody>
+          <tr><td>h, ?</td><td class="def">Show/dismiss this help box</td></tr>
+          <tr><td>Space</td><td class="def">Play/pause</td></tr>
+          <tr><td>m, `</td><td class="def">Mute sound</td></tr>
+          <tr><td>1-9</td><td class="def">Set volume to 10-90%</td></tr>
+          <tr><td>0</td><td class="def">Set volume to max</td></tr>
+          <tr><td>←, p</td><td class="def">Previous track</td></tr>
+          <tr><td>→, n</td><td class="def">Next track</td></tr>
+      </tbody></table>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js" integrity="sha512-JnjG+Wt53GspUQXQhc+c4j8SBERsgJAoHeehagKHlxQN+MtCCmFDghX9/AcbkkNRZptyZU4zC8utK59M5L45Iw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -69,21 +86,23 @@
       var sound;
 
       var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable",
-                     "tracklist", "curtitle", "curaay", "curfacets", "curnum"];
+                     "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "help"];
       elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
+
+      window.addEventListener("keydown", (event) => handleKey(event));
 
       (async() => {
           const regex = /["'& ]/g;
           const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
           catAF.facets.forEach((facet) => {
               const nfacet = facet.replaceAll(regex, "");
-              els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery('facet');" /><label for="fc${nfacet}">${facet}</label></div>`);
+              els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery(this);" /><label for="fc${nfacet}">${facet}</label></div>`);
               facetdivs.push(document.getElementById(`fd${nfacet}`));
           });
           catAF.artists.forEach((artist) => {
               let nartist = artist.replaceAll(regex, "");
               artist = artist.replaceAll(/"/g, "&quot;");
-              els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}" value="${artist}" onClick="buildCheckQuery('artist');" /><label for="ac${nartist}">${artist}</label></div>`);
+              els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}" value="${artist}" onClick="buildCheckQuery(this);" /><label for="ac${nartist}">${artist}</label></div>`);
               artistdivs.push(document.getElementById(`ad${nartist}`));
           });
           // set facetlit height

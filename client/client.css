@@ -1,11 +1,11 @@
-html { height: 99%; }
-body { height: 99%;
+html { height: 99.8%; }
+body { height: 99.8%;
        background-color: #333;
        border: medium solid #556;
        margin: 0;
      }
 #container { display: grid;
-             grid-template-columns: 1fr 3fr;
+             grid-template-columns: 1fr 1fr 2fr;
              grid-template-rows: 1fr 1fr 2em;
              height: 98vh;
            }
@@ -33,6 +33,8 @@ body { height: 99%;
 
 #main { grid-row-start: 1;
         grid-row-end: 3;
+        grid-column-start: 2;
+        grid-column-end: 5;
         background-color: #556;
         overflow: hidden;
         font-family: "Lato", sans-serif;
@@ -46,16 +48,21 @@ body { height: 99%;
           height: 5em;
         }
 
+#foot, #footv { background-color: #bbd;
+                border-top: medium solid #556;
+                font-family: "Barlow Semi Condensed";
+                font-weight: 400;
+                font-size: large;
+                padding-left: 0.3em;
+                padding-bottom: 0.2em;
+              }
 #foot { grid-column-start: 1;
         grid-column-end: 3;
-        background-color: #bbd;
-        border-top: medium solid #556;
-        font-family: "Barlow Semi Condensed";
-        font-weight: 400;
-        font-size: large;
-        padding-left: 0.3em;
-        padding-bottom: 0.2em;
       }
+#footv{ grid-column-start: 3;
+        grid-column-end: 5;
+        text-align: right;
+}
 
 .title { font-family: "Barlow Semi Condensed";
          font-weight: 400;
@@ -95,11 +102,11 @@ body { height: 99%;
              border-bottom: thick solid #556;
            }
 
-input { font-family: monospace;
-        background-color: #eee;
-        border: thin solid #556;
-        border-radius: 0.25em;
-      }
+#filter { font-family: monospace;
+          background-color: #eee;
+          border: thin solid #556;
+          border-radius: 0.25em;
+        }
 
 h2 { margin-top: 0; margin-right: 0.7em; margin-bottom: 0.5em; font-weight: 400; }
 
@@ -141,6 +148,30 @@ button { font-family: "Lato", sans-serif;
          border: solid thin #556;
          border-radius: 0.4em;
        }
+
+#vol { accent-color: #778;
+       height: 0.7em;
+       margin-bottom: 0;
+       margin-right: 0.5em;
+     }
+
+#help { z-index: 5;
+        font-family: "Lato", sans-serif;
+        font-size: large;
+        display: none;
+        position: fixed;
+        bottom: 0px;
+        right: 0px;
+        background-color: #ccd;
+        border: solid thick #778;
+        padding: 0.2em;
+      }
+#help h3 { font-family: "Barlow Semi Condensed";
+           font-weight: 400;
+           margin-top: 0.5em;
+         }
+#help .def { border-left: solid thin #556; padding-left: 0.2em;}
+
 
 .alertify-notifier.ajs-right .ajs-message.ajs-visible { background-color: #bbc;
                                                         border: solid medium #556;

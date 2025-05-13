@@ -1,3 +1,52 @@
+var tag = "v0.5.0";
+var host = "10.1.10.210:8080";
+var els = {};
+var facetdivs = [];
+var artistdivs = [];
+var trks = [];
+var trkInfo = [];
+var trkIdx = 0;
+var filterMeta = [];
+var playing = "no";
+var shuffle = false;
+var shflHist = [];
+var sound;
+
+var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable",
+               "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "help"];
+elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
+
+window.addEventListener("keydown", (event) => handleKey(event));
+
+async function initThrasher(hostname) {
+    host = hostname;
+    const regex = /["'& ]/g;
+    const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
+    host = catAF.hostname[0];
+    catAF.facets.forEach((facet) => {
+        const nfacet = facet.replaceAll(regex, "");
+        els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery(this);" /><label for="fc${nfacet}">${facet}</label></div>`);
+        facetdivs.push(document.getElementById(`fd${nfacet}`));
+    });
+    catAF.artists.forEach((artist) => {
+        let nartist = artist.replaceAll(regex, "");
+        artist = artist.replaceAll(/"/g, "&quot;");
+        els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}" value="${artist}" onClick="buildCheckQuery(this);" /><label for="ac${nartist}">${artist}</label></div>`);
+        artistdivs.push(document.getElementById(`ad${nartist}`));
+    });
+    // set facetlit height
+    els["facetlist"].style.height = (els["facetlist"].parentNode.clientHeight - els["facetlist"].previousElementSibling.clientHeight) + "px";
+    // set artistlist height
+    els["artistlist"].style.height = (els["artistlist"].parentNode.clientHeight - els["artistlist"].previousElementSibling.clientHeight - els["artistlist"].previousElementSibling.previousElementSibling.clientHeight) + "px";
+    // set tracklist height
+    els["tracklist"].style.height = (els["tracklist"].parentNode.clientHeight - els["tracklist"].previousElementSibling.clientHeight) + "px";
+
+    // start the isPlaying ticker
+    setInterval(isPlaying, 333);
+    // say hello
+    alertify.message(`Thrasher ${tag}<br/>Press '?' for keyboard mappings`);
+}
+
 function handleKey(evt) {
     if (els["filter"] === document.activeElement || els["artistfilter"] === document.activeElement) {
         return
@@ -10,14 +59,18 @@ function handleKey(evt) {
     case " ":
         playPause();
         break;
-    case "ArrowRight":
-    case "n":
-        playNext();
-        break;
-    case "ArrowLeft":
     case "p":
         playPrev();
         break;
+    case "n":
+        playNext();
+        break;
+    case "ArrowRight":
+        soundSeek(10);
+        break
+    case "ArrowLeft":
+        soundSeek(-10);
+        break
     case "s":
     case "s":
         shuffleMode();
@@ -46,8 +99,8 @@ function handleKey(evt) {
         els["vol"].value = 100;
         setVol();
         break;
-    default:
-        console.log(evt.key);
+    //default:
+    //    console.log(evt.key);
     }
 }
 
@@ -88,7 +141,7 @@ async function getTrks() {
         const turl = `http://${host}/i/${trk.replaceAll(/\//g, "%2F")}`;
         ti = await fetch(encodeURI(turl)).then((r) => { return r.json() });
         trkInfo.push(ti);
-        mt.insertAdjacentHTML("beforeend", `<tr class="track" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
+        mt.insertAdjacentHTML("beforeend", `<tr class="track" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
         i++;
     }
     // handle loading a new queue during playback
@@ -136,8 +189,9 @@ function uncheckAll(nonet) {
 /* ========================================================== Player  */
 
 function playTrk(i) {
+    playing = "no";
     trkIdx = i;
-    const trkURL = encodeURI(`http://${host}/music/${trks[i]}`);
+    console.log(trkURL);
     if (sound != undefined) {
         sound.stop();
     }
@@ -145,24 +199,17 @@ function playTrk(i) {
         src: [trkURL],
         html5: true
     });
-    sound.once("loaderror", () => {
-        alertify.message(`Could not load track, likely due to a networking issue`);
-        playing = "no";
-    });
-    sound.once("playerror", () => {
-        alertify.message(`Encountered a playback error, likely due to a networking issue; stopping autoplay`);
-        playing = "no";
-    });
+    sound.once("loaderror", (sid, err) => { errorHandler(sid, err, {"type": "load", "url": trkURL}) });
+    sound.once("playerror", (sid, err) => { errorHandler(sid, err, {"type": "load", "url": trkURL}) });
     sound.once("load", () => {
+        updateCurrent();
         const d = document.getElementById("curdur");
         d.replaceChildren();
         d.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.duration())));
+        playing = "auto";
     });
-
     setVol();
     sound.play();
-    playing = "auto";
-    updateCurrent();
 }
 
 function startPlaying() {
@@ -195,10 +242,14 @@ function stopPlaying() {
 }
 
 function playNext() {
+    // set playing to no to minimize spurious calls from isPlaying
+    playing = "no";
     if (!shuffle && trkIdx >= trks.length - 1) {
         return
     }
+    let old = trkIdx;
     trkIdx = getNextIdx();
+    unSetHighlight(old, trkIdx);
     if (trkIdx == -1) {
         return
     }
@@ -206,20 +257,19 @@ function playNext() {
 }
 
 function playPrev() {
+    playing = "no";
     if (trkIdx <= 0 || trks.length == 0) {
         return
     }
+    unSetHighlight(trkIdx, trkIdx - 1);
     trkIdx--;
     playTrk(trkIdx);
 }
 
 function playPause() {
-    console.log(playing);
     if (playing == "auto" || playing == "single") {
-        console.log("stop");
         stopPlaying();
     } else {
-        console.log("start");
         startPlaying();
     }
 }
@@ -231,23 +281,17 @@ function isPlaying() {
     if (playing == "no" || playing == "paused") {
         return;
     }
-    if (!sound.playing()) {
-        // we haven't said stop, but the current track is over
-        if (trkIdx == trks.length - 1) {
-            // we played the last track in the queue; nothing to do
-            playing = "paused";
-            return;
-        }
+    if (sound.playing()) {
+        time = document.getElementById("curtime");
+        time.replaceChildren();
+        time.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.seek())));
+    } else {
+        console.log("triggering next from isplaying: ", playing);
         if (playing == "auto") {
-            // auto mode; play the next track
-            playTrk(getNextIdx());
+            playNext();
             return;
         }
     }
-    // we're playing! update time
-    time = document.getElementById("curtime");
-    time.replaceChildren();
-    time.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.seek())));
 }
 
 /* ============================================== Audio modes + utils */
@@ -274,9 +318,7 @@ function shuffleMode() {
 }
 
 function getNextIdx() {
-    console.log(shuffle, playing, trkIdx);
     if (!shuffle) {
-        console.log(shuffle, playing, trkIdx, trkIdx++);
         return trkIdx++;
     }
     let maxShfl = false;
@@ -319,7 +361,6 @@ function filterArtists(evt) {
 }
 
 function helpPopup() {
-    console.log(els["help"].style.display);
     els["help"].style.display == "block" ?
         els["help"].style.display = "none" : els["help"].style.display = "block";
 }
@@ -354,3 +395,35 @@ function updateCurrent() {
     els["curfacets"].insertAdjacentHTML("beforeend", `${expandFacets(trkIdx)}`);
 }
 
+function unSetHighlight(old, cur) {
+    let ttr;
+    // reset current track backgrouncColor if possible
+    try {
+        ttr = document.getElementById(`trk${old}`);
+        for (const ttd of ttr.childNodes) {
+            ttd.style.backgroundColor = "#bbc";
+        }
+        ttr.nextSibling.childNodes[1].style.backgroundColor = "#bbc";
+    } catch {
+        errorHandler(sound.id, "couldn't grab old tr", {"type": "hilite", "i": trkIdx});
+    }
+    // set current track backgrouncColor and scroll to it
+    try {
+        ttr = document.getElementById(`trk${cur}`);
+        for (const ttd of ttr.childNodes) {
+            ttd.style.backgroundColor = "#bbe";
+        }
+        ttr.nextSibling.childNodes[1].style.backgroundColor = "#bbe";
+        ttr.scrollIntoView({block: "center"});
+    } catch {
+        errorHandler(sound.id, "couldn't grab new tr", {"type": "hilite", "i": trkIdx});
+    }
+}
+
+function errorHandler(id, err, x) {
+    console.log(id, err, playing, x);
+    if (x.type == "load" || x.type == "play") {
+        alertify.message(`Playback error; halting autoplay`);
+        playing = "no";
+    }
+}

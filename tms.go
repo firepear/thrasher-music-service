@@ -13,6 +13,7 @@ import (
 
 var (
 	c *tmc.Catalog
+	h string
 )
 
 type FilterReturn struct {
@@ -21,18 +22,20 @@ type FilterReturn struct {
 	FltrCount int
 }
 
-func Init(dbfile, dbname, prefix string) error {
+func Init(dbfile, dbname, hostname, prefix string) error {
 	var err error
 	c, err = tmc.New(dbfile, dbname)
 	if err != nil {
 		return err
 	}
+	h = hostname
 	c.TrimPrefix = prefix
 	return err
 }
 
 func HandleInit(w http.ResponseWriter, _ *http.Request) {
-	j, _ := json.Marshal(map[string][]string{"artists": c.Artists, "facets": c.Facets})
+	j, _ := json.Marshal(map[string][]string{"artists": c.Artists, "facets": c.Facets,
+		"hostname": []string{h}})
 	io.WriteString(w, string(j))
 }
 

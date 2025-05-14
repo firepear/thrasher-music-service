@@ -330,7 +330,7 @@ function shuffleMode() {
 
 function getNextIdx() {
     if (!shuffle) {
-        return trkIdx++;
+        return trkIdx + 1;
     }
     let maxShfl = false;
     let i = Math.floor(Math.random() * trks.length);

@@ -45,7 +45,7 @@ body { height: 99.8%;
           font-size: x-large;
           background-color: #bbd;
           padding: 0.15em;
-          height: 5.5em;
+          min-height: 5em;
         }
 
 #foot, #footv { background-color: #bbd;
@@ -94,6 +94,7 @@ body { height: 99.8%;
 .track td { background-color: #bbc;
             padding: 0.2em;
             border-top: medium solid #556;
+            vertical-align: top;
           }
 
 .trackf td { background-color: #bbc;

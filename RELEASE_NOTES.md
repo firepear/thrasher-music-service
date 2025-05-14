@@ -4,7 +4,7 @@
 
 - Added current track highlighting
 - Error handling improvements
-
+- Batch loading of queue implemented
 
 ## v0.4.1 (2025-05-10)
 

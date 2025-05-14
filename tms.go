@@ -16,10 +16,16 @@ var (
 	h string
 )
 
+type queryBatch struct {
+	Trks []string
+	TIs  []*tmc.Track
+}
+
 type FilterReturn struct {
-	FltrStr   string
-	FltrVals  []any
-	FltrCount int
+	FltrStr    string
+	FltrVals   []any
+	FltrCount  int
+	TrackCount int
 }
 
 func Init(dbfile, dbname, hostname, prefix string) error {
@@ -34,8 +40,7 @@ func Init(dbfile, dbname, hostname, prefix string) error {
 }
 
 func HandleInit(w http.ResponseWriter, _ *http.Request) {
-	j, _ := json.Marshal(map[string][]string{"artists": c.Artists, "facets": c.Facets,
-		"hostname": []string{h}})
+	j, _ := json.Marshal(map[string][]string{"artists": c.Artists, "facets": c.Facets})
 	io.WriteString(w, string(j))
 }
 
@@ -57,13 +62,30 @@ func HandleTrkInfo(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(j))
 }
 
+func HandleBatchTrkInfo(w http.ResponseWriter, r *http.Request) {
+	o, _ := strconv.Atoi(r.PathValue("offset"))
+	trks, err := c.Query(r.PathValue("orderby"), 100, o)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	qb := &queryBatch{}
+	qb.Trks = append(qb.Trks, trks...)
+
+	for _, trk := range trks {
+		qb.TIs = append(qb.TIs, c.TrkInfo(trk))
+	}
+	j, _ := json.Marshal(qb)
+	io.WriteString(w, string(j))
+}
+
 func HandleFilter(w http.ResponseWriter, r *http.Request) {
 	err := c.Filter(strings.ReplaceAll(r.PathValue("format"), "%2F", "/"))
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	j, _ := json.Marshal(FilterReturn{FltrStr: c.FltrStr, FltrVals: c.FltrVals, FltrCount: c.FltrCount})
+	j, _ := json.Marshal(FilterReturn{FltrStr: c.FltrStr, FltrVals: c.FltrVals, FltrCount: c.FltrCount, TrackCount: c.TrackCount})
 	io.WriteString(w, string(j))
 }
 

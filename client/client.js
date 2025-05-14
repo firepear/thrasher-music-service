@@ -1,5 +1,6 @@
-var tag = "v0.5.0";
-var host = "10.1.10.210:8080";
+// terser client.js --compress --mangle > client.js.min
+var tag = "v0.5.1";
+var host = "";
 var els = {};
 var facetdivs = [];
 var artistdivs = [];
@@ -22,7 +23,6 @@ async function initThrasher(hostname) {
     host = hostname;
     const regex = /["'& ]/g;
     const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
-    host = catAF.hostname[0];
     catAF.facets.forEach((facet) => {
         const nfacet = facet.replaceAll(regex, "");
         els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery(this);" /><label for="fc${nfacet}">${facet}</label></div>`);
@@ -44,7 +44,7 @@ async function initThrasher(hostname) {
     // start the isPlaying ticker
     setInterval(isPlaying, 333);
     // say hello
-    alertify.message(`Thrasher ${tag}<br/>Press '?' for keyboard mappings`);
+    setFilterNet("a:a\\\\b", true);
 }
 
 function handleKey(evt) {
@@ -115,35 +115,46 @@ async function setFilter(evt) {
     document.activeElement.blur();
 }
 
-async function setFilterNet(filter) {
+async function setFilterNet(filter, init) {
     filter = filter.replaceAll(/\//g, "%2F");
     let url = `http://${host}/f/${filter}`;
     url = encodeURI(url)
     //console.log(url)
     filterMeta = await fetch(url).then((r) => { return r.json() });
-    alertify.message(`${filterMeta.FltrCount} tracks in queue`);
     if (filterMeta.FltrCount == 0) {
         playing == "auto" ? playing = "single" : Function.prototype();
         trks = [];
     }
-    getTrks();
+    if (init) {
+        console.log(filterMeta);
+        alertify.message(`<b>Thrasher ${tag}</b><br/>${filterMeta.TrackCount} tracks in collection<br/>Press '?' for keyboard mappings`);
+    } else {
+        getTrks();
+    }
 }
 
 async function getTrks() {
-    const url = `http://${host}/q/b,n/0/0`;
+    trks = [];
     const mt = els["maintable"].firstChild;
     mt.replaceChildren();
-    trks = await fetch(encodeURI(url)).then((r) => { return r.json() });
     trkInfo = [];
     shflHist = [];
     i = 0;
-    for (const trk of trks) {
-        const turl = `http://${host}/i/${trk.replaceAll(/\//g, "%2F")}`;
-        ti = await fetch(encodeURI(turl)).then((r) => { return r.json() });
-        trkInfo.push(ti);
-        mt.insertAdjacentHTML("beforeend", `<tr class="track" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
-        i++;
+    o = 0;
+    while (o < filterMeta.FltrCount) {
+        const turl = `http://${host}/i/batch/b,n/${o}`;
+        qb = await fetch(encodeURI(turl)).then((r) => { return r.json() });
+        trks.push(...qb.Trks);
+        for (const ti of qb.TIs) {
+            if (ti.Title.length > 70) { ti.Title = `${ti.Title.substring(0,69)}…` }
+            if (ti.Artist.length > 70) { ti.Artist = `${ti.Artist.substring(0,69)}…` }
+            trkInfo.push(ti);
+            mt.insertAdjacentHTML("beforeend", `<tr class="track" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
+            i++;
+        }
+        o = o + 100;
     }
+    alertify.message(`${filterMeta.FltrCount} tracks in queue`);
     // handle loading a new queue during playback
     playing == "single" ? playing = "auto" : Function.prototype();
     playing == "auto" ? trkIdx = -1 : trkIdx = 0;
@@ -191,7 +202,7 @@ function uncheckAll(nonet) {
 function playTrk(i) {
     playing = "no";
     trkIdx = i;
-    console.log(trkURL);
+    const trkURL = encodeURI(`http://${host}/music/${trks[i]}`);
     if (sound != undefined) {
         sound.stop();
     }
@@ -208,6 +219,7 @@ function playTrk(i) {
         d.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.duration())));
         playing = "auto";
     });
+    setHighlight(trkIdx);
     setVol();
     sound.play();
 }
@@ -247,9 +259,8 @@ function playNext() {
     if (!shuffle && trkIdx >= trks.length - 1) {
         return
     }
-    let old = trkIdx;
+    unsetHighlight(trkIdx);
     trkIdx = getNextIdx();
-    unSetHighlight(old, trkIdx);
     if (trkIdx == -1) {
         return
     }
@@ -261,7 +272,7 @@ function playPrev() {
     if (trkIdx <= 0 || trks.length == 0) {
         return
     }
-    unSetHighlight(trkIdx, trkIdx - 1);
+    unsetHighlight(trkIdx);
     trkIdx--;
     playTrk(trkIdx);
 }
@@ -395,11 +406,10 @@ function updateCurrent() {
     els["curfacets"].insertAdjacentHTML("beforeend", `${expandFacets(trkIdx)}`);
 }
 
-function unSetHighlight(old, cur) {
-    let ttr;
+function unsetHighlight(old) {
     // reset current track backgrouncColor if possible
     try {
-        ttr = document.getElementById(`trk${old}`);
+        let ttr = document.getElementById(`trk${old}`);
         for (const ttd of ttr.childNodes) {
             ttd.style.backgroundColor = "#bbc";
         }
@@ -407,9 +417,11 @@ function unSetHighlight(old, cur) {
     } catch {
         errorHandler(sound.id, "couldn't grab old tr", {"type": "hilite", "i": trkIdx});
     }
+}
+function setHighlight(cur) {
     // set current track backgrouncColor and scroll to it
     try {
-        ttr = document.getElementById(`trk${cur}`);
+        let ttr = document.getElementById(`trk${cur}`);
         for (const ttd of ttr.childNodes) {
             ttd.style.backgroundColor = "#bbe";
         }

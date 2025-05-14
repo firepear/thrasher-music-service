@@ -43,5 +43,6 @@ func main() {
 	//http.HandleFunc("GET /q", tms.HandleQuery)
 	http.HandleFunc("GET /q/{orderby}/{limit}/{offset}", tms.HandleQuery)
 	http.HandleFunc("GET /i/{trk}", tms.HandleTrkInfo)
+	http.HandleFunc("GET /i/batch/{orderby}/{offset}", tms.HandleBatchTrkInfo)
 	log.Fatal(http.ListenAndServe(hostname, nil))
 }

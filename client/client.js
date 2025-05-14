@@ -126,7 +126,6 @@ async function setFilterNet(filter, init) {
         trks = [];
     }
     if (init) {
-        console.log(filterMeta);
         alertify.message(`<b>Thrasher ${tag}</b><br/>${filterMeta.TrackCount} tracks in collection<br/>Press '?' for keyboard mappings`);
     } else {
         getTrks();

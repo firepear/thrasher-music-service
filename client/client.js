@@ -141,7 +141,7 @@ async function getTrks() {
     i = 0;
     o = 0;
     while (o < filterMeta.FltrCount) {
-        const turl = `http://${host}/i/batch/b,n/${o}`;
+        const turl = `http://${host}/i/batch/a,b,n/${o}`;
         qb = await fetch(encodeURI(turl)).then((r) => { return r.json() });
         trks.push(...qb.Trks);
         for (const ti of qb.TIs) {
@@ -296,7 +296,6 @@ function isPlaying() {
         time.replaceChildren();
         time.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.seek())));
     } else {
-        console.log("triggering next from isplaying: ", playing);
         if (playing == "auto") {
             playNext();
             return;

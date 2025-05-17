@@ -23,8 +23,12 @@ func init() {
 	flag.StringVar(&dbFile, "d", "", "path to database")
 	flag.StringVar(&hostname, "h", "", "hostname:port for server")
 	flag.StringVar(&musicDir, "m", "", "dir for serving music files")
-	flag.StringVar(&musicPrefix, "p", "", "leading musicdir path which will be stripped from filter results")
+	flag.StringVar(&musicPrefix, "p", "", "leading musicdir path which will be stripped from filter results (defaults to musicdir)")
 	flag.Parse()
+
+	if musicPrefix == "" {
+		musicPrefix = musicDir
+	}
 }
 
 ///////////

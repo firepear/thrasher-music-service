@@ -1,9 +1,17 @@
 # Release notes
 
+
 ## v0.6.0 (2025-05-xx)
 
+- Initial server now only redirects to a new connection on a random
+  unused port, where an actual music server will be listening. This is
+  preparatory work for mTLS auth
+  - hostname and port are separate args now
+  - Music servers shut down if a keepalive request is not made every
+    ~40 seconds
 - musicPrefix defaults to musicDir in server
 - Default track sort order changed to a,b,n
+- Several command line args renamed
 
 
 ## v0.5.0 (2025-05-12)

@@ -81,8 +81,9 @@ func scanSrvrs() {
 	// get current time
 	curtime := int(time.Now().Unix())
 	for port, s := range srvrs {
-		if curtime - s.LastPing > 40 {
-			log.Printf("srvr on port %d last seen at %d; shutdown", port, s.LastPing)
+		etime := curtime - s.LastPing
+		if etime > 40 {
+			log.Printf("srvr on port %d last seen %ds ago; shutdown", port, etime)
 			s.Http.Close()
 			delete(srvrs, port)
 		}
@@ -104,22 +105,24 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	c.TrimPrefix = musicPrefix
 
 	// find an available port
-	port := 0
-	for port == 0 || srvrs[port] != nil {
-		port = rand.IntN(portHi - portLo) + portLo
+	sport := 0
+	for sport == 0 || srvrs[sport] != nil {
+		sport = rand.IntN(portHi - portLo) + portLo
 	}
 
 	// make a new Srvr and mux
-	addr := fmt.Sprintf("%s:%d", hostname, port)
-	s := &tms.Srvr{Http: &http.Server{Addr: addr}, C: c}
+	addr := fmt.Sprintf("%s:%d", hostname, sport)
+	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: hostname, Port: strconv.Itoa(sport),
+		OrigPort: port, C: c}
 	mux := http.NewServeMux()
 	// set up its handlers
 	mux.Handle("/", http.FileServer(http.Dir(clientDir)))
-	mux.Handle("/music/", http.StripPrefix("/music/", http.FileServer(http.Dir(musicDir))))
+	mux.Handle("/music/", http.StripPrefix("/music/", http.FileServer(http.Dir(conf.MusicDir))))
 	mux.HandleFunc("GET /ping", s.HandlePing)
 	mux.HandleFunc("GET /init", s.HandleInit)
 	mux.HandleFunc("GET /f/{format}", s.HandleFilter)
 	mux.HandleFunc("GET /q/{orderby}/{limit}/{offset}", s.HandleQuery)
+	mux.HandleFunc("GET /qr", s.HandleRecent)
 	mux.HandleFunc("GET /i/{trk}", s.HandleTrkInfo)
 	mux.HandleFunc("GET /i/batch/{orderby}/{offset}", s.HandleBatchTrkInfo)
 	s.Http.Handler = mux
@@ -129,7 +132,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	go s.Http.ListenAndServe()
 	log.Printf("new srvr on %s", addr)
 	// add it to srvrs
-	srvrs[port] = s
+	srvrs[sport] = s
 	http.Redirect(w, r, "http://" + addr, http.StatusSeeOther)
 }
 
@@ -148,7 +151,7 @@ func main() {
 	}()
 	hp := fmt.Sprintf("%s:%s", hostname, port)
 	mainSrv := http.NewServeMux()
-	mainSrv.HandleFunc("GET /new", handleSpawn)
+	mainSrv.HandleFunc("GET /", handleSpawn)
 	log.Printf("listening on %s", hp)
 	log.Fatal(http.ListenAndServe(hp, mainSrv))
 }

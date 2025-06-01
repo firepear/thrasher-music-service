@@ -1,6 +1,8 @@
 // terser client.js --compress --mangle > client.js.min
 var tag = "v0.5.1";
 var host = window.location.host;
+var port = window.location.port;
+var oport = 0;
 var els = {};
 var facetdivs = [];
 var artistdivs = [];
@@ -17,17 +19,21 @@ var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "mai
                "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "help"];
 elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
-setInterval(pingHost(), 30000);
-
 window.addEventListener("keydown", (event) => handleKey(event));
 
+setInterval(pingHost, 30000);
+
 async function pingHost() {
-    const ping = await fetch(`http://${host}/ping`).then((r) => { return r.json() });
+    const ping = await fetch(`http://${host}:${port}/ping`).then((r) => {return r.json() });
 }
 
 async function initThrasher() {
     const regex = /["'& ]/g;
+    console.log(host, port);
     const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
+    host = catAF.meta[0];
+    port = catAF.meta[1];
+    oport = catAF.meta[2];
     catAF.facets.forEach((facet) => {
         const nfacet = facet.replaceAll(regex, "");
         els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery(this);" /><label for="fc${nfacet}">${facet}</label></div>`);
@@ -76,7 +82,9 @@ function handleKey(evt) {
     case "ArrowLeft":
         soundSeek(-10);
         break
-    case "s":
+    case "r":
+        queryRecent();
+        break;
     case "s":
         shuffleMode();
         break;
@@ -122,7 +130,7 @@ async function setFilter(evt) {
 
 async function setFilterNet(filter, init) {
     filter = filter.replaceAll(/\//g, "%2F");
-    let url = `http://${host}/f/${filter}`;
+    let url = `http://${host}:${port}/f/${filter}`;
     url = encodeURI(url)
     //console.log(url)
     filterMeta = await fetch(url).then((r) => { return r.json() });
@@ -137,7 +145,32 @@ async function setFilterNet(filter, init) {
     }
 }
 
-async function getTrks() {
+async function queryRecent() {
+    trks = [];
+    const mt = els["maintable"].firstChild;
+    mt.replaceChildren();
+    trkInfo = [];
+    shflHist = [];
+    i = 0;
+    let url = `http://${host}:${port}/qr`;
+    url = encodeURI(url)
+    qb = await fetch(url).then((r) => { return r.json() });
+    trks.push(...qb.Trks);
+    filterMeta.FltrCount = trks.length;
+    for (const ti of qb.TIs) {
+        if (ti.Title.length > 70) { ti.Title = `${ti.Title.substring(0,69)}…` }
+        if (ti.Artist.length > 70) { ti.Artist = `${ti.Artist.substring(0,69)}…` }
+        trkInfo.push(ti);
+        mt.insertAdjacentHTML("beforeend", `<tr class="track" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
+        i++;
+    }
+    alertify.message(`${filterMeta.FltrCount} tracks in queue`);
+    // handle loading a new queue during playback
+    playing == "single" ? playing = "auto" : Function.prototype();
+    playing == "auto" ? trkIdx = -1 : trkIdx = 0;
+}
+
+async function getTrks(recent) {
     trks = [];
     const mt = els["maintable"].firstChild;
     mt.replaceChildren();
@@ -146,7 +179,7 @@ async function getTrks() {
     i = 0;
     o = 0;
     while (o < filterMeta.FltrCount) {
-        const turl = `http://${host}/i/batch/a,b,n/${o}`;
+        const turl = `http://${host}:${port}/i/batch/a,b,n/${o}`;
         qb = await fetch(encodeURI(turl)).then((r) => { return r.json() });
         trks.push(...qb.Trks);
         for (const ti of qb.TIs) {
@@ -206,7 +239,8 @@ function uncheckAll(nonet) {
 function playTrk(i) {
     playing = "no";
     trkIdx = i;
-    const trkURL = encodeURI(`http://${host}/music/${trks[i]}`);
+    // trk comes with leading /, so don't add it here
+    const trkURL = encodeURI(`http://${host}:${port}/music${trks[i]}`);
     if (sound != undefined) {
         sound.stop();
     }
@@ -441,4 +475,8 @@ function errorHandler(id, err, x) {
         alertify.message(`Playback error; halting autoplay`);
         playing = "no";
     }
+}
+
+function reloadPage() {
+    window.location.replace(`http://${host}:${oport}/`);
 }

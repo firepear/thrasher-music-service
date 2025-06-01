@@ -15,7 +15,9 @@ import (
 type Srvr struct {
 	Http     *http.Server
 	C        *tmc.Catalog
-	Port     int
+	Host     string
+	Port     string
+	OrigPort string
 	LastPing int
 }
 
@@ -32,7 +34,8 @@ type FilterReturn struct {
 }
 
 func (s *Srvr) HandleInit(w http.ResponseWriter, _ *http.Request) {
-	j, _ := json.Marshal(map[string][]string{"artists": s.C.Artists, "facets": s.C.Facets})
+	j, _ := json.Marshal(map[string][]string{"artists": s.C.Artists, "facets": s.C.Facets,
+		"meta": []string{s.Host, s.Port, s.OrigPort}})
 	io.WriteString(w, string(j))
 }
 
@@ -51,6 +54,21 @@ func (s *Srvr) HandleQuery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	j, _ := json.Marshal(trks)
+	io.WriteString(w, string(j))
+}
+
+func (s *Srvr) HandleRecent(w http.ResponseWriter, r *http.Request) {
+	var err error
+	qb := &queryBatch{}
+	qb.Trks, err = s.C.QueryRecent()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	for _, trk := range qb.Trks {
+		qb.TIs = append(qb.TIs, s.C.TrkInfo(trk))
+	}
+	j, _ := json.Marshal(qb)
 	io.WriteString(w, string(j))
 }
 

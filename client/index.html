@@ -47,9 +47,11 @@
         </div>
       </div>
       <div id="foot">
-        Adv Search <input id="filter" type="text" size="30" onKeyUp="setFilter(event);"></input>
+        Adv Search <input id="filter" type="text" size="30" onKeyUp="setFilter(event);"></input> |
+        <button id="recent" onClick="queryRecent();">Recent</button>
         <button id="shuffle" onClick="shuffleMode();">Shuffle</button>
-        <button id="uncheck" onClick="uncheckAll();">Uncheck All</button>
+        <button id="uncheck" onClick="uncheckAll();">Uncheck/Clear</button>
+        <span onClick="reloadPage();">↻</span>
       </div>
       <div id="footv">
         <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" />
@@ -69,7 +71,8 @@
           <tr><td>←</td><td class="def">Rewind 10secs</td></tr>
           <tr><td>→</td><td class="def">Fast forward 10secs</td></tr>
           <tr><td>s</td><td class="def">Toggle shuffle mode</td></tr>
-          <tr><td>u</td><td class="def">Uncheck all</td></tr>
+          <tr><td>r</td><td class="def">Add recent albums to queue</td></tr>
+          <tr><td>u</td><td class="def">Uncheck + Clear queue</td></tr>
       </tbody></table>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

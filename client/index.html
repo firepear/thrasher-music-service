@@ -49,11 +49,11 @@
       <div id="foot">
         Adv Search <input id="filter" type="text" size="30" onKeyUp="setFilter(event);"></input> |
         <button id="recent" onClick="queryRecent();">Recent</button>
-        <button id="shuffle" onClick="shuffleMode();">Shuffle</button>
         <button id="uncheck" onClick="uncheckAll();">Uncheck/Clear</button>
-        <span onClick="reloadPage();">↻</span>
+        <span onClick="reloadPage();" style="cursor: pointer;">🔄</span>
       </div>
       <div id="footv">
+        <button id="shuffle" onClick="shuffleMode();">Shuffle</button>
         <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" />
         <span id="helpmark" onClick="helpPopup();"></span>
       </div>

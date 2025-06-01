@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"strconv"
+	"time"
 
 	tmc "github.com/firepear/thrasher-music-catalog"
 )
@@ -33,6 +34,12 @@ type FilterReturn struct {
 func (s *Srvr) HandleInit(w http.ResponseWriter, _ *http.Request) {
 	j, _ := json.Marshal(map[string][]string{"artists": s.C.Artists, "facets": s.C.Facets})
 	io.WriteString(w, string(j))
+}
+
+func (s *Srvr) HandlePing(w http.ResponseWriter, _ *http.Request) {
+	t := int(time.Now().Unix())
+	s.LastPing = t
+	io.WriteString(w, `{"ping":true}`)
 }
 
 func (s *Srvr) HandleQuery(w http.ResponseWriter, r *http.Request) {

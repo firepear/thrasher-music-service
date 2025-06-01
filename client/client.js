@@ -1,6 +1,6 @@
 // terser client.js --compress --mangle > client.js.min
 var tag = "v0.5.1";
-var host = "";
+var host = window.location.host;
 var els = {};
 var facetdivs = [];
 var artistdivs = [];
@@ -17,10 +17,15 @@ var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "mai
                "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "help"];
 elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
+setInterval(pingHost(), 30000);
+
 window.addEventListener("keydown", (event) => handleKey(event));
 
-async function initThrasher(hostname) {
-    host = hostname;
+async function pingHost() {
+    const ping = await fetch(`http://${host}/ping`).then((r) => { return r.json() });
+}
+
+async function initThrasher() {
     const regex = /["'& ]/g;
     const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
     catAF.facets.forEach((facet) => {

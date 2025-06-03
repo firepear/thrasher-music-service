@@ -13,7 +13,7 @@
 - Cover art is now displayed
 - Other UI tweaks
 - musicPrefix defaults to musicDir in server
-- Default track sort order changed to a,b,n
+- Default track sort order changed to y,b,n
 - Several command line args renamed
 
 

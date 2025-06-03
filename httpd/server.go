@@ -44,7 +44,7 @@ func init() {
 	flag.StringVar(&dbFile, "db", "", "path to database")
 	flag.StringVar(&hostname, "h", "localhost", "hostname for server")
 	flag.StringVar(&port, "p", "8000", "port for server")
-	flag.StringVar(&portRange, "pr", "8001-8020", "port range for spawned servers")
+	flag.StringVar(&portRange, "pr", "8001-8030", "port range for spawned servers")
 	flag.StringVar(&musicDir, "md", "", "dir for serving music files")
 	flag.StringVar(&musicPrefix, "mp", "", "leading musicdir path which will be stripped from filter results (defaults to musicdir)")
 	flag.Parse()

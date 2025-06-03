@@ -18,6 +18,7 @@ body { height: 99.8%;
     overflow: hidden;
     font-family: "Lato", sans-serif;
 }
+#facets input, #facets label { cursor: pointer; }
 #facetlist {overflow: scroll;}
 
 #artists {
@@ -29,6 +30,7 @@ body { height: 99.8%;
     overflow: hidden;
     font-family: "Lato", sans-serif;
 }
+#artists input, #artists label { cursor: pointer; }
 #artistlist {overflow: scroll;}
 
 #main { grid-row-start: 1;
@@ -46,6 +48,7 @@ body { height: 99.8%;
           background-color: #bbd;
           padding: 0.15em;
           min-height: 5em;
+          border-bottom: medium solid #556;
         }
 
 #foot, #footv { background-color: #bbd;
@@ -63,6 +66,9 @@ body { height: 99.8%;
         grid-column-end: 5;
         text-align: right;
 }
+#foot button { cursor: pointer; }
+#footv span { cursor: pointer; }
+
 
 .title { font-family: "Barlow Semi Condensed";
          font-weight: 400;
@@ -120,6 +126,7 @@ h2 { margin-top: 0; margin-right: 0.7em; margin-bottom: 0.5em; font-weight: 400;
              border: solid thin #556;
              border-radius: 0.25em;
            }
+#buttonbox button { cursor: pointer; }
 
 #current { border-left: solid medium #556;
            margin-left: 1em;
@@ -155,6 +162,7 @@ button { font-family: "Lato", sans-serif;
        margin-bottom: 0;
        margin-right: 0.5em;
      }
+#vol::-webkit-slider-thumb, #vol::-moz-range-thumb { cursor: pointer; }
 
 #help { z-index: 5;
         font-family: "Lato", sans-serif;

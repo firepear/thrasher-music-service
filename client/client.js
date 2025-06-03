@@ -179,7 +179,7 @@ async function getTrks(recent) {
     i = 0;
     o = 0;
     while (o < filterMeta.FltrCount) {
-        const turl = `http://${host}:${port}/i/batch/a,b,n/${o}`;
+        const turl = `http://${host}:${port}/i/batch/y,b,n/${o}`;
         qb = await fetch(encodeURI(turl)).then((r) => { return r.json() });
         trks.push(...qb.Trks);
         for (const ti of qb.TIs) {

@@ -49,6 +49,7 @@ body { height: 99.8%;
           padding: 0.15em;
           min-height: 5em;
           border-bottom: medium solid #556;
+          padding-top: 0.3em;
         }
 
 #foot, #footv { background-color: #bbd;
@@ -67,7 +68,7 @@ body { height: 99.8%;
         text-align: right;
 }
 #foot button { cursor: pointer; }
-#footv span { cursor: pointer; }
+#footv button { cursor: pointer; }
 
 
 .title { font-family: "Barlow Semi Condensed";
@@ -132,8 +133,9 @@ h2 { margin-top: 0; margin-right: 0.7em; margin-bottom: 0.5em; font-weight: 400;
            margin-left: 1em;
            padding-left: 1em;
            vertical-align: top;
+           width: 100%;
          }
-#curtitle { margin-top: 0.2em;}
+#curtitle { }
 #curaay { font-size: large;
           margin-bottom: 0;
           padding-bottom: 0;
@@ -147,6 +149,26 @@ h2 { margin-top: 0; margin-right: 0.7em; margin-bottom: 0.5em; font-weight: 400;
           padding-bottom: 0;
         }
 
+#cover { object-fit: scale-down;
+         max-height: 5em;
+         width: auto;
+       }
+#coverbig { object-fit: scale-down;
+            max-height: 600px;
+            width: auto;
+          }
+#coverbigdiv { height: 604px;
+               width: 604px;
+               z-order: 5;
+               position: absolute;
+               top: 50%;
+               left: 50%;
+               margin-top: -302px;
+               margin-left: -302px;
+               justify-content: center;
+               align-items: center;
+               text-align: center;
+             }
 
 #fdata { margin-left: 2em; }
 

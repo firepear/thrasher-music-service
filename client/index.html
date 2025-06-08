@@ -31,7 +31,7 @@
                   <div id="curfacets"><!--will go--></div>
                   <div id="curnum"><span id="curdur"></span><span id="curtime"></span></div>
                 </td>
-                <td id="cover" rowspan="2"></td>
+                <td rowspan="2"><img id="cover" src="" /></td>
               </tr>
               <tr><td style="vertical-align: top;">
                   <span id="buttonbox">
@@ -53,8 +53,8 @@
         <button id="uncheck" onClick="uncheckAll();" title="Uncheck all and clear queue">Clear</button>
       </div>
       <div id="footv">
-        <span onClick="reloadPage();" title="Reload player">🔄</span>
-        <span id="shuffle" onClick="shuffleMode();" title="Toggle shuffle mode">🔀</span>
+        <button onClick="reloadPage();" title="Reload player">Reload</button>
+        <button id="shuffle" onClick="shuffleMode();" title="Toggle shuffle mode">Shuffle</button>
         <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" title="Volume" />
         <span id="helpmark" onClick="helpPopup();"></span>
       </div>

@@ -14,8 +14,9 @@ var playing = "no";
 var shuffle = false;
 var shflHist = [];
 var sound;
+var cover;
 
-var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable",
+var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "cover",
                "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "help"];
 elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
@@ -29,7 +30,6 @@ async function pingHost() {
 
 async function initThrasher() {
     const regex = /["'& ]/g;
-    console.log(host, port);
     const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
     host = catAF.meta[0];
     port = catAF.meta[1];
@@ -260,6 +260,7 @@ function playTrk(i) {
     setHighlight(trkIdx);
     setVol();
     sound.play();
+    displayCover();
 }
 
 function startPlaying() {
@@ -392,6 +393,24 @@ function getNextIdx() {
 }
 
 /* ============================================= UI and display utils */
+
+async function displayCover() {
+    var path = trks[trkIdx].split("/");
+    path.pop();
+    path = path.join("/");
+    const url = `http://${host}:${port}/music${path}/cover.jpg`;
+    if (cover == url) {
+        // do nothing if cover url has not changed
+        return;
+    }
+    const status = await fetch(url, {method: 'HEAD'}).then((r) => { return r.status })
+    if (status == 200) {
+        els["cover"].src = url;
+    } else {
+        els["cover"].src = "";
+    }
+    cover = url;
+}
 
 function filterArtists(evt) {
     if (evt.key == "Escape") {

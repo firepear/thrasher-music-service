@@ -443,6 +443,9 @@ function helpPopup(which, whichbut) {
 }
 
 function toggleButtonColor(id) {
+    if (els[id] == null) {
+        return
+    }
     if (els[id].nodeName == "BUTTON") {
         window.getComputedStyle(els[id])["backgroundColor"] == "rgb(187, 187, 187)" ?
             els[id].style.backgroundColor = "#cec" : els[id].style.backgroundColor = "#bbb";

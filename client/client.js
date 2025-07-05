@@ -481,6 +481,7 @@ function updateCurrent() {
     els["curaay"].insertAdjacentHTML("beforeend", `${trkInfo[trkIdx].Artist} / ${trkInfo[trkIdx].Album} / ${trkInfo[trkIdx].Year}`);
     els["curnum"].insertAdjacentHTML("beforeend", `${trkIdx + 1} of ${filterMeta.FltrCount} / <span id="curdur"></span> / <span id="curtime"></span>`);
     els["curfacets"].insertAdjacentHTML("beforeend", `${expandFacets(trkIdx)}`);
+    document.title = `${trkInfo[trkIdx].Title} by ${trkInfo[trkIdx].Artist}`;
 }
 
 function unsetHighlight(old) {

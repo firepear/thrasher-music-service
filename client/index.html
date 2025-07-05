@@ -48,8 +48,10 @@
         </div>
       </div>
       <div id="foot">
-        Adv Search <input id="filter" type="text" size="30" onKeyUp="setFilter(event);"></input> |
-        <button id="recent" onClick="queryRecent();" title="Queue most recent albums">Recent</button>
+        Search <input id="filter" type="text" size="30" onKeyUp="setFilter(event);"></input>
+        <button id="searchhelpbut" onClick="helpPopup('searchhelp', 'searchhelpbut');" title="Search help">?</button>
+        |
+        <button id="recent" onClick="queryRecent();" title="Queue 25 most recently added albums">Recent</button>
         <button id="uncheck" onClick="uncheckAll();" title="Uncheck all and clear queue">Clear</button>
       </div>
       <div id="footv">
@@ -59,7 +61,7 @@
         <span id="helpmark" onClick="helpPopup();"></span>
       </div>
     </div>
-    <div id="help">
+    <div id="help" class="help">
       <h3>Keyboard shortcuts</h3>
       <table><tbody>
           <tr><td>h, ?</td><td class="def">Show/dismiss this help box</td></tr>
@@ -73,8 +75,22 @@
           <tr><td>→</td><td class="def">Fast forward 10secs</td></tr>
           <tr><td>s</td><td class="def">Toggle shuffle mode</td></tr>
           <tr><td>r</td><td class="def">Add recent albums to queue</td></tr>
-          <tr><td>u</td><td class="def">Uncheck + Clear queue</td></tr>
+          <tr><td>u, c</td><td class="def">Uncheck + Clear queue</td></tr>
+          <tr><td>v</td><td class="def">Show version info</td></tr>
       </tbody></table>
+    </div>
+    <div id="searchhelp" class="help">
+      <h3>Search query help</h3>
+      <p>This is the catalog filter/search box, where you can enter queries to select tracks. The results of your query will become the queue. Queries are in the format <span class="mono">key:value</span>. The list of allowed keys is:</p>
+      <ul>
+        <li>a - Artist</li>
+        <li>b - Album title</li>
+        <li>t - Track title</li>
+        <li>f - Facet</li>
+        <li>y - Year</li>
+      </ul>
+      <p>Values are not case-sensitive. Asterisks perform globbing as expected. Multiple filters can be specified at once, separated by && (AND) or || (or). Grouping is accomplished with doubled parens. An example, which returns tracks with facet 'Jazz' or 'Rock', from the 1970s:</p>
+      <pre>((f:jazz||f:rock))&amp;&amp;y:197*</pre>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js" integrity="sha512-JnjG+Wt53GspUQXQhc+c4j8SBERsgJAoHeehagKHlxQN+MtCCmFDghX9/AcbkkNRZptyZU4zC8utK59M5L45Iw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

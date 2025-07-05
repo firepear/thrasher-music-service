@@ -17,7 +17,8 @@ var sound;
 var cover;
 
 var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "cover",
-               "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "help"];
+               "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "shuffle",
+               "help", "searchhelp", "searchhelpbut"];
 elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
 window.addEventListener("keydown", (event) => handleKey(event));
@@ -65,9 +66,12 @@ function handleKey(evt) {
     switch (evt.key) {
     case "?":
     case "h":
-        helpPopup();
+        helpPopup("help");
         break;
-    case " ":
+    case "v":
+        showVersion();
+        break;
+    case " ": // playback controls start here
         playPause();
         break;
     case "p":
@@ -82,17 +86,18 @@ function handleKey(evt) {
     case "ArrowLeft":
         soundSeek(-10);
         break
-    case "r":
+    case "r": // queue modifiers start here
         queryRecent();
         break;
     case "s":
         shuffleMode();
         break;
     case "u":
+    case "c":
         uncheckAll();
         break;
+    case "`": // volume controls start here
     case "m":
-    case "`":
         els["vol"].value = 0;
         setVol();
         break;
@@ -139,7 +144,7 @@ async function setFilterNet(filter, init) {
         trks = [];
     }
     if (init) {
-        alertify.message(`<b>Thrasher ${tag}</b><br/>${filterMeta.TrackCount} tracks in collection<br/>Press '?' for keyboard mappings`);
+        showVersion();
     } else {
         getTrks();
     }
@@ -359,11 +364,11 @@ function setVol(vol) {
 function shuffleMode() {
     if (shuffle) {
         shuffle = false;
-        document.getElementById("shuffle").style.backgroundColor = "#bbb";
+        toggleButtonColor("shuffle");
         return;
     }
     shuffle = true;
-    document.getElementById("shuffle").style.backgroundColor = "#cec";
+    toggleButtonColor("shuffle");
 }
 
 function getNextIdx() {
@@ -427,10 +432,23 @@ function filterArtists(evt) {
     }
 }
 
-function helpPopup() {
-    els["help"].style.display == "block" ?
-        els["help"].style.display = "none" : els["help"].style.display = "block";
+function showVersion() {
+    alertify.message(`<b>Thrasher ${tag}</b><br/>${filterMeta.TrackCount} tracks in catalog<br/>Press '?' for keyboard mappings`);
 }
+
+function helpPopup(which, whichbut) {
+    toggleButtonColor(whichbut);
+    els[which].style.display == "block" ?
+        els[which].style.display = "none" : els[which].style.display = "block";
+}
+
+function toggleButtonColor(id) {
+    if (els[id].nodeName == "BUTTON") {
+        window.getComputedStyle(els[id])["backgroundColor"] == "rgb(187, 187, 187)" ?
+            els[id].style.backgroundColor = "#cec" : els[id].style.backgroundColor = "#bbb";
+    }
+}
+
 
 function formatTime(secs) {
     var minutes = Math.floor(secs / 60) || 0;

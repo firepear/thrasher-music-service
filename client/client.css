@@ -186,22 +186,23 @@ button { font-family: "Lato", sans-serif;
      }
 #vol::-webkit-slider-thumb, #vol::-moz-range-thumb { cursor: pointer; }
 
-#help { z-index: 5;
+.help { z-index: 5;
         font-family: "Lato", sans-serif;
         font-size: large;
         display: none;
         position: fixed;
         bottom: 0px;
         right: 0px;
+        max-width: 50%;
         background-color: #ccd;
         border: solid thick #778;
         padding: 0.2em;
       }
-#help h3 { font-family: "Barlow Semi Condensed";
+.help h3 { font-family: "Barlow Semi Condensed";
            font-weight: 400;
            margin-top: 0.5em;
          }
-#help .def { border-left: solid thin #556; padding-left: 0.2em;}
+.help .def { border-left: solid thin #556; padding-left: 0.2em;}
 
 
 .alertify-notifier.ajs-right .ajs-message.ajs-visible { background-color: #bbc;

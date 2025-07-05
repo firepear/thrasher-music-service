@@ -18,6 +18,7 @@
   - Several command line args renamed
 - Client
   - Query help added
+  - Page title shows playing track
 
 ## v0.5.0 (2025-05-12)
 

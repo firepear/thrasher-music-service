@@ -128,7 +128,6 @@ async function setFilter(evt) {
     if (evt.key != "Enter") {
         return;
     }
-    uncheckAll(true);
     setFilterNet(els["filter"].value);
     document.activeElement.blur();
 }
@@ -137,7 +136,7 @@ async function setFilterNet(filter, init) {
     filter = filter.replaceAll(/\//g, "%2F");
     let url = `http://${host}:${port}/f/${filter}`;
     url = encodeURI(url)
-    //console.log(url)
+    console.log(filter, url)
     filterMeta = await fetch(url).then((r) => { return r.json() });
     if (filterMeta.FltrCount == 0) {
         playing == "auto" ? playing = "single" : Function.prototype();
@@ -151,6 +150,7 @@ async function setFilterNet(filter, init) {
 }
 
 async function queryRecent() {
+    els["filter"].value = "";
     trks = [];
     const mt = els["maintable"].firstChild;
     mt.replaceChildren();
@@ -222,6 +222,7 @@ function buildCheckQuery(el) {
 
 function uncheckAll(nonet) {
     let unchecked = 0;
+    // attempt to uncheck artist and facet selectors
     for (const l of [artistdivs, facetdivs]) {
         l.forEach((div) => {
             if (div.firstChild.checked) {
@@ -230,13 +231,18 @@ function uncheckAll(nonet) {
             }
         });
     }
-    if (unchecked == 0) {
+    //if (unchecked == 0) {
         // if we don't actually uncheck anything, don't make changes
-        nonet = true;
-    }
-    if (nonet == undefined) {
-        setFilterNet("a:=a\\\\=b");
-    }
+    //    nonet = true;
+    //}
+    // clear artistfilter and filter boxes
+    els["artistfilter"].value = "";
+    filterArtists(null);
+    els["filter"].value = "";
+
+    //if (nonet == undefined) {
+    setFilterNet("a:=a\\\\=b");
+    //}
 }
 
 /* ========================================================== Player  */
@@ -418,7 +424,7 @@ async function displayCover() {
 }
 
 function filterArtists(evt) {
-    if (evt.key == "Escape") {
+    if (evt != null && evt.key == "Escape") {
         document.activeElement.blur();
         return;
     }

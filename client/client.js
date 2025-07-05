@@ -175,7 +175,7 @@ async function queryRecent() {
     playing == "auto" ? trkIdx = -1 : trkIdx = 0;
 }
 
-async function getTrks(recent) {
+async function getTrks() {
     trks = [];
     const mt = els["maintable"].firstChild;
     mt.replaceChildren();

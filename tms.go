@@ -59,16 +59,13 @@ func (s *Srvr) HandleQuery(w http.ResponseWriter, r *http.Request) {
 
 func (s *Srvr) HandleRecent(w http.ResponseWriter, r *http.Request) {
 	var err error
-	qb := &queryBatch{}
-	qb.Trks, err = s.C.QueryRecent()
+	err = s.C.QueryRecent()
 	if err != nil {
 		log.Println(err)
+		log.Println(s.C.QueryStr, s.C.QueryVals)
 		return
 	}
-	for _, trk := range qb.Trks {
-		qb.TIs = append(qb.TIs, s.C.TrkInfo(trk))
-	}
-	j, _ := json.Marshal(qb)
+	j, _ := json.Marshal(FilterReturn{FltrStr: s.C.FltrStr, FltrVals: s.C.FltrVals, FltrCount: s.C.FltrCount, TrackCount: s.C.TrackCount})
 	io.WriteString(w, string(j))
 }
 
@@ -83,6 +80,7 @@ func (s *Srvr) HandleBatchTrkInfo(w http.ResponseWriter, r *http.Request) {
 	trks, err := s.C.Query(r.PathValue("orderby"), 100, o)
 	if err != nil {
 		log.Println(err)
+		log.Println(s.C.QueryStr, s.C.QueryVals)
 		return
 	}
 	qb := &queryBatch{}

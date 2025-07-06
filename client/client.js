@@ -166,15 +166,28 @@ async function getTrks(orderby) {
     shflHist = [];
     i = 0;
     o = 0;
+    let tclass = "";
+    let tfclass = "";
+    let curalbum = "";
     while (o < filterMeta.FltrCount) {
         const turl = `http://${host}:${port}/i/batch/${orderby}/${o}`;
         qb = await fetch(encodeURI(turl)).then((r) => { return r.json() });
         trks.push(...qb.Trks);
         for (const ti of qb.TIs) {
+            if (ti.Album != curalbum) {
+                curalbum = ti.Album;
+                if (tclass == "track") {
+                    tclass = "track2";
+                    tfclass = "trackf2";
+                } else {
+                    tclass = "track";
+                    tfclass = "trackf";
+                }
+            }
             if (ti.Title.length > 70) { ti.Title = `${ti.Title.substring(0,69)}…` }
             if (ti.Artist.length > 70) { ti.Artist = `${ti.Artist.substring(0,69)}…` }
             trkInfo.push(ti);
-            mt.insertAdjacentHTML("beforeend", `<tr class="track" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="trackf" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
+            mt.insertAdjacentHTML("beforeend", `<tr class="${tclass}" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="${tfclass}" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
             i++;
         }
         o = o + 100;

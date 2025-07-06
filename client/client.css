@@ -90,6 +90,35 @@ body { height: 99.8%;
          margin-bottom: 0.5em;
        }
 
+.track td { background-color: #aab;
+            padding: 0.2em;
+            border-top: medium solid #556;
+            vertical-align: top;
+          }
+
+.trackf td { background-color: #aab;
+             padding: 0.3em;
+             font-size: small;
+             border-bottom: thick solid #556;
+           }
+
+.track2 { color: #000;
+         padding-top: 0.5em;
+         margin-bottom: 0.5em;
+       }
+
+.track2 td { background-color: #ccd;
+            padding: 0.2em;
+            border-top: medium solid #556;
+            vertical-align: top;
+          }
+
+.trackf2 td { background-color: #ccd;
+             padding: 0.3em;
+             font-size: small;
+             border-bottom: thick solid #556;
+           }
+
 #tracklist { overflow: scroll; }
 
 #maintable { width: 100%;
@@ -97,18 +126,6 @@ body { height: 99.8%;
              border-spacing: 0 0;
            }
 
-
-.track td { background-color: #bbc;
-            padding: 0.2em;
-            border-top: medium solid #556;
-            vertical-align: top;
-          }
-
-.trackf td { background-color: #bbc;
-             padding: 0.3em;
-             font-size: small;
-             border-bottom: thick solid #556;
-           }
 
 #filter { font-family: monospace;
           background-color: #eee;

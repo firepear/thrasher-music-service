@@ -28,6 +28,8 @@ github.com/firepear/thrasher-music-catalog v0.5.0 h1:vzLpzyJKHcjPwsJUGcAS0+TQ9Jc
 github.com/firepear/thrasher-music-catalog v0.5.0/go.mod h1:4+RHItBMShj+jjuG2sAezsWY+oz7CWm6Uw75v3d76pg=
 github.com/firepear/thrasher-music-catalog v0.6.0 h1:PQOY1/knA7eyBdGsimtKzjDMZZ6wD5TmyKqEL7HujWE=
 github.com/firepear/thrasher-music-catalog v0.6.0/go.mod h1:CJmEIRpdhpB0/xDqZh/b5wrv7aSuCn//rdavjoBYv0U=
+github.com/firepear/thrasher-music-catalog v0.7.0 h1:FtnWlzBZfyRqLhDMeJ1yZIxkJu9YlDBRF4SxIoUS6U8=
+github.com/firepear/thrasher-music-catalog v0.7.0/go.mod h1:CJmEIRpdhpB0/xDqZh/b5wrv7aSuCn//rdavjoBYv0U=
 github.com/mattn/go-sqlite3 v1.14.28 h1:ThEiQrnbtumT+QMknw63Befp/ce/nUPgBPMlRFEum7A=
 github.com/mattn/go-sqlite3 v1.14.28/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

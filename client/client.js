@@ -244,6 +244,7 @@ function uncheckAll(nonet) {
 /* ========================================================== Player  */
 
 function playTrk(i) {
+    unsetHighlight(trkIdx);
     playing = "no";
     trkIdx = i;
     // trk comes with leading /, so don't add it here
@@ -491,9 +492,17 @@ function unsetHighlight(old) {
     try {
         let ttr = document.getElementById(`trk${old}`);
         for (const ttd of ttr.childNodes) {
-            ttd.style.backgroundColor = "#bbc";
+            if (ttr.className == "track" || ttr.className == "trackf") {
+                ttd.style.backgroundColor = "#aab";
+            } else {
+                ttd.style.backgroundColor = "#ccd";
+            }
         }
-        ttr.nextSibling.childNodes[1].style.backgroundColor = "#bbc";
+        if (ttr.className == "track" || ttr.className == "trackf") {
+            ttr.nextSibling.childNodes[1].style.backgroundColor = "#aab";
+        } else {
+            ttr.nextSibling.childNodes[1].style.backgroundColor = "#ccd";
+        }
     } catch {
         errorHandler(sound.id, "couldn't grab old tr", {"type": "hilite", "i": trkIdx});
     }

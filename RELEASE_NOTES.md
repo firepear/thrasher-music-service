@@ -1,7 +1,7 @@
 # Release notes
 
 
-## v0.6.0 (2025-07-xx)
+## v0.6.0 (2025-07-05)
 
 - Server
   - Initial server now only redirects to a new connection on a random
@@ -11,14 +11,15 @@
     - Music servers shut down if a keepalive request is not made every
       ~40 seconds
   - 'Recent' button added to enqueue last 25 albums
-  - Cover art is now displayed
-  - Other UI tweaks
   - musicPrefix defaults to musicDir in server
   - Default track sort order changed to y,b,n
   - Several command line args renamed
 - Client
+  - Cover art is now displayed
   - Query help added
   - Page title shows playing track
+  - Queue alternates color per album
+  - Other UI tweaks
 
 ## v0.5.0 (2025-05-12)
 

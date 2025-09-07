@@ -42,8 +42,7 @@ func init() {
 
 	flag.StringVar(&clientDir, "c", "../client", "dir for serving client files")
 	flag.StringVar(&dbFile, "db", "", "path to database")
-	flag.StringVar(&hostname, "h", "localhost", "hostname for server")
-	flag.StringVar(&port, "p", "8000", "port for server")
+	flag.StringVar(&hostname, "h", "localhost:8000", "hostname for server")
 	flag.StringVar(&portRange, "pr", "8001-8030", "port range for spawned servers")
 	flag.StringVar(&musicDir, "md", "", "dir for serving music files")
 	flag.StringVar(&musicPrefix, "mp", "", "leading musicdir path which will be stripped from filter results (defaults to musicdir)")
@@ -57,6 +56,14 @@ func init() {
 	if musicDir != "" {
 		conf.MusicDir = musicDir
 	}
+	// and hostname
+	if hostname != "localhost:8000" {
+		conf.Hostname = hostname
+	}
+	// and portRange
+	if portRange != "8001-8030" {
+		conf.PortRange = portRange
+	}
 	// and if we still don't have a dbfile, bail
 	if conf.DbFile == "" {
 		fmt.Println("database file must be specified; see -h")
@@ -68,9 +75,13 @@ func init() {
 	}
 
 	// parse portRange
-	pchunks := strings.Split(portRange, "-")
+	pchunks := strings.Split(conf.PortRange, "-")
 	portLo, _ = strconv.Atoi(strings.TrimSpace(pchunks[0]))
 	portHi, _ = strconv.Atoi(strings.TrimSpace(pchunks[1]))
+	// get just the hostname for server spawning
+	hchunks := strings.Split(conf.Hostname, ":")
+	hostname = hchunks[0]
+	port = hchunks[1]
 
 	srvrs = map[int]*tms.Srvr{}
 }
@@ -149,9 +160,8 @@ func main() {
 			}
 		}
 	}()
-	hp := fmt.Sprintf("%s:%s", hostname, port)
 	mainSrv := http.NewServeMux()
 	mainSrv.HandleFunc("GET /", handleSpawn)
-	log.Printf("listening on %s", hp)
-	log.Fatal(http.ListenAndServe(hp, mainSrv))
+	log.Printf("listening on %s", conf.Hostname)
+	log.Fatal(http.ListenAndServe(conf.Hostname, mainSrv))
 }

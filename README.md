@@ -10,9 +10,10 @@ cd server
 go run .
 ```
 
-The server uses the same config file as thrasher-music-tool for most
-configuration points. See its README for config file documentation,
-and do `go run . -h` to see all server arguments.
+The server uses the same config file as
+[thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
+for most configuration points. See its README for config file
+documentation, and do `go run . -h` to see all server arguments.
 
 ## Attributions
 

@@ -13,7 +13,11 @@ go run .
 The server uses the same config file as
 [thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
 for most configuration points. See its README for config file
-documentation, and do `go run . -h` to see all server arguments.
+documentation (and how to build/manage your catalog), and do `go run
+. -h` to see all server arguments.
+
+Point a browser at the `host:port` that you speficied to launch a
+player instance.
 
 ## Attributions
 

@@ -1,5 +1,13 @@
 # Release notes
 
+## v0.7.0 (2025-09-07)
+
+- Server
+  - Now uses the same config file as thrasher-music-tool for some
+    configuration points
+- Client
+  - CSS tweaks
+
 
 ## v0.6.0 (2025-07-05)
 

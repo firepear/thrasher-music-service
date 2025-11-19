@@ -1,17 +1,20 @@
-div { margin-bottom: 1em; }
+button { background-color: #bbb; }
+
+#controls { margin-bottom: 1em; }
 
 #trkinfo { margin-right: 2em;
            font-size: 150%;
            font-family: sans-serif;
+           margin-bottom: 1em;
          }
 
-#player { display: flex; }
+/* #player { display: flex; } */
 
-#prevbtn { font-size: 400%; padding: 0.25em; }
-#playbtn { font-size: 400%; padding: 0.25em; }
-#stopbtn { font-size: 400%; padding: 0.25em; }
-#nextbtn { font-size: 400%; padding: 0.25em; }
+#prevbtn { font-size: 400%; padding: 0.2em; }
+#playbtn { font-size: 400%; padding: 0.2em; }
+#stopbtn { font-size: 400%; padding: 0.2em; }
+#nextbtn { font-size: 400%; padding: 0.2em; }
+#shuffle { font-size: 400%; padding: 0.2em; }
 
 #recent  { font-size: 250%; margin-right: 0.25em; }
-#shuffle { font-size: 250%; margin-right: 0.25em; }
 #reload  { font-size: 250%; }

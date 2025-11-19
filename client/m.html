@@ -8,25 +8,24 @@
 
   <body>
     <div id="player">
+      <div id="controls">
+        <span id="buttonbox">
+          <button id="prevbtn" onClick="playPrev();">⏪</button>
+          <button id="playbtn" onClick="startPlaying();">▶️</button>
+          <button id="stopbtn" onClick="stopPlaying();">⏸</button>
+          <button id="nextbtn" onClick="playNext();">⏩</button>
+          <button id="shuffle" onClick="shuffleMode();" title="Toggle shuffle mode">🔀</button>
+        </span>
+      </div>
       <div id="trkinfo">
-        <h2>Thrasher</h2>
         <div id="curtitle"><!--This is where--></div>
         <div id="curaay"><!--current track info--></div>
         <div id="curfacets"><!--will go--></div>
         <div id="curnum"><span id="curdur"></span><span id="curtime"></span></div>
       </div>
-      <div id="controls">
-        <span id="buttonbox">
-          <button id="prevbtn" onClick="playPrev();">⏮</button>
-          <button id="playbtn" onClick="startPlaying();">⏵</button>
-          <button id="stopbtn" onClick="stopPlaying();">⏸</button>
-          <button id="nextbtn" onClick="playNext();">⏭</button>
-        </span>
-      </div>
     </div>
     <div id="foot">
       <button id="recent" onClick="queryRecent();" title="Queue recent albums">Recent</button>
-      <button id="shuffle" onClick="shuffleMode();" title="Toggle shuffle mode">Shuffle</button>
       <button id="reload" onClick="reloadPage('m.html');" title="Reload player">Reload</button>
       <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" title="Volume" />
 

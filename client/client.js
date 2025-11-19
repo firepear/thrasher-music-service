@@ -15,6 +15,7 @@ var shuffle = false;
 var shflHist = [];
 var sound;
 var cover;
+var mobile = false;
 
 var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "cover",
                "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "shuffle",
@@ -29,29 +30,35 @@ async function pingHost() {
     const ping = await fetch(`http://${host}:${port}/ping`).then((r) => {return r.json() });
 }
 
-async function initThrasher() {
+async function initThrasher(plat) {
+    if (plat == "mobile") {
+        mobile = true;
+    }
+
     const regex = /["'& ]/g;
     const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
     host = catAF.meta[0];
     port = catAF.meta[1];
     oport = catAF.meta[2];
-    catAF.facets.forEach((facet) => {
-        const nfacet = facet.replaceAll(regex, "");
-        els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery(this);" /><label for="fc${nfacet}">${facet}</label></div>`);
-        facetdivs.push(document.getElementById(`fd${nfacet}`));
-    });
-    catAF.artists.forEach((artist) => {
-        let nartist = artist.replaceAll(regex, "");
-        artist = artist.replaceAll(/"/g, "&quot;");
-        els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}" value="${artist}" onClick="buildCheckQuery(this);" /><label for="ac${nartist}">${artist}</label></div>`);
-        artistdivs.push(document.getElementById(`ad${nartist}`));
-    });
-    // set facetlit height
-    els["facetlist"].style.height = (els["facetlist"].parentNode.clientHeight - els["facetlist"].previousElementSibling.clientHeight) + "px";
-    // set artistlist height
-    els["artistlist"].style.height = (els["artistlist"].parentNode.clientHeight - els["artistlist"].previousElementSibling.clientHeight - els["artistlist"].previousElementSibling.previousElementSibling.clientHeight) + "px";
-    // set tracklist height
-    els["tracklist"].style.height = (els["tracklist"].parentNode.clientHeight - els["tracklist"].previousElementSibling.clientHeight) + "px";
+    if (!mobile) {
+        catAF.facets.forEach((facet) => {
+            const nfacet = facet.replaceAll(regex, "");
+            els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery(this);" /><label for="fc${nfacet}">${facet}</label></div>`);
+            facetdivs.push(document.getElementById(`fd${nfacet}`));
+        });
+        catAF.artists.forEach((artist) => {
+            let nartist = artist.replaceAll(regex, "");
+            artist = artist.replaceAll(/"/g, "&quot;");
+            els["artistlist"].insertAdjacentHTML("beforeend", `<div id="ad${nartist}"><input type="checkbox" id="ac${nartist}" value="${artist}" onClick="buildCheckQuery(this);" /><label for="ac${nartist}">${artist}</label></div>`);
+            artistdivs.push(document.getElementById(`ad${nartist}`));
+        });
+        // set facetlit height
+        els["facetlist"].style.height = (els["facetlist"].parentNode.clientHeight - els["facetlist"].previousElementSibling.clientHeight) + "px";
+        // set artistlist height
+        els["artistlist"].style.height = (els["artistlist"].parentNode.clientHeight - els["artistlist"].previousElementSibling.clientHeight - els["artistlist"].previousElementSibling.previousElementSibling.clientHeight) + "px";
+        // set tracklist height
+        els["tracklist"].style.height = (els["tracklist"].parentNode.clientHeight - els["tracklist"].previousElementSibling.clientHeight) + "px";
+    }
 
     // start the isPlaying ticker
     setInterval(isPlaying, 333);
@@ -150,12 +157,16 @@ async function setFilterNet(filter, init) {
 }
 
 async function queryRecent() {
-    els["filter"].value = "";
     let url = `http://${host}:${port}/qr`;
     url = encodeURI(url)
     filterMeta = await fetch(url).then((r) => { return r.json() });
     console.log(filterMeta);
-    getTrks("recent");
+    if (mobile) {
+        getMobTrks();
+    } else {
+        els["filter"].value = "";
+        getTrks("recent");
+    }
 }
 
 async function getTrks(orderby) {
@@ -188,6 +199,46 @@ async function getTrks(orderby) {
             if (ti.Artist.length > 70) { ti.Artist = `${ti.Artist.substring(0,69)}…` }
             trkInfo.push(ti);
             mt.insertAdjacentHTML("beforeend", `<tr class="${tclass}" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="${tfclass}" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
+            i++;
+        }
+        o = o + 100;
+    }
+    alertify.message(`${filterMeta.FltrCount} tracks in queue`);
+    // handle loading a new queue during playback
+    playing == "single" ? playing = "auto" : Function.prototype();
+    playing == "auto" ? trkIdx = -1 : trkIdx = 0;
+}
+
+async function getMobTrks() {
+    trks = [];
+    //const mt = els["maintable"].firstChild;
+    //mt.replaceChildren();
+    trkInfo = [];
+    shflHist = [];
+    i = 0;
+    o = 0;
+    let tclass = "";
+    let tfclass = "";
+    let curalbum = "";
+    while (o < filterMeta.FltrCount) {
+        const turl = `http://${host}:${port}/i/batch/recent/${o}`;
+        qb = await fetch(encodeURI(turl)).then((r) => { return r.json() });
+        trks.push(...qb.Trks);
+        for (const ti of qb.TIs) {
+            if (ti.Album != curalbum) {
+                curalbum = ti.Album;
+                if (tclass == "track") {
+                    tclass = "track2";
+                    tfclass = "trackf2";
+                } else {
+                    tclass = "track";
+                    tfclass = "trackf";
+                }
+            }
+            if (ti.Title.length > 70) { ti.Title = `${ti.Title.substring(0,69)}…` }
+            if (ti.Artist.length > 70) { ti.Artist = `${ti.Artist.substring(0,69)}…` }
+            trkInfo.push(ti);
+            //mt.insertAdjacentHTML("beforeend", `<tr class="${tclass}" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="${tfclass}" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
             i++;
         }
         o = o + 100;
@@ -244,7 +295,6 @@ function uncheckAll(nonet) {
 /* ========================================================== Player  */
 
 function playTrk(i) {
-    unsetHighlight(trkIdx);
     playing = "no";
     trkIdx = i;
     // trk comes with leading /, so don't add it here
@@ -265,10 +315,12 @@ function playTrk(i) {
         d.insertAdjacentHTML("beforeend", formatTime(Math.floor(sound.duration())));
         playing = "auto";
     });
-    setHighlight(trkIdx);
     setVol();
     sound.play();
-    displayCover();
+    if (!mobile) {
+        setHighlight(trkIdx);
+        displayCover();
+    }
 }
 
 function startPlaying() {
@@ -306,7 +358,9 @@ function playNext() {
     if (!shuffle && trkIdx >= trks.length - 1) {
         return
     }
-    unsetHighlight(trkIdx);
+    if (!mobile) {
+        unsetHighlight(trkIdx);
+    }
     trkIdx = getNextIdx();
     if (trkIdx == -1) {
         return
@@ -319,7 +373,9 @@ function playPrev() {
     if (trkIdx <= 0 || trks.length == 0) {
         return
     }
-    unsetHighlight(trkIdx);
+    if (!mobile) {
+        unsetHighlight(trkIdx);
+    }
     trkIdx--;
     playTrk(trkIdx);
 }
@@ -529,6 +585,6 @@ function errorHandler(id, err, x) {
     }
 }
 
-function reloadPage() {
-    window.location.replace(`http://${host}:${oport}/`);
+function reloadPage(path) {
+    window.location.replace(`http://${host}:${oport}/${path}`);
 }

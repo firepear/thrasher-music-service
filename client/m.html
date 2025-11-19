@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/alertify.min.css" integrity="sha512-IXuoq1aFd2wXs4NqGskwX2Vb+I8UJ+tGJEu/Dc0zwLNKeQ7CW3Sr6v0yU3z5OQWe3eScVIkER4J9L7byrgR/fA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/themes/default.min.css" integrity="sha512-RgUjDpwjEDzAb7nkShizCCJ+QTSLIiJO1ldtuxzs0UIBRH4QpOjUU9w47AF9ZlviqV/dOFGWF6o7l3lttEFb6g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/mobile.css" />
+  </head>
+
+  <body>
+    <div id="player">
+      <div id="trkinfo">
+        <h2>Thrasher</h2>
+        <div id="curtitle"><!--This is where--></div>
+        <div id="curaay"><!--current track info--></div>
+        <div id="curfacets"><!--will go--></div>
+        <div id="curnum"><span id="curdur"></span><span id="curtime"></span></div>
+      </div>
+      <div id="controls">
+        <span id="buttonbox">
+          <button id="prevbtn" onClick="playPrev();">⏮</button>
+          <button id="playbtn" onClick="startPlaying();">⏵</button>
+          <button id="stopbtn" onClick="stopPlaying();">⏸</button>
+          <button id="nextbtn" onClick="playNext();">⏭</button>
+        </span>
+      </div>
+    </div>
+    <div id="foot">
+      <button id="recent" onClick="queryRecent();" title="Queue recent albums">Recent</button>
+      <button id="shuffle" onClick="shuffleMode();" title="Toggle shuffle mode">Shuffle</button>
+      <button id="reload" onClick="reloadPage('m.html');" title="Reload player">Reload</button>
+      <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" title="Volume" />
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js" integrity="sha512-JnjG+Wt53GspUQXQhc+c4j8SBERsgJAoHeehagKHlxQN+MtCCmFDghX9/AcbkkNRZptyZU4zC8utK59M5L45Iw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="/client.js"></script>
+    <script>window.addEventListener("load", initThrasher("mobile"))</script>
+  </body>
+</html>

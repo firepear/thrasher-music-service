@@ -144,7 +144,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	log.Printf("new srvr on %s", addr)
 	// add it to srvrs
 	srvrs[sport] = s
-	http.Redirect(w, r, "http://" + addr, http.StatusSeeOther)
+	http.Redirect(w, r, "http://" + addr + r.URL.Path, http.StatusSeeOther)
 }
 
 ///////////

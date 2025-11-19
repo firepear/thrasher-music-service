@@ -157,22 +157,22 @@ async function setFilterNet(filter, init) {
 }
 
 async function queryRecent() {
+    if (!mobile) {
+        els["filter"].value = "";
+    }
     let url = `http://${host}:${port}/qr`;
     url = encodeURI(url)
     filterMeta = await fetch(url).then((r) => { return r.json() });
     console.log(filterMeta);
-    if (mobile) {
-        getMobTrks();
-    } else {
-        els["filter"].value = "";
-        getTrks("recent");
-    }
+    getTrks("recent");
 }
 
 async function getTrks(orderby) {
     trks = [];
-    const mt = els["maintable"].firstChild;
-    mt.replaceChildren();
+    if (!mobile) {
+        const mt = els["maintable"].firstChild;
+        mt.replaceChildren();
+    }
     trkInfo = [];
     shflHist = [];
     i = 0;
@@ -198,48 +198,10 @@ async function getTrks(orderby) {
             if (ti.Title.length > 70) { ti.Title = `${ti.Title.substring(0,69)}…` }
             if (ti.Artist.length > 70) { ti.Artist = `${ti.Artist.substring(0,69)}…` }
             trkInfo.push(ti);
-            mt.insertAdjacentHTML("beforeend", `<tr class="${tclass}" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="${tfclass}" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
-            i++;
-        }
-        o = o + 100;
-    }
-    alertify.message(`${filterMeta.FltrCount} tracks in queue`);
-    // handle loading a new queue during playback
-    playing == "single" ? playing = "auto" : Function.prototype();
-    playing == "auto" ? trkIdx = -1 : trkIdx = 0;
-}
-
-async function getMobTrks() {
-    trks = [];
-    //const mt = els["maintable"].firstChild;
-    //mt.replaceChildren();
-    trkInfo = [];
-    shflHist = [];
-    i = 0;
-    o = 0;
-    let tclass = "";
-    let tfclass = "";
-    let curalbum = "";
-    while (o < filterMeta.FltrCount) {
-        const turl = `http://${host}:${port}/i/batch/recent/${o}`;
-        qb = await fetch(encodeURI(turl)).then((r) => { return r.json() });
-        trks.push(...qb.Trks);
-        for (const ti of qb.TIs) {
-            if (ti.Album != curalbum) {
-                curalbum = ti.Album;
-                if (tclass == "track") {
-                    tclass = "track2";
-                    tfclass = "trackf2";
-                } else {
-                    tclass = "track";
-                    tfclass = "trackf";
-                }
+            if (!mobile) {
+                mt.insertAdjacentHTML("beforeend", `<tr class="${tclass}" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="${tfclass}" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
+                i++;
             }
-            if (ti.Title.length > 70) { ti.Title = `${ti.Title.substring(0,69)}…` }
-            if (ti.Artist.length > 70) { ti.Artist = `${ti.Artist.substring(0,69)}…` }
-            trkInfo.push(ti);
-            //mt.insertAdjacentHTML("beforeend", `<tr class="${tclass}" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="${tfclass}" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
-            i++;
         }
         o = o + 100;
     }

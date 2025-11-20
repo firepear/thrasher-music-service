@@ -1,20 +1,41 @@
-button { background-color: #bbb; }
+body { color: #000;
+       background-color: #333;
+       padding: 0.2em;
+     }
 
-#controls { margin-bottom: 1em; }
+button { background-color: #bbb;
+         border-radius: 0.2em;
+         padding: 0.2em;
+       }
+
+#player { display: flex; }
+
+#controls { padding-bottom: 1em;
+          }
+
+#controls button { margin-right: 0.2em; }
 
 #trkinfo { margin-right: 2em;
+           background-color: #bbb;
            font-size: 150%;
            font-family: sans-serif;
-           margin-bottom: 1em;
+           border-radius: 0.4em;
+           margin-top: 1em;
+           padding: 0.5em;
          }
 
-/* #player { display: flex; } */
+#foot { margin-top: 1em;
+        padding-top: 1em;
+      }
 
-#prevbtn { font-size: 400%; padding: 0.2em; }
-#playbtn { font-size: 400%; padding: 0.2em; }
-#stopbtn { font-size: 400%; padding: 0.2em; }
-#nextbtn { font-size: 400%; padding: 0.2em; }
-#shuffle { font-size: 400%; padding: 0.2em; }
+#foot button { color: #000; }
 
-#recent  { font-size: 250%; margin-right: 0.25em; }
-#reload  { font-size: 250%; }
+
+#prevbtn { font-size: 400%; }
+#playbtn { font-size: 400%; }
+#stopbtn { font-size: 400%; }
+#nextbtn { font-size: 400%; }
+#shuffle { font-size: 400%; }
+
+#recent  { font-size: 200%; margin-right: 0.25em; }
+#reload  { font-size: 200%; }

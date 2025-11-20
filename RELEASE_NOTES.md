@@ -1,5 +1,11 @@
 # Release notes
 
+## v0.7.1 (2025-11-xx)
+
+- Client
+  - Improvements and cleanups for mobile code and styling
+
+
 ## v0.7.0 (2025-11-19)
 
 - Server

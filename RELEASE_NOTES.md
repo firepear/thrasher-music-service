@@ -4,6 +4,7 @@
 
 - Client
   - Improvements and cleanups for mobile code and styling
+  - Facets added to mobile
 
 
 ## v0.7.0 (2025-11-19)

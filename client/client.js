@@ -1,5 +1,5 @@
 // terser client.js --compress --mangle > client.js.min
-var tag = "v0.6.0";
+var tag = "v0.7.1";
 var host = window.location.host;
 var port = window.location.port;
 var oport = 0;
@@ -454,7 +454,10 @@ function filterArtists(evt) {
 }
 
 function showVersion() {
-    alertify.message(`<b>Thrasher ${tag}</b><br/>${filterMeta.TrackCount} tracks in catalog<br/>Press '?' for keyboard mappings`);
+    alertify.message(`<b>Thrasher ${tag}</b><br/>${filterMeta.TrackCount} tracks in catalog`);
+    if (!mobile) {
+        alertify.message(`Press '?' for keyboard mappings`);
+    }
 }
 
 function helpPopup(which, whichbut) {

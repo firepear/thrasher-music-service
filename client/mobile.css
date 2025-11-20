@@ -26,7 +26,9 @@ button { background-color: #bbb;
 #controls { width: 100%;
             text-align: center;
           }
-#controls button { margin-right: 0.2em; }
+#controls button { margin-right: 0.2em;
+                   font-size: 400%;
+                 }
 
 #facetlist {
     background-color: #bbb;
@@ -47,28 +49,22 @@ button { background-color: #bbb;
            font-size: 150%;
            border: solid medium #ddd;
            border-radius: 0.4em;
-           margin-top: 1em;
+           margin-top: 0.5em;
            padding: 0.5em;
            grid-row-start: 2;
            grid-row-end: 3;
          }
 
-#foot { margin-top: 1em;
-        padding-top: 1em;
+
+#foot { margin-top: 0.5em;
+        padding-top: 0.5em;
       }
-#foot button { color: #000; }
-
-
-#prevbtn { font-size: 400%; }
-#playbtn { font-size: 400%; }
-#stopbtn { font-size: 400%; }
-#nextbtn { font-size: 400%; }
-#shuffle { font-size: 400%; }
+#foot button { color: #000; font-size: 200%; }
 
 #vol      { margin-right: 4em; }
-#recent   { font-size: 200%; margin-right: 0.5em; }
-#uncheck  { font-size: 200%; margin-right: 0.5em; }
-#reload   { font-size: 200%; }
+#recent   { margin-right: 0.5em; }
+#uncheck  { margin-right: 0.5em; }
+/*#reload   { margin-right: 0.5em; }*/
 
 .alertify-notifier.ajs-right .ajs-message.ajs-visible { background-color: #bbb;
                                                         border: solid medium #ddd;

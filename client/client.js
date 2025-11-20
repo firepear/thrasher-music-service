@@ -1,5 +1,6 @@
 // terser client.js --compress --mangle > client.js.min
 var tag = "v0.7.1";
+var proto = window.location.protocol;
 var host = window.location.host;
 var port = window.location.port;
 var oport = 0;
@@ -27,7 +28,7 @@ window.addEventListener("keydown", (event) => handleKey(event));
 setInterval(pingHost, 30000);
 
 async function pingHost() {
-    const ping = await fetch(`http://${host}:${port}/ping`).then((r) => {return r.json() });
+    const ping = await fetch(`${proto}://${host}:${port}/ping`).then((r) => {return r.json() });
 }
 
 async function initThrasher(plat) {
@@ -36,7 +37,7 @@ async function initThrasher(plat) {
     }
 
     const regex = /["'& ]/g;
-    const catAF = await fetch(`http://${host}/init`).then((r) => { return r.json() });
+    const catAF = await fetch(`${proto}://${host}/init`).then((r) => { return r.json() });
     host = catAF.meta[0];
     port = catAF.meta[1];
     oport = catAF.meta[2];
@@ -141,7 +142,7 @@ async function setFilter(evt) {
 
 async function setFilterNet(filter, init) {
     filter = filter.replaceAll(/\//g, "%2F");
-    let url = `http://${host}:${port}/f/${filter}`;
+    let url = `${proto}//${host}:${port}/f/${filter}`;
     url = encodeURI(url)
     console.log(filter, url)
     filterMeta = await fetch(url).then((r) => { return r.json() });
@@ -160,7 +161,7 @@ async function queryRecent() {
     if (!mobile) {
         els["filter"].value = "";
     }
-    let url = `http://${host}:${port}/qr`;
+    let url = `${proto}//${host}:${port}/qr`;
     url = encodeURI(url)
     filterMeta = await fetch(url).then((r) => { return r.json() });
     console.log(filterMeta);
@@ -181,7 +182,7 @@ async function getTrks(orderby) {
     let tfclass = "";
     let curalbum = "";
     while (o < filterMeta.FltrCount) {
-        const turl = `http://${host}:${port}/i/batch/${orderby}/${o}`;
+        const turl = `${proto}//${host}:${port}/i/batch/${orderby}/${o}`;
         qb = await fetch(encodeURI(turl)).then((r) => { return r.json() });
         trks.push(...qb.Trks);
         for (const ti of qb.TIs) {
@@ -260,7 +261,7 @@ function playTrk(i) {
     playing = "no";
     trkIdx = i;
     // trk comes with leading /, so don't add it here
-    const trkURL = encodeURI(`http://${host}:${port}/music${trks[i]}`);
+    const trkURL = encodeURI(`${proto}//${host}:${port}/music${trks[i]}`);
     if (sound != undefined) {
         sound.stop();
     }
@@ -424,7 +425,7 @@ async function displayCover() {
     var path = trks[trkIdx].split("/");
     path.pop();
     path = path.join("/");
-    const url = `http://${host}:${port}/music${path}/cover.jpg`;
+    const url = `${proto}//${host}:${port}/music${path}/cover.jpg`;
     if (cover == url) {
         // do nothing if cover url has not changed
         return;
@@ -551,5 +552,5 @@ function errorHandler(id, err, x) {
 }
 
 function reloadPage(path) {
-    window.location.replace(`http://${host}:${oport}/${path}`);
+    window.location.replace(`${proto}//${host}:${oport}/${path}`);
 }

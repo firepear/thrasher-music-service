@@ -1,8 +1,9 @@
 # Release notes
 
-## v0.7.1 (2025-11-xx)
+## v0.7.1 (2025-11-20)
 
 - Client
+  - Protocol no longer hardcoded, in preparation for PWA
   - Improvements and cleanups for mobile code and styling
   - Facets added to mobile
 

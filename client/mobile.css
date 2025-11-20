@@ -1,33 +1,61 @@
 body { color: #000;
        background-color: #333;
        padding: 0.2em;
+       font-family: sans-serif;
      }
 
+#container { display: grid;
+             grid-template-columns: 1fr;
+             grid-template-rows: 1fr 1fr 1fr;
+             height: 98vh;
+           }
+
 button { background-color: #bbb;
-         border-radius: 0.2em;
+         border: solid medium #ddd;
+         border-radius: 0.3rem;
          padding: 0.2em;
        }
 
-#player { display: flex; }
+#player { display: flex;
+          grid-row-start: 1;
+          grid-row-end: 2;
+          padding-bottom: 1em;
+          width: 99%;
+        }
 
-#controls { padding-bottom: 1em;
+#controls { width: 100%;
+            text-align: center;
           }
-
 #controls button { margin-right: 0.2em; }
+
+#facetlist {
+    background-color: #bbb;
+    border-right: medium solid #556;
+    font-size: 150%;
+    padding: 0.3em;
+    margin-right: 1em;
+    border: solid medium #ddd;
+    border-radius: 0.4em;
+    overflow: hidden;
+    overflow: scroll;
+    min-width: 28%;
+}
+
 
 #trkinfo { margin-right: 2em;
            background-color: #bbb;
            font-size: 150%;
-           font-family: sans-serif;
+           border: solid medium #ddd;
            border-radius: 0.4em;
            margin-top: 1em;
            padding: 0.5em;
+           grid-row-start: 2;
+           grid-row-end: 3;
          }
 
 #foot { margin-top: 1em;
         padding-top: 1em;
       }
-
 #foot button { color: #000; }
 
 
@@ -37,5 +65,16 @@ button { background-color: #bbb;
 #nextbtn { font-size: 400%; }
 #shuffle { font-size: 400%; }
 
-#recent  { font-size: 200%; margin-right: 0.25em; }
-#reload  { font-size: 200%; }
+#vol      { margin-right: 4em; }
+#recent   { font-size: 200%; margin-right: 0.5em; }
+#uncheck  { font-size: 200%; margin-right: 0.5em; }
+#reload   { font-size: 200%; }
+
+.alertify-notifier.ajs-right .ajs-message.ajs-visible { background-color: #bbb;
+                                                        border: solid medium #ddd;
+                                                        bottom: 2.5em;
+                                                        font-family: sans-serif;
+                                                        font-size: 150%;
+                                                        border-radius: 0.4em;
+                                                        padding: 0.3em;
+                                                      }

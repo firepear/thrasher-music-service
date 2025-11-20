@@ -40,12 +40,12 @@ async function initThrasher(plat) {
     host = catAF.meta[0];
     port = catAF.meta[1];
     oport = catAF.meta[2];
+    catAF.facets.forEach((facet) => {
+        const nfacet = facet.replaceAll(regex, "");
+        els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery(this);" /><label for="fc${nfacet}">${facet}</label></div>`);
+        facetdivs.push(document.getElementById(`fd${nfacet}`));
+    });
     if (!mobile) {
-        catAF.facets.forEach((facet) => {
-            const nfacet = facet.replaceAll(regex, "");
-            els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery(this);" /><label for="fc${nfacet}">${facet}</label></div>`);
-            facetdivs.push(document.getElementById(`fd${nfacet}`));
-        });
         catAF.artists.forEach((artist) => {
             let nartist = artist.replaceAll(regex, "");
             artist = artist.replaceAll(/"/g, "&quot;");

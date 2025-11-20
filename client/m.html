@@ -7,29 +7,33 @@
   </head>
 
   <body>
-    <div id="player">
-      <div id="controls">
-        <span id="buttonbox">
-          <button id="prevbtn" onClick="playPrev();">⏪</button>
-          <button id="playbtn" onClick="startPlaying();">▶️</button>
-          <button id="stopbtn" onClick="stopPlaying();">⏸</button>
-          <button id="nextbtn" onClick="playNext();">⏩</button>
-          <button id="shuffle" onClick="shuffleMode();" title="Toggle shuffle mode">🔀</button>
-        </span>
+    <div id="container">
+      <div id="player">
+        <div id="facetlist"></div>
+        <div id="controls">
+          <span id="buttonbox">
+            <button id="prevbtn" onClick="playPrev();">⏪</button>
+            <button id="playbtn" onClick="startPlaying();">▶️</button>
+            <button id="stopbtn" onClick="stopPlaying();">⏸</button>
+            <button id="nextbtn" onClick="playNext();">⏩</button>
+            <button id="shuffle" onClick="shuffleMode();" title="Toggle shuffle mode">🔀</button>
+          </span>
+        </div>
       </div>
-    </div>
 
-    <div id="trkinfo">
-      <div id="curtitle"><!--This is where--></div>
-      <div id="curaay"><!--current track info--></div>
-      <div id="curfacets"><!--will go--></div>
-      <div id="curnum"><span id="curdur"></span><span id="curtime"></span></div>
-    </div>
+      <div id="trkinfo">
+        <div id="curtitle"><!--This is where--></div>
+        <div id="curaay"><!--current track info--></div>
+        <div id="curfacets"><!--will go--></div>
+        <div id="curnum"><span id="curdur"></span><span id="curtime"></span></div>
+      </div>
 
-    <div id="foot">
-      <button id="recent" onClick="queryRecent();" title="Queue recent albums">Recent</button>
-      <button id="reload" onClick="reloadPage('m.html');" title="Reload player">Reload</button>
-      <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" title="Volume" />
+      <div id="foot">
+        <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" title="Volume" />
+        <button id="recent" onClick="queryRecent();" title="Queue recent albums">Recent</button>
+        <button id="uncheck" onClick="uncheckAll();" title="Uncheck all and clear queue">Clear</button>
+        <button id="reload" onClick="reloadPage('m.html');" title="Reload player">Reload</button>
+      </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js" integrity="sha512-d00Brs/+XQUUaO0Y9Uo8Vw63o7kS6ZcLM2P++17kALrI8oihAfL4pl1jQObeRBgv06j7xG0GHOhudAW0BdrycA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

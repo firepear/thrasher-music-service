@@ -28,7 +28,7 @@ window.addEventListener("keydown", (event) => handleKey(event));
 setInterval(pingHost, 30000);
 
 async function pingHost() {
-    const ping = await fetch(`${proto}://${host}:${port}/ping`).then((r) => {return r.json() });
+    const ping = await fetch(`${proto}//${host}:${port}/ping`).then((r) => {return r.json() });
 }
 
 async function initThrasher(plat) {
@@ -37,7 +37,7 @@ async function initThrasher(plat) {
     }
 
     const regex = /["'& ]/g;
-    const catAF = await fetch(`${proto}://${host}/init`).then((r) => { return r.json() });
+    const catAF = await fetch(`${proto}//${host}/init`).then((r) => { return r.json() });
     host = catAF.meta[0];
     port = catAF.meta[1];
     oport = catAF.meta[2];

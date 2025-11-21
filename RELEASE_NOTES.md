@@ -1,5 +1,11 @@
 # Release notes
 
+## v0.7.2 (2025-11-xx)
+
+- Client
+  - Fix for malformed URL construction
+
+
 ## v0.7.1 (2025-11-20)
 
 - Client

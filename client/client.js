@@ -169,9 +169,10 @@ async function queryRecent() {
 }
 
 async function getTrks(orderby) {
+    var mt;
     trks = [];
     if (!mobile) {
-        const mt = els["maintable"].firstChild;
+        mt = els["maintable"].firstChild;
         mt.replaceChildren();
     }
     trkInfo = [];

@@ -18,14 +18,15 @@ var sound;
 var cover;
 var mobile = false;
 
+// set up DOM array
 var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "cover",
                "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "shuffle",
-               "help", "searchhelp", "searchhelpbut"];
+               "help", "searchhelp", "searchhelpbut", "player", "trkinfo"];
 elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
+// listeners and global setup
 window.addEventListener("keydown", (event) => handleKey(event));
-
-setInterval(pingHost, 30000);
+setInterval(pingHost, 20000);
 
 async function pingHost() {
     const ping = await fetch(`${proto}//${host}:${port}/ping`).then((r) => {return r.json() });
@@ -34,6 +35,7 @@ async function pingHost() {
 async function initThrasher(plat) {
     if (plat == "mobile") {
         mobile = true;
+        checkOrientation();
     }
 
     const regex = /["'& ]/g;
@@ -169,12 +171,11 @@ async function queryRecent() {
 }
 
 async function getTrks(orderby) {
-    var mt;
     trks = [];
-    if (!mobile) {
-        mt = els["maintable"].firstChild;
-        mt.replaceChildren();
-    }
+    var mt;
+    mt = els["maintable"].firstChild;
+    mt.replaceChildren();
+
     trkInfo = [];
     shflHist = [];
     i = 0;
@@ -200,10 +201,8 @@ async function getTrks(orderby) {
             if (ti.Title.length > 70) { ti.Title = `${ti.Title.substring(0,69)}…` }
             if (ti.Artist.length > 70) { ti.Artist = `${ti.Artist.substring(0,69)}…` }
             trkInfo.push(ti);
-            if (!mobile) {
-                mt.insertAdjacentHTML("beforeend", `<tr class="${tclass}" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="${tfclass}" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
-                i++;
-            }
+            mt.insertAdjacentHTML("beforeend", `<tr class="${tclass}" id="trk${i}" onClick="playTrk(${i});"><td>${ti.Num}</td><td>${ti.Title}</td><td>${ti.Artist}</td><td>${ti.Album}</td><td>${ti.Year}</td></tr><tr class="${tfclass}" onClick="playTrk(${i});"><td style="background-color: #556"></td><td colspan="4">${expandFacets(i)}</td></tr>`);
+            i++;
         }
         o = o + 100;
     }
@@ -242,14 +241,13 @@ function uncheckAll(nonet) {
             }
         });
     }
-    //if (unchecked == 0) {
-        // if we don't actually uncheck anything, don't make changes
-    //    nonet = true;
-    //}
+
     // clear artistfilter and filter boxes
-    els["artistfilter"].value = "";
-    filterArtists(null);
-    els["filter"].value = "";
+    if (!mobile) {
+        els["artistfilter"].value = "";
+        filterArtists(null);
+        els["filter"].value = "";
+    }
 
     //if (nonet == undefined) {
     setFilterNet("a:=a\\\\=b");

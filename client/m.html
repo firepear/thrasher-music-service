@@ -28,6 +28,10 @@
         <div id="curnum"><span id="curdur"></span><span id="curtime"></span></div>
       </div>
 
+      <div id="tracklist">
+        <table id="maintable"><tbody></tbody></table>
+      </div>
+
       <div id="foot">
         <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" title="Volume" />
         <button id="recent" onClick="queryRecent();" title="Queue recent albums">Recent</button>
@@ -40,6 +44,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js" integrity="sha512-JnjG+Wt53GspUQXQhc+c4j8SBERsgJAoHeehagKHlxQN+MtCCmFDghX9/AcbkkNRZptyZU4zC8utK59M5L45Iw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script src="/client.js"></script>
+    <script src="/mobile.js"></script>
     <script>window.addEventListener("load", initThrasher("mobile"))</script>
   </body>
 </html>

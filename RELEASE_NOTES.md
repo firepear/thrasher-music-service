@@ -1,5 +1,13 @@
 # Release notes
 
+## v0.7.3 (2025-11-)
+
+- Client
+  - Mobile now aware of orientation and reacts to changes
+  - Tracklist now displays on mobile in portrait orientation
+  - Fix for clearing queue on mobile
+
+
 ## v0.7.2 (2025-11-25)
 
 - Client

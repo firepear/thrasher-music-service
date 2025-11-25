@@ -1,0 +1,13 @@
+{
+    "name": Thrasher Mobile",
+    "short_name": "Thrasher",
+    "display": "standalone",
+    "start_url": "YOUR_URL_HERE",
+    "icons": [
+        {
+            "src": "icons/512.png",
+            "type": "image/png",
+            "size": "512x512"
+        }
+    ]
+}

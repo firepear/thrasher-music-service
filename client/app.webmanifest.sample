@@ -2,7 +2,7 @@
     "name": Thrasher Mobile",
     "short_name": "Thrasher",
     "display": "standalone",
-    "start_url": "YOUR_URL_HERE",
+    "start_url": "localhost:8000/m.html",
     "icons": [
         {
             "src": "icons/512.png",

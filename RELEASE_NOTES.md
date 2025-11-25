@@ -1,5 +1,13 @@
 # Release notes
 
+## v0.7.2 (2025-11-xx)
+
+- Client
+  - Fix for non-mobile queue
+  - Player now always starts playing when play button is pressed (edge
+    cases like Bluetooth disconnects could prevent this, previously)
+
+
 ## v0.7.1 (2025-11-21)
 
 - Client

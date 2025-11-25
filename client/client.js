@@ -287,19 +287,42 @@ function playTrk(i) {
     }
 }
 
-function startPlaying() {
+async function startPlaying() {
+    // nothing to play
     if (trks.length == 0) {
         return;
     }
-    if (playing == "auto" || playing == "single" ) {
-        return
-    }
     if (sound == undefined) {
+        // no track in flight
         if (shuffle) {
             trkIdx = getNextIdx();
         }
         playTrk(trkIdx);
     } else {
+        // a sound is defined, so something should be playing
+        if (playing == "auto" || playing == "single") {
+            // and we think we're playing something, but the user has
+            // hit the button anyway. bluetooth disconnects can cause
+            // pauses outside our control, so see if our sound is
+            // actually playing or not
+            const pos1 = sound.seek();
+            await new Promise(r => setTimeout(r, 150));
+            const pos2 = sound.seek();
+            if (pos1 == pos2) {
+                // no change in seek value. sound is has been paused
+                // by something external. explicitly pause, then
+                // resume playback, as the user expects
+                sound.pause();
+                sound.play();
+                return;
+            } else {
+                // seek value changed; do nothing
+                return;
+            }
+        }
+        // if we make it all the way down here, we've actually been
+        // told to start playback of something new, or resume from a
+        // user pause
         sound.play();
         if (filterMeta.FltrCount > 1) {
             playing = "auto";

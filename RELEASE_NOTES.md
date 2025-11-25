@@ -1,6 +1,6 @@
 # Release notes
 
-## v0.7.2 (2025-11-xx)
+## v0.7.2 (2025-11-25)
 
 - Client
   - Fix for non-mobile queue

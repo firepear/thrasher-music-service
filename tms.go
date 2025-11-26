@@ -36,7 +36,7 @@ type FilterReturn struct {
 
 func (s *Srvr) HandleInit(w http.ResponseWriter, _ *http.Request) {
 	j, _ := json.Marshal(map[string][]string{"artists": s.C.Artists, "facets": s.C.Facets,
-		"meta": []string{s.Listem, s.Host, s.Port, s.OrigPort}})
+		"meta": []string{s.Listen, s.Host, s.Port, s.OrigPort}})
 	io.WriteString(w, string(j))
 }
 

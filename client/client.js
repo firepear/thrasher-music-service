@@ -44,7 +44,7 @@ async function initThrasher(plat) {
     host = catAF.meta[1];
     port = catAF.meta[2];
     oport = catAF.meta[3];
-    console.log(listen, host, port);
+    console.log(catAF.meta, listen, host, port);
 
     catAF.facets.forEach((facet) => {
         const nfacet = facet.replaceAll(regex, "");

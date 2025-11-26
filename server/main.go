@@ -60,15 +60,12 @@ func init() {
 	}
 	// listen value
 	if listen != "localhost:8000" {
-		conf.Lostname = listen
+		conf.Listen = listen
 	}
 
 	// and hostname
 	if hostname != "" {
 		conf.Hostname = hostname
-	} else {
-		h := strings.Split(listen, ":")
-		conf.Hostname = h[0]
 	}
 
 	// and portRange
@@ -134,7 +131,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 
 	// make a new Srvr and mux
 	addr := fmt.Sprintf("%s:%d", listen, sport)
-	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Listen: listen, Host: hostname,
+	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Listen: listen, Host: conf.Hostname,
 		Port: strconv.Itoa(sport), OrigPort: port, C: c}
 	mux := http.NewServeMux()
 	// set up its handlers
@@ -152,10 +149,16 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	s.LastPing = int(time.Now().Unix())
 	// launch it
 	go s.Http.ListenAndServe()
-	log.Printf("new srvr on %s", addr)
 	// add it to srvrs
 	srvrs[sport] = s
-	http.Redirect(w, r, r.URL.Scheme + "://" + addr + r.URL.Path, http.StatusSeeOther)
+	// redirect to the new Srvr
+	var scheme string
+	if r.TLS == nil {
+		scheme = "http"
+	} else {
+		scheme = "https"
+	}
+	http.Redirect(w, r, scheme + "://" + addr + r.URL.Path, http.StatusSeeOther)
 }
 
 ///////////
@@ -174,5 +177,5 @@ func main() {
 	mainSrv := http.NewServeMux()
 	mainSrv.HandleFunc("GET /", handleSpawn)
 	log.Printf("listening on %s", conf.Listen)
-	log.Fatal(http.ListenAndServe(conf.Hostname, mainSrv))
+	log.Fatal(http.ListenAndServe(conf.Listen, mainSrv))
 }

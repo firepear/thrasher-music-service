@@ -532,7 +532,7 @@ function updateCurrent() {
 }
 
 function unsetHighlight(old) {
-    if (trkidx == -1) {
+    if (old == -1) {
         return;
     }
     // reset current track backgrouncColor if possible
@@ -551,13 +551,10 @@ function unsetHighlight(old) {
             ttr.nextSibling.childNodes[1].style.backgroundColor = "#ccd";
         }
     } catch {
-        errorHandler(sound.id, "couldn't grab old tr", {"type": "hilite", "i": trkIdx});
+        errorHandler(sound.id, "couldn't grab old tr", {"type": "hilite", "i": old});
     }
 }
 function setHighlight(cur) {
-    if (trkidx == -1) {
-        return;
-    }
     // set current track backgrouncColor and scroll to it
     try {
         let ttr = document.getElementById(`trk${cur}`);
@@ -567,7 +564,7 @@ function setHighlight(cur) {
         ttr.nextSibling.childNodes[1].style.backgroundColor = "#bbe";
         ttr.scrollIntoView({block: "center"});
     } catch {
-        errorHandler(sound.id, "couldn't grab new tr", {"type": "hilite", "i": trkIdx});
+        errorHandler(sound.id, "couldn't grab new tr", {"type": "hilite", "i": cur});
     }
 }
 

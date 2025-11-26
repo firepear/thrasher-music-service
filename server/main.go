@@ -26,6 +26,7 @@ var (
 	portRange   string
 	portLo      int
 	portHi      int
+	tls         bool
 	musicDir    string
 	musicPrefix string
 	srvrs       map[int]*tms.Srvr
@@ -46,6 +47,7 @@ func init() {
 	flag.StringVar(&listen, "l", "localhost:8000", "name/IP for server to attach to")
 	flag.StringVar(&hostname, "h", "", "hostname for server-generated URLs")
 	flag.StringVar(&portRange, "pr", "8001-8030", "port range for spawned servers")
+	flag.BoolVar(&tls, "tls", false, "build redirect URLs with https")
 	flag.StringVar(&musicDir, "md", "", "dir for serving music files")
 	flag.StringVar(&musicPrefix, "mp", "", "leading musicdir path which will be stripped from filter results (defaults to musicdir)")
 	flag.Parse()
@@ -153,13 +155,13 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	srvrs[sport] = s
 	// redirect to the new Srvr
 	var scheme string
-	if r.TLS == nil {
-		scheme = "http"
-	} else {
+	if tls {
 		scheme = "https"
+	} else {
+		scheme = "http"
 	}
 	http.Redirect(w, r, scheme + "://" + addr + r.URL.Path, http.StatusSeeOther)
-	log.Println("spawned srvr on", scheme + "://" + addr + r.URL.Path, "local", conf.Listen)
+	log.Println("spawned srvr on", scheme + "://" + addr + r.URL.Path, "local", conf.Listen, r.TLS)
 }
 
 ///////////

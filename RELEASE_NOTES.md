@@ -5,6 +5,7 @@
 - Requires `thrasher-music-catalog` v0.8
 - Server
   - New config element `listen`; support for running proxied
+  - New argument `-tls` to enable https redirects
 - Client
   - Mobile now aware of orientation and reacts to changes
   - Tracklist now displays on mobile in portrait orientation

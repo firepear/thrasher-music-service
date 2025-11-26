@@ -21,6 +21,9 @@ The server uses the same config file as
 for most configuration points. See its README for config file
 documentation (and how to build/manage your catalog)
 
+The server should not be run as root. Point it at non-privileged ports
+in your config.
+
 Do `go run . -h` to see all server command line options.
 
 Point a browser at the `host:port` that you speficied to launch a

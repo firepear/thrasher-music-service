@@ -260,6 +260,7 @@ function uncheckAll(nonet) {
 /* ========================================================== Player  */
 
 function playTrk(i) {
+    unsetHighlight(trkIdx);
     playing = "no";
     trkIdx = i;
     // trk comes with leading /, so don't add it here
@@ -282,8 +283,8 @@ function playTrk(i) {
     });
     setVol();
     sound.play();
+    setHighlight(trkIdx);
     if (!mobile) {
-        setHighlight(trkIdx);
         displayCover();
     }
 }
@@ -346,9 +347,7 @@ function playNext() {
     if (!shuffle && trkIdx >= trks.length - 1) {
         return
     }
-    if (!mobile) {
-        unsetHighlight(trkIdx);
-    }
+    unsetHighlight(trkIdx);
     trkIdx = getNextIdx();
     if (trkIdx == -1) {
         return
@@ -361,9 +360,7 @@ function playPrev() {
     if (trkIdx <= 0 || trks.length == 0) {
         return
     }
-    if (!mobile) {
-        unsetHighlight(trkIdx);
-    }
+    unsetHighlight(trkIdx);
     trkIdx--;
     playTrk(trkIdx);
 }

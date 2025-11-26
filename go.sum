@@ -1,4 +1,6 @@
 github.com/firepear/thrasher-music-catalog v0.8.0 h1:AWCSXsdWej6TWUxgGHStRVY5b9ppMTBD66HOlf4BMKw=
 github.com/firepear/thrasher-music-catalog v0.8.0/go.mod h1:CJmEIRpdhpB0/xDqZh/b5wrv7aSuCn//rdavjoBYv0U=
+github.com/firepear/thrasher-music-catalog v0.8.1 h1:k/oiyvTOGLCVmw0spLEUkCcULPWzQb6NQSJJJkzX01s=
+github.com/firepear/thrasher-music-catalog v0.8.1/go.mod h1:CJmEIRpdhpB0/xDqZh/b5wrv7aSuCn//rdavjoBYv0U=
 github.com/mattn/go-sqlite3 v1.14.28 h1:ThEiQrnbtumT+QMknw63Befp/ce/nUPgBPMlRFEum7A=
 github.com/mattn/go-sqlite3 v1.14.28/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=

@@ -2,7 +2,6 @@ var prevOrient = null;
 
 function checkOrientation(){
     const o = Math.abs(window.orientation);
-    console.log(o, prevOrient);
     if(o !== prevOrient){
         prevOrient = o;
         if (o == 90) {

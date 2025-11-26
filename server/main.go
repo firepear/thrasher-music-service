@@ -130,7 +130,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// make a new Srvr and mux
-	addr := fmt.Sprintf("%s:%d", listen, sport)
+	addr := fmt.Sprintf("%s:%d", conf.Hostname, sport)
 	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Listen: listen, Host: conf.Hostname,
 		Port: strconv.Itoa(sport), OrigPort: port, C: c}
 	mux := http.NewServeMux()
@@ -159,7 +159,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 		scheme = "https"
 	}
 	http.Redirect(w, r, scheme + "://" + addr + r.URL.Path, http.StatusSeeOther)
-	log.Println("spawned srvr on", scheme + "://" + addr + r.URL.Path, "URL host", conf.Hostname)
+	log.Println("spawned srvr on", scheme + "://" + addr + r.URL.Path, "local", conf.Listen)
 }
 
 ///////////

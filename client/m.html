@@ -32,6 +32,7 @@
       </div>
 
       <div id="foot">
+        <input id="filter" type="text" size="20" onKeyUp="setFilter(event);"></input>
         <input type="range" id="vol" name="vol" min="0" max="100" value="100" onInput="setVol()" title="Volume" />
         <button id="recent" onClick="queryRecent();" title="Queue recent albums">Recent</button>
         <button id="uncheck" onClick="uncheckAll();" title="Uncheck all and clear queue">Clear</button>

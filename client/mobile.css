@@ -106,7 +106,8 @@ button { background-color: #bbb;
 #foot { height: 1.5em; }
 #foot button { color: #000; font-size: 200%; }
 
-#vol      { margin-right: 4em; }
+#filter   { margin-right: 1em; font-size: 150%; }
+#vol      { margin-right: 3em; }
 #recent   { margin-right: 0.5em; }
 #uncheck  { margin-right: 0.5em; }
 /*#reload   { margin-right: 0.5em; }*/

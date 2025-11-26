@@ -31,8 +31,8 @@ up nginx as a proxy, using a configuration like:
 ```
 server {
         server_name HOSTNAME;
-        listen 50.188.161.145:7189 ssl; # main server listen port
-        listen 50.188.161.145:7190 ssl; # repeat this line for each port in the srvr range
+        listen IP_ADDR:7189 ssl; # main server listen port
+        listen IP_ADDR:7190 ssl; # repeat this line for each port in the srvr range
 
         ssl_certificate      /etc/letsencrypt/live/HOSTNAME/fullchain.pem;
         ssl_certificate_key  /etc/letsencrypt/live/HOSTNAME/privkey.pem;

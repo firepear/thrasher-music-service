@@ -1,7 +1,10 @@
 # Release notes
 
-## v0.7.3 (2025-11-)
+## v0.8.0 (2025-11-)
 
+- Requires `thrasher-music-catalog` v0.8.0
+- Server
+  - New config element, `listen`
 - Client
   - Mobile now aware of orientation and reacts to changes
   - Tracklist now displays on mobile in portrait orientation

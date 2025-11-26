@@ -40,9 +40,12 @@ async function initThrasher(plat) {
 
     const regex = /["'& ]/g;
     const catAF = await fetch(`${proto}//${host}/init`).then((r) => { return r.json() });
-    host = catAF.meta[0];
-    port = catAF.meta[1];
-    oport = catAF.meta[2];
+    listen = catAF.meta[0];
+    host = catAF.meta[1];
+    port = catAF.meta[2];
+    oport = catAF.meta[3];
+    console.log(listen, host, port);
+
     catAF.facets.forEach((facet) => {
         const nfacet = facet.replaceAll(regex, "");
         els["facetlist"].insertAdjacentHTML("beforeend", `<div id="fd${nfacet}"><input type="checkbox" id="fc${nfacet}" value="${facet}" onClick="buildCheckQuery(this);" /><label for="fc${nfacet}">${facet}</label></div>`);

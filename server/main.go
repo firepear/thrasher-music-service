@@ -20,8 +20,9 @@ import (
 var (
 	clientDir   string
 	dbFile      string
-	hostname    string
+	listen      string
 	port        string
+	hostname    string
 	portRange   string
 	portLo      int
 	portHi      int
@@ -42,7 +43,8 @@ func init() {
 
 	flag.StringVar(&clientDir, "c", "../client", "dir for serving client files")
 	flag.StringVar(&dbFile, "db", "", "path to database")
-	flag.StringVar(&hostname, "h", "localhost:8000", "hostname for server")
+	flag.StringVar(&listen, "l", "localhost:8000", "name/IP for server to attach to")
+	flag.StringVar(&hostname, "h", "", "hostname for server-generated URLs")
 	flag.StringVar(&portRange, "pr", "8001-8030", "port range for spawned servers")
 	flag.StringVar(&musicDir, "md", "", "dir for serving music files")
 	flag.StringVar(&musicPrefix, "mp", "", "leading musicdir path which will be stripped from filter results (defaults to musicdir)")
@@ -56,10 +58,19 @@ func init() {
 	if musicDir != "" {
 		conf.MusicDir = musicDir
 	}
-	// and hostname
-	if hostname != "localhost:8000" {
-		conf.Hostname = hostname
+	// listen value
+	if listen != "localhost:8000" {
+		conf.Lostname = listen
 	}
+
+	// and hostname
+	if hostname != "" {
+		conf.Hostname = hostname
+	} else {
+		h := strings.Split(listen, ":")
+		conf.Hostname = h[0]
+	}
+
 	// and portRange
 	if portRange != "8001-8030" {
 		conf.PortRange = portRange
@@ -79,9 +90,9 @@ func init() {
 	portLo, _ = strconv.Atoi(strings.TrimSpace(pchunks[0]))
 	portHi, _ = strconv.Atoi(strings.TrimSpace(pchunks[1]))
 	// get just the hostname for server spawning
-	hchunks := strings.Split(conf.Hostname, ":")
-	hostname = hchunks[0]
-	port = hchunks[1]
+	lchunks := strings.Split(conf.Listen, ":")
+	listen = lchunks[0]
+	port = lchunks[1]
 
 	srvrs = map[int]*tms.Srvr{}
 }
@@ -122,9 +133,9 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// make a new Srvr and mux
-	addr := fmt.Sprintf("%s:%d", hostname, sport)
-	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: hostname, Port: strconv.Itoa(sport),
-		OrigPort: port, C: c}
+	addr := fmt.Sprintf("%s:%d", listen, sport)
+	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Listen: listen, Host: hostname,
+		Port: strconv.Itoa(sport), OrigPort: port, C: c}
 	mux := http.NewServeMux()
 	// set up its handlers
 	mux.Handle("/", http.FileServer(http.Dir(clientDir)))
@@ -144,7 +155,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	log.Printf("new srvr on %s", addr)
 	// add it to srvrs
 	srvrs[sport] = s
-	http.Redirect(w, r, "http://" + addr + r.URL.Path, http.StatusSeeOther)
+	http.Redirect(w, r, r.URL.Scheme + "://" + addr + r.URL.Path, http.StatusSeeOther)
 }
 
 ///////////
@@ -162,6 +173,6 @@ func main() {
 	}()
 	mainSrv := http.NewServeMux()
 	mainSrv.HandleFunc("GET /", handleSpawn)
-	log.Printf("listening on %s", conf.Hostname)
+	log.Printf("listening on %s", conf.Listen)
 	log.Fatal(http.ListenAndServe(conf.Hostname, mainSrv))
 }

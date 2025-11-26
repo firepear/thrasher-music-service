@@ -1,5 +1,11 @@
 # thrasher-music-service
-UI service and client for Thrasher
+UI client and service for Thrasher
+
+This is the piece you need to listen to music with Thrasher. You'll
+need
+[thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
+(and its docs) to create and manage your library. Once you have that
+handled, come back here.
 
 ## Running
 

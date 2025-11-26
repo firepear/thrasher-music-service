@@ -159,6 +159,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 		scheme = "https"
 	}
 	http.Redirect(w, r, scheme + "://" + addr + r.URL.Path, http.StatusSeeOther)
+	log.Println("spawned srvr on", scheme + "://" + addr + r.URL.Path, "URL host", conf.Hostname)
 }
 
 ///////////

@@ -532,6 +532,9 @@ function updateCurrent() {
 }
 
 function unsetHighlight(old) {
+    if (trkidx == -1) {
+        return;
+    }
     // reset current track backgrouncColor if possible
     try {
         let ttr = document.getElementById(`trk${old}`);
@@ -552,6 +555,9 @@ function unsetHighlight(old) {
     }
 }
 function setHighlight(cur) {
+    if (trkidx == -1) {
+        return;
+    }
     // set current track backgrouncColor and scroll to it
     try {
         let ttr = document.getElementById(`trk${cur}`);

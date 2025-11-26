@@ -9,6 +9,7 @@
 - Client
   - Mobile now aware of orientation and reacts to changes
   - Tracklist now displays on mobile in portrait orientation
+  - Filter search added to mobile
   - Fix for clearing queue on mobile
 
 

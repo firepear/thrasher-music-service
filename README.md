@@ -15,12 +15,13 @@ The server uses the same config file as
 for most configuration points. See its README for config file
 documentation (and how to build/manage your catalog)
 
+Do `go run . -h` to see all server command line options.
+
 Point a browser at the `host:port` that you speficied to launch a
 player instance.
 
-## Options
-
-Do `go run . -h` to see all server command line options.
+There is a compact, more finger-friendly mobile UI at
+`host:port/m.html`
 
 ## Proxies/PWA
 

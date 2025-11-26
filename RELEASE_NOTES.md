@@ -2,9 +2,9 @@
 
 ## v0.8.0 (2025-11-)
 
-- Requires `thrasher-music-catalog` v0.8.0
+- Requires `thrasher-music-catalog` v0.8
 - Server
-  - New config element, `listen`
+  - New config element `listen`; support for running proxied
 - Client
   - Mobile now aware of orientation and reacts to changes
   - Tracklist now displays on mobile in portrait orientation

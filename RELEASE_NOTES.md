@@ -1,12 +1,13 @@
 # Release notes
 
-## v0.8.0 (2025-11-)
+## v0.8.0 (2025-11-26)
 
 - Requires `thrasher-music-catalog` v0.8
 - Server
   - New config element `listen`; support for running proxied
   - New argument `-tls` to enable https redirects
 - Client
+  - Mobile UI now installable as a PWA
   - Mobile now aware of orientation and reacts to changes
   - Tracklist now displays on mobile in portrait orientation
   - Filter search added to mobile

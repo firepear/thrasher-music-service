@@ -9,56 +9,66 @@ that sorted, come back here.
 
 ## Running
 
-The server is not yet daemonized or containerized.
+The server is not yet daemonized or containerized. Running under
+`tmux` is recommended.
 
 ```
 cd server
 go run .
 ```
 
-The server uses the same config file as
-[thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
-for most configuration points. See its README for config file
-documentation (and how to build/manage your catalog)
-
-The server should not be run as root. Point it at non-privileged ports
-in your config.
-
-Do `go run . -h` to see all server command line options.
-
-Point a browser at the `host:port` that you speficied to launch a
-player instance.
-
-There is a compact, more finger-friendly mobile UI at
-`host:port/m.html`
+- The server uses the same config file as
+  [thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
+  for most configuration points. See its README for config file
+  documentation (and how to build/manage your catalog)
+- The server should not be run as root. Point it at non-privileged
+  ports in your config
+- Do `go run . -h` to see all server command line options
+- Point a browser at the `host:listen` that you speficied to
+  launch a player instance
+  - Each connection on the `listen` port spawns a new player
+    server on an unused port from the `ports` range
+  - This is to enable support for mTLS in the future
+- There is a compact, more finger-friendly mobile UI at
+  `host:listen/m.html`
 
 ## Proxies/PWA
 
 To use the mobile UI in PWA mode, it must be served from an `https`
-URL with a non-self-signed cert. The easiest way to do this is to set
-up nginx as a proxy, using a configuration like:
+URL with a non-self-signed cert. The easiest way to do this is to run
+nginx as a proxy, using a configuration like:
 
 ```
 server {
-        server_name HOSTNAME;
-        listen IP_ADDR:7189 ssl; # main server listen port
-        listen IP_ADDR:7190 ssl; # repeat this line for each port in the srvr range
+    server_name HOSTNAME;
+    listen 50.188.161.145:LISTEN ssl; # the connection server, running on LISTEN port
 
-        ssl_certificate      /etc/letsencrypt/live/HOSTNAME/fullchain.pem;
-        ssl_certificate_key  /etc/letsencrypt/live/HOSTNAME/privkey.pem;
-        ssl_session_cache    shared:SSL:1m;
-        ssl_session_timeout  5m;
-        ssl_ciphers  HIGH:!aNULL:!MD5;
-        ssl_prefer_server_ciphers  on;
+    listen 50.188.161.145:PORT_0 ssl; # first player server, using the first port in
+                                      # PORTS. repeat this line for all other PORTS
 
-        location / {
-                proxy_pass http://127.0.0.1:$server_port;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection 'upgrade';
-                proxy_set_header Host $host;
-                proxy_cache_bypass $http_upgrade;
-        }
+    ssl_certificate     /etc/letsencrypt/live/HOSTNAME/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/HOSTNAME/privkey.pem;
+    ssl_session_cache   shared:SSL:1m;
+    ssl_session_timeout 5m;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers  on;
+
+    # custom 502 page, which will redirect to LISTEN. this allows PWAs whose servers
+    # have died off to reconnect without manual intervention
+    error_page 502 /500.html;
+    location /500.html {
+        root   /PATH/TO/thrasher-music-service/client;
+    }
+
+    # no changes needed in proxy config
+    location / {
+        proxy_pass http://127.0.0.1:$server_port;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
 }
 ```
 
@@ -73,7 +83,14 @@ And a TMC config file like:
   "hostname": "HOSTNAME" }
 ```
 
+Next, in `/PATH/TO/thrasher_music_service/client` do
+
+`cp app.webmanifest.sample app.webmanifest && cp 500.html.sample 500.html`
+
+and edit them to supply the correct values for your system.
+
 Finally, run the server with https redirects enabled: `go run . -tls`
+
 
 ## Attributions
 

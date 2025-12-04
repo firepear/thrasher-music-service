@@ -1,5 +1,11 @@
 # Release notes
 
+## v0.8.1 (2025-12-04)
+
+- Server
+  - Doc updates for serving PWA
+  - Added redirect page for 502s, for PWA
+
 ## v0.8.0 (2025-11-26)
 
 - Requires `thrasher-music-catalog` v0.8

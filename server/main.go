@@ -32,7 +32,8 @@ var (
 	srvrs       map[int]*tms.Srvr
 	srvrTTL     int
 	conf        *tmc.Config
-	lastcatmod  time.Time
+	lastCatMod  time.Time
+	catNum      int
 )
 
 func init() {
@@ -66,7 +67,7 @@ func init() {
 	}
 	// get the initial modtime of the catalog file
 	s, _ := os.Stat(conf.DbFile)
-	lastcatmod = s.ModTime()
+	lastCatMod = s.ModTime()
 
 	// now set musicdir
 	if musicDir != "" {
@@ -113,6 +114,7 @@ func scanSrvrs() {
 		if etime > srvrTTL {
 			log.Printf("srvr on port %d last seen %ds ago; shutdown", port, etime)
 			s.Http.Close()
+			s.C.Close()
 			delete(srvrs, port)
 		}
 	}
@@ -124,13 +126,15 @@ func scanSrvrs() {
 // match the stored modtime
 func statCat() {
 	s, _ := os.Stat(conf.DbFile)
-	if s.ModTime().Sub(lastcatmod) != 0 {
+	if s.ModTime().Sub(lastCatMod) != 0 {
 		log.Printf("catalog update; killing all spawned servers")
 		for port, s := range srvrs {
 			s.Http.Close()
+			s.C.Close()
 			delete(srvrs, port)
 		}
-		lastcatmod = s.ModTime()
+		lastCatMod = s.ModTime()
+		catNum++
 	}
 }
 
@@ -141,7 +145,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// create new Catalog
-	c, err := tmc.New(conf, "tmssrvr")
+	c, err := tmc.New(conf, "tmssrvr"  + strconv.Itoa(catNum))
 	if err != nil {
 		log.Println(err)
 		io.WriteString(w, fmt.Sprintf("oops: %s", err))

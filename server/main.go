@@ -30,7 +30,9 @@ var (
 	musicDir    string
 	musicPrefix string
 	srvrs       map[int]*tms.Srvr
+	srvrTTL     int
 	conf        *tmc.Config
+	lastcatmod  time.Time
 )
 
 func init() {
@@ -44,40 +46,43 @@ func init() {
 
 	flag.StringVar(&clientDir, "c", "../client", "dir for serving client files")
 	flag.StringVar(&dbFile, "db", "", "path to database")
-	flag.StringVar(&listen, "l", "localhost:8000", "name/IP for server to attach to")
-	flag.StringVar(&hostname, "h", "", "hostname for server-generated URLs")
-	flag.StringVar(&portRange, "pr", "8001-8030", "port range for spawned servers")
-	flag.BoolVar(&tls, "tls", false, "build redirect URLs with https")
+	flag.StringVar(&hostname, "hn", "", "hostname for server-generated URLs")
+	flag.StringVar(&listen, "l", "localhost:8000", "name/IP for server to listen on")
 	flag.StringVar(&musicDir, "md", "", "dir for serving music files")
 	flag.StringVar(&musicPrefix, "mp", "", "leading musicdir path which will be stripped from filter results (defaults to musicdir)")
+	flag.StringVar(&portRange, "pr", "8001-8030", "port range for spawned servers")
+	flag.BoolVar(&tls, "tls", false, "build redirect URLs with https")
+	flag.IntVar(&srvrTTL, "ttl", 60, "TTL in seconds")
 	flag.Parse()
 
 	// if fdbfile is set, override dbfile
 	if dbFile != "" {
 		conf.DbFile = dbFile
 	}
-	// ditto musicdir
-	if musicDir != "" {
-		conf.MusicDir = musicDir
-	}
-	// listen value
-	if listen != "localhost:8000" {
-		conf.Listen = listen
-	}
-
-	// and hostname
-	if hostname != "" {
-		conf.Hostname = hostname
-	}
-
-	// and portRange
-	if portRange != "8001-8030" {
-		conf.PortRange = portRange
-	}
 	// and if we still don't have a dbfile, bail
 	if conf.DbFile == "" {
 		fmt.Println("database file must be specified; see -h")
 		os.Exit(1)
+	}
+	// get the initial modtime of the catalog file
+	s, _ := os.Stat(conf.DbFile)
+	lastcatmod = s.ModTime()
+
+	// now set musicdir
+	if musicDir != "" {
+		conf.MusicDir = musicDir
+	}
+	// and listen value
+	if listen != "localhost:8000" {
+		conf.Listen = listen
+	}
+	// and hostname
+	if hostname != "" {
+		conf.Hostname = hostname
+	}
+	// and portRange
+	if portRange != "8001-8030" {
+		conf.PortRange = portRange
 	}
 	// mirror musicDir to musicPrefix if not specified
 	if musicPrefix == "" {
@@ -96,20 +101,39 @@ func init() {
 	srvrs = map[int]*tms.Srvr{}
 }
 
-///////////
 
+// scanSrvrs is fired from the ticker in main(). it iterates over the
+// list of spawned servers and kills off any which have not been heard
+// from in srvrTTL seconds
 func scanSrvrs() {
 	// get current time
 	curtime := int(time.Now().Unix())
 	for port, s := range srvrs {
 		etime := curtime - s.LastPing
-		if etime > 40 {
+		if etime > srvrTTL {
 			log.Printf("srvr on port %d last seen %ds ago; shutdown", port, etime)
 			s.Http.Close()
 			delete(srvrs, port)
 		}
 	}
 }
+
+
+// statCat is fired from the ticker in main(). it checks the modtime
+// of conf.DbFile and terminates all spawned servers if it does not
+// match the stored modtime
+func statCat() {
+	s, _ := os.Stat(conf.DbFile)
+	if s.ModTime().Sub(lastcatmod) != 0 {
+		log.Printf("catalog update; killing all spawned servers")
+		for port, s := range srvrs {
+			s.Http.Close()
+			delete(srvrs, port)
+		}
+		lastcatmod = s.ModTime()
+	}
+}
+
 
 func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	if len(srvrs) == portHi - portLo {
@@ -163,19 +187,22 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	log.Println("srvr up on", addr , "redir", fwdaddr, "path", r.URL.Path, "tls", tls)
 }
 
-///////////
 
 func main() {
-	// launch Srvr scanner
+	// create a ticker
 	tickr := time.NewTicker(30 * time.Second)
+	// run scanSrves and statCat every time the ticket goes off
 	go func() {
 		for {
 			select {
 			case <-tickr.C:
 				scanSrvrs()
+				statCat()
 			}
 		}
 	}()
+
+	// launch the main/listener server
 	mainSrv := http.NewServeMux()
 	mainSrv.HandleFunc("GET /", handleSpawn)
 	log.Printf("listening on %s", conf.Listen)

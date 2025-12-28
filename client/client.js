@@ -1,5 +1,5 @@
 // terser client.js --compress --mangle > client.js.min
-var tag = "v0.8.0";
+var tag = "v0.9.0";
 var proto = window.location.protocol;
 var host = window.location.host;
 var port = window.location.port;

@@ -1,10 +1,26 @@
 # Release notes
 
+## v0.9.0 (2025-12-28)
+
+- Server
+  - Spawned servers are now terminated when a Catalog update is
+    detected. This is a brutalist fix, but it allows a player reload
+    to pick up new data while the previous behavior required that and
+    a server restart. A more elegant solution will come in the future
+  - Spawned server TTL is now configurable via the argument `-ttl`,
+    with a default of 60s (an increase from the old hardcoded value of
+    40s)
+- Client
+  - Web client shuffle button moved to player controls, matching
+    mobile
+
+
 ## v0.8.1 (2025-12-04)
 
 - Server
   - Doc updates for serving PWA
   - Added redirect page for 502s, for PWA
+
 
 ## v0.8.0 (2025-11-26)
 

@@ -1,5 +1,11 @@
 # Release notes
 
+## v0.9.1 (2026-01-08)
+
+- Requires `thrasher-music-catalog` v0.8.3, for forward compatibility
+- Small fixes related to Catalog update
+
+
 ## v0.9.0 (2025-12-28)
 
 - Server

@@ -41,10 +41,10 @@ nginx as a proxy, using a configuration like:
 ```
 server {
     server_name HOSTNAME;
-    listen 50.188.161.145:LISTEN ssl; # the connection server, running on LISTEN port
+    listen IP:LISTEN ssl; # the connection server, running on LISTEN port
 
-    listen 50.188.161.145:PORT_0 ssl; # first player server, using the first port in
-                                      # PORTS. repeat this line for all other PORTS
+    listen IP:PORT_0 ssl; # first player server, using the first port in
+                          # PORTS. repeat this line for all other PORTS
 
     ssl_certificate     /etc/letsencrypt/live/HOSTNAME/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/HOSTNAME/privkey.pem;

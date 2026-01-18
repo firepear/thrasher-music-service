@@ -1,5 +1,13 @@
 # Release notes
 
+## v0.9.2 (2026-01-18)
+
+- Client
+  - Playback errors now result in a dialog which reloads the UI when
+    dismissed. This sets up more robust error handling/presentation in
+    the future
+
+
 ## v0.9.1 (2026-01-08)
 
 - Requires `thrasher-music-catalog` v0.8.3, for forward compatibility

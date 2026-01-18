@@ -1,5 +1,5 @@
 // terser client.js --compress --mangle > client.js.min
-var tag = "v0.9.0";
+var tag = "v0.9.2";
 var proto = window.location.protocol;
 var host = window.location.host;
 var port = window.location.port;
@@ -571,8 +571,15 @@ function setHighlight(cur) {
 function errorHandler(id, err, x) {
     console.log(id, err, playing, x);
     if (x.type == "load" || x.type == "play") {
-        alertify.message(`Playback error; halting autoplay`);
         playing = "no";
+        alertify.alert()
+            .setting({
+                'title': 'Playback error',
+                'label': 'Click to reload',
+                'message': `Autoplay halted. Dismiss this alert to reload Thrasher`,
+                'modal': true,
+                'onok': function(){reloadPage('');}
+            }).show();
     }
 }
 

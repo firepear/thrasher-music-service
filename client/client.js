@@ -32,7 +32,6 @@ async function pingHost() {
     try {
         const ping = await fetch(`${proto}//${host}:${port}/ping`).then((r) => {return r.json() });
     } catch (e) {
-        //function errorHandler(id, err, x)
         errorHandler(-1, e, {'type': 'ping', 'i': trkIdx});
     }
 }
@@ -156,6 +155,10 @@ async function setFilterNet(filter, init) {
     url = encodeURI(url)
     console.log(filter, url)
     filterMeta = await fetch(url).then((r) => { return r.json() });
+    if (filterMeta.Err != '') {
+        errorHandler(-1, filterMeta.Err, {'type': 'filter', 'i': trkIdx});
+        return;
+    }
     if (filterMeta.FltrCount == 0) {
         playing == "auto" ? playing = "single" : Function.prototype();
         trks = [];
@@ -593,7 +596,7 @@ function errorHandler(id, err, x) {
             .setting({
                 'title': 'Playback error',
                 'label': 'Click to reload',
-                'message': `Autoplay halted.<br/>Dismiss this alert to reload Thrasher`,
+                'message': `Autoplay halted.<br/><br/>Dismiss this alert to reload Thrasher`,
                 'modal': true,
                 'onok': function(){reloadPage('');}
             }).show();
@@ -605,9 +608,19 @@ function errorHandler(id, err, x) {
             .setting({
                 'title': 'Network error',
                 'label': 'Click to reload',
-                'message': `Autoplay halted.<br/>Error: ${err}<br/>Dismiss this alert to reload Thrasher`,
+                'message': `Autoplay halted.<br/>Error: ${err}<br/><br/>Dismiss this alert to reload Thrasher`,
                 'modal': true,
                 'onok': function(){reloadPage('');}
+            }).show();
+    } else if (x.type == "filter") {
+        // filter errors are user-generated
+        playing = "no";
+        alertify.alert()
+            .setting({
+                'title': 'Filter error',
+                'label': 'Ok',
+                'message': `A malformed filter was specified: ${err}<br/><br/>Click the [?] button in the footer for an explanation of filters.`,
+                'modal': true
             }).show();
     } else {
         // for anything else, report and try to keep going

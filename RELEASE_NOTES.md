@@ -8,6 +8,8 @@
   - Playback errors now result in a dialog which reloads the UI when
     dismissed
   - Network errors are now handled similarly
+  - Malformed filter inputs now result in an error dialog, rather than
+    silently dropping on the floor
   - Other error handling improvements
 
 

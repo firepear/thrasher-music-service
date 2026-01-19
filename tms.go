@@ -28,6 +28,7 @@ type queryBatch struct {
 }
 
 type FilterReturn struct {
+	Err        string
 	FltrStr    string
 	FltrVals   []any
 	FltrCount  int
@@ -97,10 +98,11 @@ func (s *Srvr) HandleBatchTrkInfo(w http.ResponseWriter, r *http.Request) {
 func (s *Srvr) HandleFilter(w http.ResponseWriter, r *http.Request) {
 	err := s.C.Filter(strings.ReplaceAll(r.PathValue("format"), "%2F", "/"))
 	if err != nil {
-		log.Println(err)
+		j, _ := json.Marshal(FilterReturn{Err: err.Error(), FltrStr: s.C.FltrStr, FltrVals: s.C.FltrVals, FltrCount: s.C.FltrCount, TrackCount: s.C.TrackCount})
+		io.WriteString(w, string(j))
 		return
 	}
-	j, _ := json.Marshal(FilterReturn{FltrStr: s.C.FltrStr, FltrVals: s.C.FltrVals, FltrCount: s.C.FltrCount, TrackCount: s.C.TrackCount})
+	j, _ := json.Marshal(FilterReturn{Err: "", FltrStr: s.C.FltrStr, FltrVals: s.C.FltrVals, FltrCount: s.C.FltrCount, TrackCount: s.C.TrackCount})
 	io.WriteString(w, string(j))
 }
 

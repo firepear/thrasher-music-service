@@ -29,7 +29,12 @@ window.addEventListener("keydown", (event) => handleKey(event));
 setInterval(pingHost, 20000);
 
 async function pingHost() {
-    const ping = await fetch(`${proto}//${host}:${port}/ping`).then((r) => {return r.json() });
+    try {
+        const ping = await fetch(`${proto}//${host}:${port}/ping`).then((r) => {return r.json() });
+    } catch (e) {
+        //function errorHandler(id, err, x)
+        errorHandler(-1, e, {'type': 'ping', 'i': trkIdx});
+    }
 }
 
 async function initThrasher(plat) {
@@ -263,8 +268,14 @@ function playTrk(i) {
     unsetHighlight(trkIdx);
     playing = "no";
     trkIdx = i;
-    // trk comes with leading /, so don't add it here
-    const trkURL = encodeURI(`${proto}//${host}:${port}/music${trks[i]}`);
+    // encodeURI does not catch certain characters that are legal in
+    // Unix filenames, so we need to handle the track path separately
+    var trkpath = encodeURIComponent(trks[i]);
+    // but now we need to turn slashes back into slashes
+    trkpath = trkpath.replaceAll("%2F", "/");
+    // now encode the full request. trk comes with leading /,
+    // so don't add it here
+    const trkURL = `${proto}//${host}:${port}/music${trkpath}`;
     if (sound != undefined) {
         sound.stop();
     }
@@ -569,18 +580,30 @@ function setHighlight(cur) {
 }
 
 function errorHandler(id, err, x) {
-    if (x.type == "load" || x.type == "play") {
+    if (x.type == "load") {
+        console.log(`file load error: id '${id}', err '${err}', playing ${playing}, x: ${x}`);
+    } else if (x.type == "play") {
         playing = "no";
         alertify.alert()
             .setting({
                 'title': 'Playback error',
                 'label': 'Click to reload',
-                'message': `Autoplay halted. Dismiss this alert to reload Thrasher`,
+                'message': `Autoplay halted.<br/>Dismiss this alert to reload Thrasher`,
+                'modal': true,
+                'onok': function(){reloadPage('');}
+            }).show();
+    } else if (x.type == "ping") {
+        playing = "no";
+        alertify.alert()
+            .setting({
+                'title': 'Network error',
+                'label': 'Click to reload',
+                'message': `Autoplay halted.<br/>Error: ${err}<br/>Dismiss this alert to reload Thrasher`,
                 'modal': true,
                 'onok': function(){reloadPage('');}
             }).show();
     } else {
-        console.log(id, err, playing, x);
+        console.log(`thrasher err: id '${id}', err '${err}', playing ${playing}, x: ${x}`);
     }
 }
 

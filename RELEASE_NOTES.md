@@ -3,9 +3,12 @@
 ## v0.9.2 (2026-01-18)
 
 - Client
+  - Fix for not being able to load tracks whose filenames contained
+    characters not handled by `encodeURL`
   - Playback errors now result in a dialog which reloads the UI when
-    dismissed. This sets up more robust error handling/presentation in
-    the future
+    dismissed
+  - Network errors are now handled similarly
+  - Other error handling improvements
 
 
 ## v0.9.1 (2026-01-08)

@@ -569,7 +569,6 @@ function setHighlight(cur) {
 }
 
 function errorHandler(id, err, x) {
-    console.log(id, err, playing, x);
     if (x.type == "load" || x.type == "play") {
         playing = "no";
         alertify.alert()
@@ -580,6 +579,8 @@ function errorHandler(id, err, x) {
                 'modal': true,
                 'onok': function(){reloadPage('');}
             }).show();
+    } else {
+        console.log(id, err, playing, x);
     }
 }
 

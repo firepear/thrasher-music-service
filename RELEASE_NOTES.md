@@ -1,5 +1,13 @@
 # Release notes
 
+## v0.9.3 (2026-01-19)
+
+- Client
+  - Seeking with arrow keys implemented
+  - Reorganized display of track info
+  - Error alerts are now themed appropriately
+
+
 ## v0.9.2 (2026-01-18)
 
 - Client
@@ -11,6 +19,9 @@
   - Malformed filter inputs now result in an error dialog, rather than
     silently dropping on the floor
   - Other error handling improvements
+- Server
+  - Errors are returned to client on filter parse failure, rather than
+    being logged on the server
 
 
 ## v0.9.1 (2026-01-08)

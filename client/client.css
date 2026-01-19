@@ -203,7 +203,7 @@ button { font-family: "Lato", sans-serif;
      }
 #vol::-webkit-slider-thumb, #vol::-moz-range-thumb { cursor: pointer; }
 
-.mono { font-family: monospace; }
+.mono { font-family: monospace; background-color: #aac; padding: 0.2em; }
 
 .help { z-index: 5;
         font-family: "Lato", sans-serif;

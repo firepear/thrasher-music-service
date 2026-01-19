@@ -581,8 +581,13 @@ function setHighlight(cur) {
 
 function errorHandler(id, err, x) {
     if (x.type == "load") {
+        // if we can't load a file, say why and then try to continue
+        // to the next track
         console.log(`file load error: id '${id}', err '${err}', playing ${playing}, x: ${x}`);
+        playNext();
     } else if (x.type == "play") {
+        // a player error is likely a deeper problem. report and
+        // reload the UI
         playing = "no";
         alertify.alert()
             .setting({
@@ -593,6 +598,8 @@ function errorHandler(id, err, x) {
                 'onok': function(){reloadPage('');}
             }).show();
     } else if (x.type == "ping") {
+        // ping errors are usually the first indication of a network
+        // error or server death. report and reload
         playing = "no";
         alertify.alert()
             .setting({
@@ -603,7 +610,9 @@ function errorHandler(id, err, x) {
                 'onok': function(){reloadPage('');}
             }).show();
     } else {
+        // for anything else, report and try to keep going
         console.log(`thrasher err: id '${id}', err '${err}', playing ${playing}, x: ${x}`);
+        playNext();
     }
 }
 

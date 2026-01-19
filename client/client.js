@@ -1,5 +1,5 @@
 // terser client.js --compress --mangle > client.js.min
-var tag = "v0.9.2";
+var tag = "v0.9.3";
 var proto = window.location.protocol;
 var host = window.location.host;
 var port = window.location.port;
@@ -406,6 +406,22 @@ function isPlaying() {
     }
 }
 
+function soundSeek(amt) {
+    var newPos = sound.seek() + amt;
+    console.log(amt, sound.seek(), newPos);
+    if (newPos < 0) {
+        sound.seek(0);
+        return;
+    }
+    maxPos = sound.duration();
+    if (newPos > maxPos) {
+        sound.seek(maxPos);
+        return;
+    }
+    sound.seek(newPos);
+}
+
+
 /* ============================================== Audio modes + utils */
 
 function setVol(vol) {
@@ -539,8 +555,8 @@ function updateCurrent() {
     els["curfacets"].replaceChildren();
     els["curnum"].replaceChildren();
     els["curtitle"].insertAdjacentHTML("beforeend", `${trkInfo[trkIdx].Title}`);
-    els["curaay"].insertAdjacentHTML("beforeend", `${trkInfo[trkIdx].Artist} / ${trkInfo[trkIdx].Album} / ${trkInfo[trkIdx].Year}`);
-    els["curnum"].insertAdjacentHTML("beforeend", `${trkIdx + 1} of ${filterMeta.FltrCount} / <span id="curdur"></span> / <span id="curtime"></span>`);
+    els["curaay"].insertAdjacentHTML("beforeend", `${trkInfo[trkIdx].Artist} / ${trkInfo[trkIdx].Album} (${trkInfo[trkIdx].Year})`);
+    els["curnum"].insertAdjacentHTML("beforeend", `${trkIdx + 1} of ${filterMeta.FltrCount} / <span class="monotime"><span id="curtime"></span> (<span id="curdur"></span>)</span>`);
     els["curfacets"].insertAdjacentHTML("beforeend", `${expandFacets(trkIdx)}`);
     document.title = `${trkInfo[trkIdx].Title} by ${trkInfo[trkIdx].Artist}`;
 }

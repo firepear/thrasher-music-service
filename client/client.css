@@ -230,3 +230,13 @@ button { font-family: "Lato", sans-serif;
                                                         bottom: 2.5em;
                                                         font-family: "Lato", sans-serif;
                                                       }
+
+.alertify .ajs-dialog { background-color: #bbc;
+              border: solid medium #556;
+              bottom: 2.5em;
+              font-family: "Lato", sans-serif;
+            }
+.alertify .ajs-header { background-color: #bbc; border: 0; }
+.alertify .ajs-body { background-color: #bbc; }
+.alertify .ajs-footer { background-color: #bbc; border: 0; }
+.alertify .ajs-footer .ajs-buttons .ajs-button.ajs-ok { background-color: #99a; color: #000;}

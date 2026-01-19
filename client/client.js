@@ -287,7 +287,7 @@ function playTrk(i) {
         html5: true
     });
     sound.once("loaderror", (sid, err) => { errorHandler(sid, err, {"type": "load", "url": trkURL}) });
-    sound.once("playerror", (sid, err) => { errorHandler(sid, err, {"type": "load", "url": trkURL}) });
+    sound.once("playerror", (sid, err) => { errorHandler(sid, err, {"type": "play", "url": trkURL}) });
     sound.once("load", () => {
         updateCurrent();
         const d = document.getElementById("curdur");
@@ -483,7 +483,14 @@ async function displayCover() {
         // do nothing if cover url has not changed
         return;
     }
-    const status = await fetch(url, {method: 'HEAD'}).then((r) => { return r.status })
+
+    var status;
+    try {
+        status = await fetch(url, {method: 'HEAD'}).then((r) => { return r.status })
+    } catch (e) {
+        errorHandler(-1, e, {'type': 'ping', 'i': trkIdx});
+    }
+
     if (status == 200) {
         els["cover"].src = url;
         els["coverbig"].src = url;
@@ -607,14 +614,9 @@ function setHighlight(cur) {
 }
 
 function errorHandler(id, err, x) {
-    if (x.type == "load") {
-        // if we can't load a file, say why and then try to continue
-        // to the next track
-        console.log(`file load error: id '${id}', err '${err}', playing ${playing}, x: ${x}`);
-        playNext();
-    } else if (x.type == "play") {
-        // a player error is likely a deeper problem. report and
-        // reload the UI
+    if (x.type == "play" || x.type == "load") {
+        // player error is likely a deeper problem. report and reload
+        // the UI
         playing = "no";
         alertify.alert()
             .setting({
@@ -632,7 +634,7 @@ function errorHandler(id, err, x) {
             .setting({
                 'title': 'Network error',
                 'label': 'Click to reload',
-                'message': `Autoplay halted.<br/>Error: ${err}<br/><br/>Dismiss this alert to reload Thrasher`,
+                'message': `Autoplay halted.<br/><br/>Error: ${err}<br/><br/>Dismiss this alert to reload Thrasher`,
                 'modal': true,
                 'onok': function(){reloadPage('');}
             }).show();

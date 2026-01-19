@@ -495,11 +495,8 @@ async function displayCover() {
 }
 
 function popCover() {
-    if (els["coverbigdiv"].style.display == "none") {
-        els["coverbigdiv"].style.display = "block";
-    } else {
-        els["coverbigdiv"].style.display = "none";
-    }
+    els["coverbigdiv"].style.display == "block" ?
+        els["coverbigdiv"].style.display = "none" : els["coverbigdiv"].style.display = "block";
 }
 
 function filterArtists(evt) {

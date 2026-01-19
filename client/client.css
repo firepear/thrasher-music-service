@@ -47,10 +47,13 @@ body { height: 99.8%;
           font-size: x-large;
           background-color: #bbd;
           padding: 0.15em;
-          min-height: 5em;
+          min-height: 5.5em;
           border-bottom: medium solid #556;
           padding-top: 0.3em;
         }
+#player table { min-height: 5.25em;
+                margin-top: 5px;
+              }
 
 #foot, #footv { background-color: #bbd;
                 border-top: medium solid #556;

@@ -21,7 +21,7 @@ var mobile = false;
 // set up DOM array
 var elnames = ["facetlist", "artistlist", "artistfilter", "filter", "main", "maintable", "cover",
                "tracklist", "curtitle", "curaay", "curfacets", "curnum", "vol", "shuffle",
-               "help", "searchhelp", "searchhelpbut", "player", "trkinfo"];
+               "help", "searchhelp", "searchhelpbut", "player", "trkinfo", "coverbig", "coverbigdiv"];
 elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
 // listeners and global setup
@@ -461,7 +461,7 @@ function getNextIdx() {
     if (maxShfl) {
         shuffleMode();
         playing = "no";
-        alertify.message(`Every traack in queue has been played; ending shuffle`);
+        alertify.message(`Every track in queue has been played; ending shuffle`);
         return -1;
     }
     shflHist.push(i);
@@ -476,7 +476,8 @@ function getNextIdx() {
 async function displayCover() {
     var path = trks[trkIdx].split("/");
     path.pop();
-    path = path.join("/");
+    path = encodeURIComponent(path.join("/"));
+    path = path.replaceAll("%2F", "/");
     const url = `${proto}//${host}:${port}/music${path}/cover.jpg`;
     if (cover == url) {
         // do nothing if cover url has not changed
@@ -485,10 +486,20 @@ async function displayCover() {
     const status = await fetch(url, {method: 'HEAD'}).then((r) => { return r.status })
     if (status == 200) {
         els["cover"].src = url;
+        els["coverbig"].src = url;
     } else {
         els["cover"].src = "";
+        els["coverbig"].src = "";
     }
     cover = url;
+}
+
+function popCover() {
+    if (els["coverbigdiv"].style.display == "none") {
+        els["coverbigdiv"].style.display = "block";
+    } else {
+        els["coverbigdiv"].style.display = "none";
+    }
 }
 
 function filterArtists(evt) {

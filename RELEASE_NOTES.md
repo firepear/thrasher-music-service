@@ -4,8 +4,10 @@
 
 - Client
   - Seeking with arrow keys implemented
+  - Clicking on cover art now displays it larger
   - Reorganized display of track info
   - Error alerts are now themed appropriately
+  - Minified JS and CSS
 
 
 ## v0.9.2 (2026-01-18)

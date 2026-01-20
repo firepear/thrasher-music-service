@@ -1,13 +1,12 @@
 # Release notes
 
-## v0.9.3 (2026-01-19)
+## v0.9.3 (2026-01-20)
 
 - Client
   - Seeking with arrow keys implemented
   - Clicking on cover art now displays it larger
   - Reorganized display of track info
   - Error alerts are now themed appropriately
-  - Minified JS and CSS
 
 
 ## v0.9.2 (2026-01-18)

@@ -1,5 +1,12 @@
 # Release notes
 
+## v0.10.0 (2026-01-xx)
+
+- Server
+  - The "server" executable has been renamed `tms-backend`
+  - `tms-backend` can now be run in a container
+
+
 ## v0.9.3 (2026-01-20)
 
 - Client

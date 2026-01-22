@@ -112,7 +112,9 @@ Finally, run the server with https redirects enabled: `go run . -tls`
 ### v1.0.0
 
 - v1.0 will be released when mTLS is implemented and well-tested
-- All other initially planned functionality is in place
+- All other initially planned functionality is in place, as of v0.10.0
+  - Any releases between v0.10 and v1.0 will be for bugfixes, polish,
+    and tweaks
 
 ### Post-1.0
 

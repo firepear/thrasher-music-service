@@ -114,7 +114,7 @@ Finally, run the server with https redirects enabled: `go run . -tls`
 - v1.0 will be released when mTLS is implemented and well-tested
 - All other initially planned functionality is in place
 
-# Post-1.0
+### Post-1.0
 
 There are some additional pieces of functionality that I have thought
 about adding post-1.0, like:

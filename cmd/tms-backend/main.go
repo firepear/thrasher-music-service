@@ -45,7 +45,7 @@ func init() {
 		conf = &tmc.Config{}
 	}
 
-	flag.StringVar(&clientDir, "c", "../client", "dir for serving client files")
+	flag.StringVar(&clientDir, "c", "../../client", "dir for serving client files")
 	flag.StringVar(&dbFile, "db", "", "path to database")
 	flag.StringVar(&hostname, "hn", "", "hostname for server-generated URLs")
 	flag.StringVar(&listen, "l", "localhost:8000", "name/IP for server to listen on")

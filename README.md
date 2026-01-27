@@ -9,7 +9,7 @@ that sorted, come back here.
 
 
 
-## Running
+## Running the backend
 
 - The server uses the same config file as
   [thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
@@ -28,7 +28,14 @@ that sorted, come back here.
 
 ### Containerized
 
-### Non
+For all the usual safety and ease-of-use reasons, it is preferred to
+run `tms-backend` in a container.
+
+
+
+
+
+### Non-continerized
 
 If you do not want to run the backend containerized, running under
 `tmux` is recommended.

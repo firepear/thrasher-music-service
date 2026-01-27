@@ -1,4 +1,9 @@
 #!/bin/bash
+if [[ "${1}" == "" ]] || [[ "${2}" == "" ]]; then
+    echo "usage: ./build.sh [LISTEN_PORT] [PORT_RANGE]"
+    exit 1
+fi
+
 dockercmd=$(which docker 2>&1 || true)
 if [[ "${dockercmd}" =~ ^which ]]; then
     dockercmd=$(which podman 2>&1 || true)
@@ -12,16 +17,16 @@ ${dockercmd} container stop tms-backend && \
     ${dockercmd} container rm tms-backend && \
     ${dockercmd} image rm tms-backend
 ${dockercmd} image prune -f
-${dockercmd} build --tag tms-backend .
+${dockercmd} build --build-arg tms-listen="${1}" --build-arg tms-ports="${2}" --tag tms-backend .
 #${dockercmd} volume create gwg || true
-${dockercmd} run --name tms-backend -d --restart always -p 9098:80 -p 11099:11099 -v gwg:/usr/share/nginx/html tms-backend
+#${dockercmd} run --name tms-backend -d --restart unless-stopped -p 9098:80 -p 11099:11099 -v gwg:/usr/share/nginx/html tms-backend
 
 # copy the tms-backend config if the user didn't
-if [[ ! -x tms-backend-config.json ]]; then
-    cp assets/tms-backend-config.json .
-fi
+#if [[ ! -x tms-backend-config.json ]]; then
+#    cp assets/tms-backend-config.json .
+#fi
 # copy config and web assets into container
-${dockercmd} cp tms-backend-config.json tms-backend:/usr/share/nginx/html/
-${dockercmd} cp assets/web/index.html tms-backend:/usr/share/nginx/html/
-${dockercmd} cp assets/web/main.js tms-backend:/usr/share/nginx/html/
+#${dockercmd} cp tms-backend-config.json tms-backend:/usr/share/nginx/html/
+#${dockercmd} cp assets/web/index.html tms-backend:/usr/share/nginx/html/
+#${dockercmd} cp assets/web/main.js tms-backend:/usr/share/nginx/html/
 

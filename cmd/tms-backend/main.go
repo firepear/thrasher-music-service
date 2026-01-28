@@ -126,7 +126,7 @@ func scanSrvrs() {
 	curtime := int(time.Now().Unix())
 	for port, s := range srvrs {
 		etime := curtime - s.LastPing
-		if etime > srvrTTL {
+		if etime > conf.TTL {
 			log.Printf("srvr on port %d last seen %ds ago; shutdown", port, etime)
 			s.Http.Close()
 			s.C.Close()

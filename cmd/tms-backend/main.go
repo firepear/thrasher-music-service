@@ -27,6 +27,7 @@ var (
 	portLo      int
 	portHi      int
 	tls         bool
+	tlsHost     string
 	musicDir    string
 	musicPrefix string
 	srvrs       map[int]*tms.Srvr
@@ -48,12 +49,13 @@ func init() {
 	flag.StringVar(&clientDir, "c", "", "dir for serving client files")
 	flag.StringVar(&dbFile, "db", "", "path to database")
 	flag.StringVar(&hostname, "hn", "", "hostname for server-generated URLs")
-	flag.IntVar(&listen, "l", 8000, "name/IP for server to listen on")
+	flag.StringVar(&tlsHost, "th", "", "hostname for TLS redirect URLs")
+	flag.IntVar(&listen, "l", 0, "name/IP for server to listen on")
 	flag.StringVar(&musicDir, "md", "", "dir for serving music files")
 	flag.StringVar(&musicPrefix, "mp", "", "leading musicdir path which will be stripped from filter results (defaults to musicdir)")
-	flag.StringVar(&portRange, "pr", "8001-8030", "port range for spawned servers")
+	flag.StringVar(&portRange, "pr", "", "port range for spawned servers")
 	flag.BoolVar(&tls, "tls", false, "build redirect URLs with https")
-	flag.IntVar(&srvrTTL, "ttl", 60, "TTL in seconds")
+	flag.IntVar(&srvrTTL, "ttl", 0, "TTL in seconds")
 	flag.Parse()
 
 	// if fdbfile is set, override dbfile
@@ -73,16 +75,19 @@ func init() {
 	if musicDir != "" {
 		conf.MusicDir = musicDir
 	}
-	// and hostname
+	// and hostname, tlsHost
 	if hostname != "" {
 		conf.Hostname = hostname
 	}
+	if tlsHost != "" {
+		conf.TLSHost = tlsHost
+	}
 	// and listen value
-	if listen != 8000 {
+	if listen != 0 {
 		conf.Listen = listen
 	}
 	// and portRange
-	if portRange != "8001-8030" {
+	if portRange != "" {
 		conf.PortRange = portRange
 	}
 	// and TLS
@@ -90,7 +95,7 @@ func init() {
 		conf.TLS = tls
 	}
 	// and TTL
-	if srvrTTL != 60 {
+	if srvrTTL != 0 {
 		conf.TTL = srvrTTL
 	}
 	// and clientDir
@@ -154,6 +159,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, "server's full")
 		return
 	}
+
 	// create new Catalog
 	c, err := tmc.New(conf, "tmssrvr"  + strconv.Itoa(catNum))
 	if err != nil {
@@ -172,6 +178,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 
 	// make a new Srvr and mux
 	addr := conf.Hostname + ":" + ssport
+	raddr := addr
 	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.Hostname,
 		Port: ssport, OrigPort: conf.Listen, C: c}
 	mux := http.NewServeMux()
@@ -193,13 +200,13 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	// add it to srvrs
 	srvrs[sport] = s
 	// redireco the new Srvr
-	fwdaddr := addr
-	if tls {
-		http.Redirect(w, r, "https://" + fwdaddr + r.URL.Path, http.StatusSeeOther)
+	if conf.TLS {
+		raddr = conf.TLSHost + ":" + ssport
+		http.Redirect(w, r, "https://" + raddr + r.URL.Path, http.StatusSeeOther)
 	} else {
-		http.Redirect(w, r, "http://" + fwdaddr + r.URL.Path, http.StatusSeeOther)
+		http.Redirect(w, r, "http://" + raddr + r.URL.Path, http.StatusSeeOther)
 	}
-	log.Println("srvr up on", addr , "redir", fwdaddr, "path", r.URL.Path, "tls", tls)
+	log.Println("srvr up:", addr , "tls", conf.TLS, "redir", raddr, "path", r.URL.Path)
 }
 
 

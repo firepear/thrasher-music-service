@@ -15,10 +15,9 @@ import (
 type Srvr struct {
 	Http     *http.Server
 	C        *tmc.Catalog
-	Listen   string
 	Host     string
 	Port     string
-	OrigPort string
+	OrigPort int
 	LastPing int
 }
 
@@ -37,7 +36,7 @@ type FilterReturn struct {
 
 func (s *Srvr) HandleInit(w http.ResponseWriter, _ *http.Request) {
 	j, _ := json.Marshal(map[string][]string{"artists": s.C.Artists, "facets": s.C.Facets,
-		"meta": []string{s.Listen, s.Host, s.Port, s.OrigPort}})
+		"meta": []string{s.Host, s.Port, strconv.Itoa(s.OrigPort)}})
 	io.WriteString(w, string(j))
 }
 

@@ -11,13 +11,10 @@ RUN go build
 
 
 FROM docker.io/nginx:stable-alpine
-ARG tms-config
 ARG tms-listen
 ARG tms-ports
 RUN apk --no-cache add busybox sqlite jq
 COPY --from=builder /tms/cmd/tms-backend/tms-backend /usr/local/bin/
-COPY --from=builder /tms/client /var/tms/client
-COPY /etc/tmcrc /etc/tmcrc
 EXPOSE $tms-listen
 EXPOSE $tms-portrange
 CMD ["/usr/local/bin/tms-backend"]

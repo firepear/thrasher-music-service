@@ -44,11 +44,11 @@ async function initThrasher(plat) {
 
     const regex = /["'& ]/g;
     const catAF = await fetch(`${proto}//${host}/init`).then((r) => { return r.json() });
-    listen = catAF.meta[0];
-    host = catAF.meta[1];
-    port = catAF.meta[2];
-    oport = catAF.meta[3];
-    console.log(catAF.meta, listen, host, port);
+    listen = catAF.meta[0] + ":" + catAF.meta[1];
+    host = catAF.meta[0];
+    port = catAF.meta[1];
+    oport = catAF.meta[2];
+    console.log(catAF.meta, listen, host, port, oport);
 
     catAF.facets.forEach((facet) => {
         const nfacet = facet.replaceAll(regex, "");

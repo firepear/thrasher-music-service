@@ -2,24 +2,25 @@
 
 # copy the system config to this dir, for insertion into the container
 # later at build time
-if [[ -x /etc/tmc.json ]]; then
+if [[ -f /etc/tmc.json ]]; then
     cp /etc/tmc.json .
-else
-    echo "error: system config file /etc/tmc.json not found"
+fi
+if [[ ! -f ./tmc.json ]]; then
+    echo "error: config file ./tmc.json not found"
     echo "       please create one, then rerun this script"
     exit 1
 fi
 
-# extract some values
-jq=$(which docker 2>&1 || true)
+# extract some values from config
+jq=$(which jq 2>&1 || true)
 if [[ "${jq}" =~ ^which ]]; then
     echo "error: 'jq' is required, but not found in PATH"
     exit 2
 fi
+listen=$(${jq} -r .listen ./tmc.json)
+ports=$(${jq} -r .ports ./tmc.json)
+clientdir=$(${jq} -r .clientdir ./tmc.json)
 musicdir=$(${jq} -r .musicdir ./tmc.json)
-listen=$(${jq} -r .musicdir ./tmc.json)
-ports=$(${jq} -r .musicdir ./tmc.json)
-
 
 # find 'docker' or 'podman'
 dockercmd=$(which docker 2>&1 || true)
@@ -38,11 +39,14 @@ ${dockercmd} container stop tms-backend && \
     ${dockercmd} image rm tms-backend
 ${dockercmd} image prune -f
 
-# copy config and web assets into container
-${dockercmd} cp tms.json tms-backend:/etc/tms.json
-
-
+# do the actual build
 ${dockercmd} build --build-arg tms-listen="${1}" --build-arg tms-ports="${2}" --tag tms-backend .
+
+# copy config and web assets into container
+${dockercmd} cp tmc.json tms-backend:/etc/tmc.json
+# and clean up copy of config
+rm tmc.json
+
 # ${dockercmd} run --name tms-backend -d --restart unless-stopped \
     # -p 9098:80 -p 11099:11099 \
     # -v gwg:/usr/share/nginx/html tms-backend

@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# copy the system config to this dir, for insertion into the container
-# later at build time
-if [[ -f /etc/tmc.json ]]; then
-    cp /etc/tmc.json .
-fi
+# complain if we don't have a config file
 if [[ ! -f ./tmc.json ]]; then
     echo "error: config file ./tmc.json not found"
     echo "       please create one, then rerun this script"
@@ -32,6 +28,10 @@ if [[ "${dockercmd}" =~ ^which ]]; then
     exit 2
 fi
 
+# go.work will screw up the build, so hide it for this process
+if [[ -f go.work ]]; then
+    mv go.work go.notwork
+fi
 
 # contianer and image maintenance
 ${dockercmd} container stop tms-backend && \
@@ -40,17 +40,14 @@ ${dockercmd} container stop tms-backend && \
 ${dockercmd} image prune -f
 
 # do the actual build
-${dockercmd} build --build-arg tms-listen="${1}" --build-arg tms-ports="${2}" --tag tms-backend .
-
-# copy config and web assets into container
-${dockercmd} cp tmc.json tms-backend:/etc/tmc.json
-# and clean up copy of config
-rm tmc.json
+${dockercmd} build --build-arg tmslisten="${listen}" --build-arg tmsports="${ports}" \
+             --build-arg clientdir="${clientdir}" --tag tms-backend .
 
 # ${dockercmd} run --name tms-backend -d --restart unless-stopped \
     # -p 9098:80 -p 11099:11099 \
     # -v gwg:/usr/share/nginx/html tms-backend
 
-#${dockercmd} cp assets/web/index.html tms-backend:/usr/share/nginx/html/
-#${dockercmd} cp assets/web/main.js tms-backend:/usr/share/nginx/html/
-
+# clean up
+if [[ -f go.notwork ]]; then
+    mv go.notwork go.work
+fi

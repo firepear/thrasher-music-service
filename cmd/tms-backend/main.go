@@ -68,7 +68,10 @@ func init() {
 		os.Exit(1)
 	}
 	// get the initial modtime of the catalog file
-	s, _ := os.Stat(conf.DbFile)
+	s, err := os.Stat(conf.DbFile)
+	if err != nil {
+		log.Panic(err)
+	}
 	lastCatMod = s.ModTime()
 
 	// now set musicdir

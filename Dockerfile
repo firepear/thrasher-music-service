@@ -11,10 +11,14 @@ RUN go build
 
 
 FROM docker.io/alpine:latest
-ARG tms-listen
-ARG tms-ports
+ARG tmslisten
+ARG tmsports
+ARG clientdir
 RUN apk --no-cache add busybox sqlite jq
 COPY --from=builder /tms/cmd/tms-backend/tms-backend /usr/local/bin/
-EXPOSE $tms-listen
-EXPOSE $tms-portrange
+COPY --from=builder /tms/tmc.json /etc/tmc.json
+COPY --from=builder /tms/client/ $clientdir
+EXPOSE $tmslisten
+EXPOSE $tmsports
+RUN echo "listen $tmslisten ports $tmsports clientdir $clientdir"
 CMD ["/usr/local/bin/tms-backend"]

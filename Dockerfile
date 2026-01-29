@@ -10,7 +10,7 @@ ENV CGO_ENABLED=1 CGO_CFLAGS="-DSQLITE_ENABLE_JSON1"
 RUN go build
 
 
-FROM docker.io/nginx:stable-alpine
+FROM docker.io/alpine:latest
 ARG tms-listen
 ARG tms-ports
 RUN apk --no-cache add busybox sqlite jq

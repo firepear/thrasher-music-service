@@ -75,10 +75,6 @@ ${dockercmd} run --name tms-backend -d --restart unless-stopped \
              -p "${listen}:${listen}" -p "${ports}:${ports}" \
              -v "${musicdir}:/Music:ro" tms-backend
 
-# ${dockercmd} run --name tms-backend -d --restart unless-stopped \
-    # -p 9098:80 -p 11099:11099 \
-    # -v gwg:/usr/share/nginx/html tms-backend
-
 # clean up
 echo "Cleaning up"
 ${dockercmd} image prune -f

@@ -72,7 +72,7 @@ func (s *Srvr) HandleRecent(w http.ResponseWriter, r *http.Request) {
 
 func (s *Srvr) HandleTrkInfo(w http.ResponseWriter, r *http.Request) {
 	trk := strings.ReplaceAll(r.PathValue("trk"), "%2F", "/")
-	j, _ := json.Marshal(s.C.TrkInfo(trk, true))
+	j, _ := json.Marshal(s.C.TrkInfo(trk, false))
 	io.WriteString(w, string(j))
 }
 
@@ -88,7 +88,7 @@ func (s *Srvr) HandleBatchTrkInfo(w http.ResponseWriter, r *http.Request) {
 	qb.Trks = append(qb.Trks, trks...)
 
 	for _, trk := range trks {
-		qb.TIs = append(qb.TIs, s.C.TrkInfo(trk, true))
+		qb.TIs = append(qb.TIs, s.C.TrkInfo(trk, false))
 	}
 	j, _ := json.Marshal(qb)
 	io.WriteString(w, string(j))

@@ -20,16 +20,14 @@ import (
 var (
 	clientDir   string
 	dbFile      string
-	listen      int
-	port        string
 	hostname    string
-	portRange   string
+	listenIF    string
+	listenPort  int
+	srvrPorts   string
 	portLo      int
 	portHi      int
+	redirHost   string
 	tls         bool
-	tlsHost     string
-	musicDir    string
-	musicPrefix string
 	srvrs       map[int]*tms.Srvr
 	srvrTTL     int
 	conf        *tmc.Config
@@ -48,14 +46,12 @@ func init() {
 
 	flag.StringVar(&clientDir, "c", "", "dir for serving client files")
 	flag.StringVar(&dbFile, "db", "", "path to database")
-	flag.StringVar(&hostname, "hn", "", "hostname for server-generated URLs")
-	flag.StringVar(&tlsHost, "th", "", "hostname for TLS redirect URLs")
-	flag.IntVar(&listen, "l", 0, "name/IP for server to listen on")
-	flag.StringVar(&musicDir, "md", "", "dir for serving music files")
-	flag.StringVar(&musicPrefix, "mp", "", "leading musicdir path which will be stripped from filter results (defaults to musicdir)")
-	flag.StringVar(&portRange, "pr", "", "port range for spawned servers")
+	flag.StringVar(&listenIF, "li", "", "hostname for server-generated URLs")
+	flag.StringVar(&redirHost, "th", "", "hostname for redirect URLs")
+	flag.IntVar(&listenPort, "lp", 0, "name/IP for server to listen on")
+	flag.StringVar(&srvrPorts, "sp", "", "port range for spawned servers")
 	flag.BoolVar(&tls, "tls", false, "build redirect URLs with https")
-	flag.IntVar(&srvrTTL, "ttl", 0, "TTL in seconds")
+	flag.IntVar(&srvrTTL, "ttl", 0, "spawned server TTL in seconds")
 	flag.Parse()
 
 	// if fdbfile is set, override dbfile
@@ -74,24 +70,21 @@ func init() {
 	}
 	lastCatMod = s.ModTime()
 
-	// now set musicdir
-	if musicDir != "" {
-		conf.MusicDir = musicDir
+	// set listen if/hostname if we have an override
+	if listenIF != "" {
+		conf.ListenIF = listenIF
 	}
-	// and hostname, tlsHost
-	if hostname != "" {
-		conf.Hostname = hostname
+	// and redirHost
+	if redirHost != "" {
+		conf.RedirHost = redirHost
 	}
-	if tlsHost != "" {
-		conf.TLSHost = tlsHost
-	}
-	// and listen value
-	if listen != 0 {
-		conf.Listen = listen
+	// and listen port
+	if listenPort != 0 {
+		conf.ListenPort = listenPort
 	}
 	// and portRange
-	if portRange != "" {
-		conf.PortRange = portRange
+	if srvrPorts != "" {
+		conf.PortRange = srvrPorts
 	}
 	// and TLS
 	if tls != false {
@@ -104,11 +97,6 @@ func init() {
 	// and clientDir
 	if clientDir != "" {
 		conf.Clientdir = clientDir
-	}
-
-	// mirror musicDir to musicPrefix if not specified
-	if musicPrefix == "" {
-		musicPrefix = conf.MusicDir
 	}
 
 	// parse portRange
@@ -170,7 +158,6 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, fmt.Sprintf("oops: %s", err))
 		return
 	}
-	c.TrimPrefix = musicPrefix
 
 	// find an available port
 	sport := 0
@@ -180,10 +167,10 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	ssport := strconv.Itoa(sport)
 
 	// make a new Srvr and mux
-	addr := conf.Hostname + ":" + ssport
-	raddr := addr
-	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.Hostname,
-		Port: ssport, OrigPort: conf.Listen, C: c}
+	addr := conf.ListenIF + ":" + ssport
+	raddr := conf.RedirHost + ":" + ssport
+	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.ListenIF,
+		Port: ssport, OrigPort: conf.ListenPort, C: c}
 	mux := http.NewServeMux()
 	// set up its handlers
 	mux.Handle("/", http.FileServer(http.Dir(conf.Clientdir)))
@@ -204,12 +191,11 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	srvrs[sport] = s
 	// redireco the new Srvr
 	if conf.TLS {
-		raddr = conf.TLSHost + ":" + ssport
 		http.Redirect(w, r, "https://" + raddr + r.URL.Path, http.StatusSeeOther)
 	} else {
 		http.Redirect(w, r, "http://" + raddr + r.URL.Path, http.StatusSeeOther)
 	}
-	log.Println("srvr up:", addr , "tls", conf.TLS, "redir", raddr, "path", r.URL.Path)
+	log.Println("srvr up:", raddr , "tls", conf.TLS, "path", r.URL.Path)
 }
 
 
@@ -230,6 +216,6 @@ func main() {
 	// launch the main/listener server
 	mainSrv := http.NewServeMux()
 	mainSrv.HandleFunc("GET /", handleSpawn)
-	log.Printf("listening on %s:%d", conf.Hostname, conf.Listen)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Hostname, conf.Listen), mainSrv))
+	log.Printf("listening on %s:%d", conf.ListenIF, conf.ListenPort)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", conf.ListenIF, conf.ListenPort), mainSrv))
 }

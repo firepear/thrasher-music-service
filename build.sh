@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# complain if we don't have a config file
+# complain if we don't have a config file and can't copy one from /etc
+if [[ -f /etc/tmc.json ]] && [[ ! -f ./tmc.json ]]; then
+    cp /etc/tmc.json .
+fi
 if [[ ! -f ./tmc.json ]]; then
     echo "error: config file ./tmc.json not found"
     echo "       please create one, then rerun this script"
@@ -13,10 +16,16 @@ if [[ "${jq}" =~ ^which ]]; then
     echo "error: 'jq' is required, but not found in PATH"
     exit 2
 fi
-listen=$(${jq} -r .listen ./tmc.json)
-ports=$(${jq} -r .ports ./tmc.json)
+listen=$(${jq} -r .listen-port ./tmc.json)
+ports=$(${jq} -r .srvr-ports ./tmc.json)
 clientdir=$(${jq} -r .clientdir ./tmc.json)
 musicdir=$(${jq} -r .musicdir ./tmc.json)
+
+# set client directories
+if [[ "${clientdir}" == "" ]]; then
+    clientdir="/var/local/tms-backend"
+fi
+clientbind="$(pwd)/client"
 
 # find 'docker' or 'podman'
 dockercmd=$(which docker 2>&1 || true)
@@ -42,6 +51,9 @@ ${dockercmd} image prune -f
 # do the actual build
 ${dockercmd} build --build-arg tmslisten="${listen}" --build-arg tmsports="${ports}" \
              --build-arg clientdir="${clientdir}" --tag tms-backend .
+
+# ${dockercmd} run --name tms-backend -d -p "${listen} -p "${srvr-ports}:${srvr-ports}" \
+#        -v "${musicdir}:/Music" -v "${clientbind}:${clientdir}" tms-backend
 
 # ${dockercmd} run --name tms-backend -d --restart unless-stopped \
     # -p 9098:80 -p 11099:11099 \

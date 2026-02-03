@@ -19,7 +19,6 @@ import (
 
 var (
 	clientDir   string
-	dbFile      string
 	hostname    string
 	listenIF    string
 	listenPort  int
@@ -45,24 +44,14 @@ func init() {
 	}
 
 	flag.StringVar(&clientDir, "c", "", "dir for serving client files")
-	flag.StringVar(&dbFile, "db", "", "path to database")
 	flag.StringVar(&listenIF, "li", "", "hostname for server-generated URLs")
-	flag.StringVar(&redirHost, "th", "", "hostname for redirect URLs")
 	flag.IntVar(&listenPort, "lp", 0, "name/IP for server to listen on")
+	flag.StringVar(&redirHost, "rh", "", "hostname for redirect URLs")
 	flag.StringVar(&srvrPorts, "sp", "", "port range for spawned servers")
 	flag.BoolVar(&tls, "tls", false, "build redirect URLs with https")
 	flag.IntVar(&srvrTTL, "ttl", 0, "spawned server TTL in seconds")
 	flag.Parse()
 
-	// if fdbfile is set, override dbfile
-	if dbFile != "" {
-		conf.DbFile = dbFile
-	}
-	// and if we still don't have a dbfile, bail
-	if conf.DbFile == "" {
-		fmt.Println("database file must be specified; see -h")
-		os.Exit(1)
-	}
 	// get the initial modtime of the catalog file
 	s, err := os.Stat(conf.DbFile)
 	if err != nil {

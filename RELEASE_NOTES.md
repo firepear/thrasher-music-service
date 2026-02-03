@@ -5,6 +5,8 @@
 - Server
   - The "server" executable has been renamed `tms-backend`
   - `tms-backend` can now be run in a container
+  - Internal updates for containerization
+  - Config args which override config file removed
 
 
 ## v0.9.3 (2026-01-20)

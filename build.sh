@@ -1,8 +1,17 @@
 #!/bin/bash
 
-# complain if we don't have a config file and can't copy one from /etc
+set -e
+
+# check for jq
+jq=$(which jq 2>&1 || true)
+if [[ "${jq}" =~ ^which ]]; then
+    echo "error: 'jq' is required, but not found in PATH"
+    exit 2
+fi
+
+# complain if we don't have a config file and can't clone from /etc
 if [[ -f /etc/tmc.json ]] && [[ ! -f ./tmc.json ]]; then
-    cp /etc/tmc.json .
+    jq . /etc/tmc.json > ./tmc.json
 fi
 if [[ ! -f ./tmc.json ]]; then
     echo "error: config file ./tmc.json not found"
@@ -11,21 +20,30 @@ if [[ ! -f ./tmc.json ]]; then
 fi
 
 # extract some values from config
-jq=$(which jq 2>&1 || true)
-if [[ "${jq}" =~ ^which ]]; then
-    echo "error: 'jq' is required, but not found in PATH"
-    exit 2
+listen=$(${jq} -r '.["listen-port"]' ./tmc.json)
+ports=$(${jq} -r '.["srvr-ports"]' ./tmc.json)
+#clientdir=$(${jq} -r .clientdir ./tmc.json)
+musicdir=$(${jq} -r .musicdir /etc/tmc.json)
+# add clientdir if we don't have it in the config file, since we know
+# what value needs to go here
+#if [[ "${clientdir}" == "null" ]]; then
+#    jq '. += {"clientdir": "/var/local/tms-backend"}' tmc.json > tmc.new
+#    mv tmc.new tmc.json
+#    clientdir=$(${jq} -r .clientdir ./tmc.json)
+#fi
+# and tell the user if we did have it, but it isn't correct
+#if [[ "${clientdir}" != "/var/local/tms-backend" ]]; then
+#    echo "error: clientdir must be set to '/var/local/tms-backend' in ./tmc.json"
+#    exit 2
+#fi
+# set client files source
+clientsrc="$(pwd)/client"
+# edit musicdir if needed
+localmd=$(${jq} -r .musicdir ./tmc.json)
+if [[ "${localmd}" != "/Music" ]]; then
+    jq '.musicdir = "/Music"' ./tmc.json > tmc.new
+    mv tmc.new tmc.json
 fi
-listen=$(${jq} -r .listen-port ./tmc.json)
-ports=$(${jq} -r .srvr-ports ./tmc.json)
-clientdir=$(${jq} -r .clientdir ./tmc.json)
-musicdir=$(${jq} -r .musicdir ./tmc.json)
-
-# set client directories
-if [[ "${clientdir}" == "" ]]; then
-    clientdir="/var/local/tms-backend"
-fi
-clientbind="$(pwd)/client"
 
 # find 'docker' or 'podman'
 dockercmd=$(which docker 2>&1 || true)
@@ -50,16 +68,20 @@ ${dockercmd} image prune -f
 
 # do the actual build
 ${dockercmd} build --build-arg tmslisten="${listen}" --build-arg tmsports="${ports}" \
-             --build-arg clientdir="${clientdir}" --tag tms-backend .
+             --tag tms-backend .
 
-# ${dockercmd} run --name tms-backend -d -p "${listen} -p "${srvr-ports}:${srvr-ports}" \
-#        -v "${musicdir}:/Music" -v "${clientbind}:${clientdir}" tms-backend
+echo "Starting container tms-backend"
+${dockercmd} run --name tms-backend -d --restart unless-stopped \
+             -p "${listen}:${listen}" -p "${ports}:${ports}" \
+             -v "${musicdir}:/Music:ro" tms-backend
 
 # ${dockercmd} run --name tms-backend -d --restart unless-stopped \
     # -p 9098:80 -p 11099:11099 \
     # -v gwg:/usr/share/nginx/html tms-backend
 
 # clean up
+echo "Cleaning up"
+${dockercmd} image prune -f
 if [[ -f go.notwork ]]; then
     mv go.notwork go.work
 fi

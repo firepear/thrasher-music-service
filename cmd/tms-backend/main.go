@@ -158,7 +158,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	// make a new Srvr and mux
 	addr := conf.ListenIF + ":" + ssport
 	raddr := conf.RedirHost + ":" + ssport
-	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.ListenIF,
+	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.RedirHost,
 		Port: ssport, OrigPort: conf.ListenPort, C: c}
 	mux := http.NewServeMux()
 	// set up its handlers

@@ -1,5 +1,5 @@
 // terser client.js --compress --mangle > client.js.min
-var tag = "v0.9.3";
+var tag;
 var proto = window.location.protocol;
 var host = window.location.host;
 var port = window.location.port;
@@ -48,6 +48,7 @@ async function initThrasher(plat) {
     host = catAF.meta[0];
     port = catAF.meta[1];
     oport = catAF.meta[2];
+    tag = catAF.meta[3];
     console.log(catAF.meta, listen, host, port, oport);
 
     catAF.facets.forEach((facet) => {

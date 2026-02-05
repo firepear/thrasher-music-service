@@ -32,9 +32,11 @@ var (
 	conf        *tmc.Config
 	lastCatMod  time.Time
 	catNum      int
+	version     string
 )
 
 func init() {
+	version = "v0.16.0"
 	// read config file, if it exists
 	var err error
 	conf, err = tmc.ReadConfig()

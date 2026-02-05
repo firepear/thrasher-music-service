@@ -1,13 +1,15 @@
 # Release notes
 
-## v0.10.0 (2026-01-xx)
+## v0.16.0 (2026-02-05)
 
 - Server
   - The "server" executable has been renamed `tms-backend`
   - `tms-backend` can now be run in a container
   - Internal updates for containerization
   - Config args which override config file removed
-
+  - Changes for Catalog updates
+  - Version harmonization
+  - Client now provided with version on connect
 
 ## v0.9.3 (2026-01-20)
 

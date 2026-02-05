@@ -2,37 +2,6 @@
 
 set -e
 
-# check for jq
-jq=$(which jq 2>&1 || true)
-if [[ "${jq}" =~ ^which ]]; then
-    echo "error: 'jq' is required, but not found in PATH"
-    exit 2
-fi
-
-# complain if we don't have a config file and can't clone from /etc
-if [[ ! -f ./tmc.json ]] && [[ -f /etc/tmc.json ]]; then
-    jq . /etc/tmc.json > ./tmc.json
-fi
-if [[ ! -f ./tmc.json ]]; then
-    echo "error: config file ./tmc.json not found"
-    echo "       please create one, then rerun this script"
-    exit 1
-fi
-
-# extract some values from config
-listen=$(${jq} -r '.["listen-port"]' ./tmc.json)
-ports=$(${jq} -r '.["srvr-ports"]' ./tmc.json)
-#clientdir=$(${jq} -r .clientdir ./tmc.json)
-musicdir=$(${jq} -r .musicdir /etc/tmc.json)
-# set client files source
-clientsrc="$(pwd)/client"
-# edit musicdir if needed
-localmd=$(${jq} -r .musicdir ./tmc.json)
-if [[ "${localmd}" != "/Music" ]]; then
-    jq '.musicdir = "/Music"' ./tmc.json > tmc.new
-    mv tmc.new tmc.json
-fi
-
 # find 'docker' or 'podman'
 dockercmd=$(which docker 2>&1 || true)
 if [[ "${dockercmd}" =~ ^which ]]; then
@@ -43,19 +12,51 @@ if [[ "${dockercmd}" =~ ^which ]]; then
     exit 2
 fi
 
+# check for other pre-reqs
+preqs="jq sed"
+for preq in ${preqs}; do
+    loc=$(which "${preq}" 2>&1 || true)
+    if [[ "${loc}" =~ ^which ]]; then
+        echo "error: '${preq}' is required, but not found in PATH"
+        exit 2
+    fi
+done
+
+# complain if we don't have a config file and can't clone from
+# /etc. clone if we can.
+if [[ ! -f /etc/tmc.json ]]; then
+    echo "error: config file /etc/tmc.json not found"
+    echo "       please create, then rerun this script"
+    exit 1
+fi
+if [[ ! -f ./tmc.json ]]; then
+    jq . /etc/tmc.json > ./tmc.json
+fi
+
+# extract some values from config
+listen=$(jq -r '.["listen-port"]' ./tmc.json)
+ports=$(jq -r '.["srvr-ports"]' ./tmc.json)
+#clientdir=$(jq -r .clientdir ./tmc.json)
+musicdir=$(jq -r .musicdir ./tmc.json)
+
+# edit configfile if needed
+if [[ "${musicdir}" != "/Music" ]] || [[ "${listen}" != "0.0.0.0" ]]; then
+    jq '.musicdir = "/Music" | .["listen-if"] = "0.0.0.0"' ./tmc.json > tmc.new
+    mv tmc.new tmc.json
+fi
+
 # go.work will screw up the build, so hide it for this process
 if [[ -f go.work ]]; then
     mv go.work go.notwork
 fi
 
-# set image/container and cofig file name
+# set image/container and config file name
 name="tms-backend"
 config="tmc.json"
 if [[ "${1}" != "" ]]; then
     name="${name}-${1}"
     config="tmc-${1}.json"
 fi
-# and config file name
 
 # contianer and image maintenance
 ${dockercmd} container stop "${name}" && \

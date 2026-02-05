@@ -48,20 +48,29 @@ if [[ -f go.work ]]; then
     mv go.work go.notwork
 fi
 
+# set image/container and cofig file name
+name="tms-backend"
+config="tmc.json"
+if [[ "${1}" != "" ]]; then
+    name="${name}-${1}"
+    config="tmc-${1}.json"
+fi
+# and config file name
+
 # contianer and image maintenance
-${dockercmd} container stop tms-backend && \
-    ${dockercmd} container rm tms-backend && \
-    ${dockercmd} image rm tms-backend
+${dockercmd} container stop "${name}" && \
+    ${dockercmd} container rm "${name}" && \
+    ${dockercmd} image rm "${name}"
 ${dockercmd} image prune -f
 
 # do the actual build
 ${dockercmd} build --build-arg tmslisten="${listen}" --build-arg tmsports="${ports}" \
-             --tag tms-backend .
+             --build-arg configfile="${config}" --tag "${name}" .
 
 echo "Starting container tms-backend"
-${dockercmd} run --name tms-backend -d --restart unless-stopped \
+${dockercmd} run --name "${name}" -d --restart unless-stopped \
              -p "${listen}:${listen}" -p "${ports}:${ports}" \
-             -v "${musicdir}:/Music:ro" tms-backend
+             -v "${musicdir}:/Music:ro" "${name}"
 
 # clean up
 echo "Cleaning up"

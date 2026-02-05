@@ -24,18 +24,6 @@ listen=$(${jq} -r '.["listen-port"]' ./tmc.json)
 ports=$(${jq} -r '.["srvr-ports"]' ./tmc.json)
 #clientdir=$(${jq} -r .clientdir ./tmc.json)
 musicdir=$(${jq} -r .musicdir /etc/tmc.json)
-# add clientdir if we don't have it in the config file, since we know
-# what value needs to go here
-#if [[ "${clientdir}" == "null" ]]; then
-#    jq '. += {"clientdir": "/var/local/tms-backend"}' tmc.json > tmc.new
-#    mv tmc.new tmc.json
-#    clientdir=$(${jq} -r .clientdir ./tmc.json)
-#fi
-# and tell the user if we did have it, but it isn't correct
-#if [[ "${clientdir}" != "/var/local/tms-backend" ]]; then
-#    echo "error: clientdir must be set to '/var/local/tms-backend' in ./tmc.json"
-#    exit 2
-#fi
 # set client files source
 clientsrc="$(pwd)/client"
 # edit musicdir if needed

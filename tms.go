@@ -19,6 +19,7 @@ type Srvr struct {
 	Port     string
 	OrigPort int
 	LastPing int
+	Version  string
 }
 
 type queryBatch struct {
@@ -36,7 +37,7 @@ type FilterReturn struct {
 
 func (s *Srvr) HandleInit(w http.ResponseWriter, _ *http.Request) {
 	j, _ := json.Marshal(map[string][]string{"artists": s.C.Artists, "facets": s.C.Facets,
-		"meta": []string{s.Host, s.Port, strconv.Itoa(s.OrigPort), version}})
+		"meta": []string{s.Host, s.Port, strconv.Itoa(s.OrigPort), s.Version}})
 	io.WriteString(w, string(j))
 }
 

@@ -161,7 +161,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	addr := conf.ListenIF + ":" + ssport
 	raddr := conf.RedirHost + ":" + ssport
 	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.RedirHost,
-		Port: ssport, OrigPort: conf.ListenPort, C: c}
+		Port: ssport, OrigPort: conf.ListenPort, C: c, Version: version}
 	mux := http.NewServeMux()
 	// set up its handlers
 	mux.Handle("/", http.FileServer(http.Dir(conf.Clientdir)))

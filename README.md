@@ -7,6 +7,12 @@ need
 (and its docs) to create and manage your music catalog. Once you have
 that sorted, come back here.
 
+- [Running the backend](#running-the-backend)
+  - [Containerized](#containerized)
+  - [Non-containerized](#non-containerized)
+- [PWA Mode](#proxiespwa)
+- [Roadmap](#roadmap)
+- [Attributions](#attributions)
 
 
 ## Running the backend
@@ -29,11 +35,21 @@ that sorted, come back here.
 ### Containerized
 
 For all the usual safety and ease-of-use reasons, it is preferred to
-run `tms-backend` in a container.
+run `tms-backend` in a container. To do this, run the build script
+(`./build.sh`), which should be compatible with both Docker and
+Podman. You'll need to run it as root if you aren't setup for rootless
+Podman.
 
+If there is no file `./tmc.json` then the script will copy the config
+file you created for running the tool (`/etc/tmc.json`) and use
+that. Some changes will be needed before you'll get a container that
+serves music as expected:
 
+- `musicdir` must be `"/Music"`
+- `listen-if` should likely be `"0.0.0.0"`
 
-
+If the build process fails, or the container isn't behaving as
+expected, make edits as required and then re-run the build script.
 
 ### Non-continerized
 
@@ -44,12 +60,6 @@ If you do not want to run the backend containerized, running under
 cd cmd/tms-backend
 go run .
 ```
-
-
-
-## Client
-
-The client UIs have [their own documentation](client/README.md).
 
 
 

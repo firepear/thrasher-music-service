@@ -85,9 +85,12 @@ func init() {
 	if srvrTTL != 0 {
 		conf.TTL = srvrTTL
 	}
-	// and clientDir
+	// and clientDir, i nboth directions
 	if clientDir != "" {
 		conf.Clientdir = clientDir
+	}
+	if conf.Clientdir == "" {
+		conf.Clientdir = "/var/local/tms-backend"
 	}
 
 	// parse portRange

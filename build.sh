@@ -10,7 +10,7 @@ if [[ "${jq}" =~ ^which ]]; then
 fi
 
 # complain if we don't have a config file and can't clone from /etc
-if [[ -f /etc/tmc.json ]] && [[ ! -f ./tmc.json ]]; then
+if [[ ! -f ./tmc.json ]] && [[ -f /etc/tmc.json ]]; then
     jq . /etc/tmc.json > ./tmc.json
 fi
 if [[ ! -f ./tmc.json ]]; then

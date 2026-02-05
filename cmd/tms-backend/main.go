@@ -45,7 +45,7 @@ func init() {
 		conf = &tmc.Config{}
 	}
 
-	flag.StringVar(&clientDir, "c", "", "dir for serving client files")
+	flag.StringVar(&clientDir, "cd", "", "dir for serving client files")
 	flag.StringVar(&listenIF, "li", "", "hostname for server-generated URLs")
 	flag.IntVar(&listenPort, "lp", 0, "name/IP for server to listen on")
 	flag.StringVar(&redirHost, "rh", "", "hostname for redirect URLs")
@@ -85,12 +85,21 @@ func init() {
 	if srvrTTL != 0 {
 		conf.TTL = srvrTTL
 	}
-	// and clientDir, i nboth directions
-	if clientDir != "" {
-		conf.Clientdir = clientDir
-	}
-	if conf.Clientdir == "" {
-		conf.Clientdir = "/var/local/tms-backend"
+
+	// set clientDir if it isn't
+	if clientDir == "" {
+		_, err := os.Stat("/var/local/tms-backend")
+		if err == nil {
+			clientDir = "/var/local/tms-backend"
+		} else {
+			_, err := os.Stat("./client")
+			if err == nil {
+				clientDir = "./client"
+			} else {
+				log.Printf("no static content dir found: %s", err)
+				os.Exit(1)
+			}
+		}
 	}
 
 	// parse portRange
@@ -167,7 +176,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 		Port: ssport, OrigPort: conf.ListenPort, C: c, Version: version}
 	mux := http.NewServeMux()
 	// set up its handlers
-	mux.Handle("/", http.FileServer(http.Dir(conf.Clientdir)))
+	mux.Handle("/", http.FileServer(http.Dir(clientDir)))
 	mux.Handle("/music/", http.StripPrefix("/music/", http.FileServer(http.Dir(conf.MusicDir))))
 	mux.HandleFunc("GET /ping", s.HandlePing)
 	mux.HandleFunc("GET /init", s.HandleInit)

@@ -7,15 +7,9 @@ need
 (and its docs) to create and manage your music catalog. Once you have
 that sorted, come back here.
 
-## Running
 
-The server is not yet daemonized or containerized. Running under
-`tmux` is recommended.
 
-```
-cd server
-go run .
-```
+## Running the backend
 
 - The server uses the same config file as
   [thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
@@ -23,7 +17,7 @@ go run .
   documentation (and how to build/manage your catalog)
 - The server should not be run as root. Point it at non-privileged
   ports in your config
-- Do `go run . -h` to see all server command line options
+- Do `go run ./cmd/tms-backend -h` to see all server command line options
 - Point a browser at the `host:listen` that you speficied to
   launch a player instance
   - Each connection on the `listen` port spawns a new player
@@ -31,6 +25,33 @@ go run .
   - This is to enable support for mTLS in the future
 - There is a compact, more finger-friendly mobile UI at
   `host:listen/m.html`
+
+### Containerized
+
+For all the usual safety and ease-of-use reasons, it is preferred to
+run `tms-backend` in a container.
+
+
+
+
+
+### Non-continerized
+
+If you do not want to run the backend containerized, running under
+`tmux` is recommended.
+
+```
+cd cmd/tms-backend
+go run .
+```
+
+
+
+## Client
+
+The client UIs have [their own documentation](client/README.md).
+
+
 
 ## Proxies/PWA
 
@@ -92,7 +113,32 @@ and edit them to supply the correct values for your system.
 Finally, run the server with https redirects enabled: `go run . -tls`
 
 
+
+## Roadmap
+
+### v1.0.0
+
+- v1.0 will be released when mTLS is implemented and well-tested
+- All other initially planned functionality is in place, as of v0.10.0
+  - Any releases between v0.10 and v1.0 will be for bugfixes, polish,
+    and tweaks
+
+### Post-1.0
+
+There are some additional pieces of functionality that I have thought
+about adding post-1.0, like:
+
+- Support for other audio formats
+- Supporting music being held in multiple subtrees
+
+But at the moment there are no concrete plans for that, and no plans
+at all for larger scale changes.
+
+
+
 ## Attributions
 
 - Client audio capabilities by [Howler,js](https://github.com/goldfire/howler.js)
 - Client notifications by [AlertifyJS](https://github.com/MohammadYounes/AlertifyJS)
+
+All other code handwritten by me.

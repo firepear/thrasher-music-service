@@ -19,24 +19,24 @@ import (
 
 var (
 	clientDir   string
-	dbFile      string
-	listen      string
-	port        string
 	hostname    string
-	portRange   string
+	listenIF    string
+	listenPort  int
+	srvrPorts   string
 	portLo      int
 	portHi      int
+	redirHost   string
 	tls         bool
-	musicDir    string
-	musicPrefix string
 	srvrs       map[int]*tms.Srvr
 	srvrTTL     int
 	conf        *tmc.Config
 	lastCatMod  time.Time
 	catNum      int
+	version     string
 )
 
 func init() {
+	version = "v0.16.0"
 	// read config file, if it exists
 	var err error
 	conf, err = tmc.ReadConfig()
@@ -45,49 +45,49 @@ func init() {
 		conf = &tmc.Config{}
 	}
 
-	flag.StringVar(&clientDir, "c", "../client", "dir for serving client files")
-	flag.StringVar(&dbFile, "db", "", "path to database")
-	flag.StringVar(&hostname, "hn", "", "hostname for server-generated URLs")
-	flag.StringVar(&listen, "l", "localhost:8000", "name/IP for server to listen on")
-	flag.StringVar(&musicDir, "md", "", "dir for serving music files")
-	flag.StringVar(&musicPrefix, "mp", "", "leading musicdir path which will be stripped from filter results (defaults to musicdir)")
-	flag.StringVar(&portRange, "pr", "8001-8030", "port range for spawned servers")
+	flag.StringVar(&clientDir, "c", "", "dir for serving client files")
+	flag.StringVar(&listenIF, "li", "", "hostname for server-generated URLs")
+	flag.IntVar(&listenPort, "lp", 0, "name/IP for server to listen on")
+	flag.StringVar(&redirHost, "rh", "", "hostname for redirect URLs")
+	flag.StringVar(&srvrPorts, "sp", "", "port range for spawned servers")
 	flag.BoolVar(&tls, "tls", false, "build redirect URLs with https")
-	flag.IntVar(&srvrTTL, "ttl", 60, "TTL in seconds")
+	flag.IntVar(&srvrTTL, "ttl", 0, "spawned server TTL in seconds")
 	flag.Parse()
 
-	// if fdbfile is set, override dbfile
-	if dbFile != "" {
-		conf.DbFile = dbFile
-	}
-	// and if we still don't have a dbfile, bail
-	if conf.DbFile == "" {
-		fmt.Println("database file must be specified; see -h")
-		os.Exit(1)
-	}
 	// get the initial modtime of the catalog file
-	s, _ := os.Stat(conf.DbFile)
+	s, err := os.Stat(conf.DbFile)
+	if err != nil {
+		log.Panic(err)
+	}
 	lastCatMod = s.ModTime()
 
-	// now set musicdir
-	if musicDir != "" {
-		conf.MusicDir = musicDir
+	// set listen if/hostname if we have an override
+	if listenIF != "" {
+		conf.ListenIF = listenIF
 	}
-	// and listen value
-	if listen != "localhost:8000" {
-		conf.Listen = listen
+	// and redirHost
+	if redirHost != "" {
+		conf.RedirHost = redirHost
 	}
-	// and hostname
-	if hostname != "" {
-		conf.Hostname = hostname
+	// and listen port
+	if listenPort != 0 {
+		conf.ListenPort = listenPort
 	}
 	// and portRange
-	if portRange != "8001-8030" {
-		conf.PortRange = portRange
+	if srvrPorts != "" {
+		conf.PortRange = srvrPorts
 	}
-	// mirror musicDir to musicPrefix if not specified
-	if musicPrefix == "" {
-		musicPrefix = conf.MusicDir
+	// and TLS
+	if tls != false {
+		conf.TLS = tls
+	}
+	// and TTL
+	if srvrTTL != 0 {
+		conf.TTL = srvrTTL
+	}
+	// and clientDir
+	if clientDir != "" {
+		conf.Clientdir = clientDir
 	}
 
 	// parse portRange
@@ -95,9 +95,6 @@ func init() {
 	portLo, _ = strconv.Atoi(strings.TrimSpace(pchunks[0]))
 	portHi, _ = strconv.Atoi(strings.TrimSpace(pchunks[1]))
 	// get just the hostname for server spawning
-	lchunks := strings.Split(conf.Listen, ":")
-	listen = lchunks[0]
-	port = lchunks[1]
 
 	srvrs = map[int]*tms.Srvr{}
 }
@@ -111,7 +108,7 @@ func scanSrvrs() {
 	curtime := int(time.Now().Unix())
 	for port, s := range srvrs {
 		etime := curtime - s.LastPing
-		if etime > srvrTTL {
+		if etime > conf.TTL {
 			log.Printf("srvr on port %d last seen %ds ago; shutdown", port, etime)
 			s.Http.Close()
 			s.C.Close()
@@ -144,6 +141,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, "server's full")
 		return
 	}
+
 	// create new Catalog
 	c, err := tmc.New(conf, "tmssrvr"  + strconv.Itoa(catNum))
 	if err != nil {
@@ -151,21 +149,22 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, fmt.Sprintf("oops: %s", err))
 		return
 	}
-	c.TrimPrefix = musicPrefix
 
 	// find an available port
 	sport := 0
 	for sport == 0 || srvrs[sport] != nil {
 		sport = rand.IntN(portHi - portLo) + portLo
 	}
+	ssport := strconv.Itoa(sport)
 
 	// make a new Srvr and mux
-	addr := fmt.Sprintf("%s:%d", listen, sport)
-	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Listen: listen, Host: conf.Hostname,
-		Port: strconv.Itoa(sport), OrigPort: port, C: c}
+	addr := conf.ListenIF + ":" + ssport
+	raddr := conf.RedirHost + ":" + ssport
+	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.RedirHost,
+		Port: ssport, OrigPort: conf.ListenPort, C: c, Version: version}
 	mux := http.NewServeMux()
 	// set up its handlers
-	mux.Handle("/", http.FileServer(http.Dir(clientDir)))
+	mux.Handle("/", http.FileServer(http.Dir(conf.Clientdir)))
 	mux.Handle("/music/", http.StripPrefix("/music/", http.FileServer(http.Dir(conf.MusicDir))))
 	mux.HandleFunc("GET /ping", s.HandlePing)
 	mux.HandleFunc("GET /init", s.HandleInit)
@@ -181,14 +180,13 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	go s.Http.ListenAndServe()
 	// add it to srvrs
 	srvrs[sport] = s
-	// redirect to the new Srvr
-	fwdaddr := fmt.Sprintf("%s:%d", conf.Hostname, sport)
-	if tls {
-		http.Redirect(w, r, "https://" + fwdaddr + r.URL.Path, http.StatusSeeOther)
+	// redireco the new Srvr
+	if conf.TLS {
+		http.Redirect(w, r, "https://" + raddr + r.URL.Path, http.StatusSeeOther)
 	} else {
-		http.Redirect(w, r, "http://" + fwdaddr + r.URL.Path, http.StatusSeeOther)
+		http.Redirect(w, r, "http://" + raddr + r.URL.Path, http.StatusSeeOther)
 	}
-	log.Println("srvr up on", addr , "redir", fwdaddr, "path", r.URL.Path, "tls", tls)
+	log.Println("srvr up:", raddr , "tls", conf.TLS, "path", r.URL.Path)
 }
 
 
@@ -209,6 +207,6 @@ func main() {
 	// launch the main/listener server
 	mainSrv := http.NewServeMux()
 	mainSrv.HandleFunc("GET /", handleSpawn)
-	log.Printf("listening on %s", conf.Listen)
-	log.Fatal(http.ListenAndServe(conf.Listen, mainSrv))
+	log.Printf("listening on %s:%d", conf.ListenIF, conf.ListenPort)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", conf.ListenIF, conf.ListenPort), mainSrv))
 }

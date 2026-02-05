@@ -15,11 +15,11 @@ import (
 type Srvr struct {
 	Http     *http.Server
 	C        *tmc.Catalog
-	Listen   string
 	Host     string
 	Port     string
-	OrigPort string
+	OrigPort int
 	LastPing int
+	Version  string
 }
 
 type queryBatch struct {
@@ -37,7 +37,7 @@ type FilterReturn struct {
 
 func (s *Srvr) HandleInit(w http.ResponseWriter, _ *http.Request) {
 	j, _ := json.Marshal(map[string][]string{"artists": s.C.Artists, "facets": s.C.Facets,
-		"meta": []string{s.Listen, s.Host, s.Port, s.OrigPort}})
+		"meta": []string{s.Host, s.Port, strconv.Itoa(s.OrigPort), s.Version}})
 	io.WriteString(w, string(j))
 }
 
@@ -73,7 +73,7 @@ func (s *Srvr) HandleRecent(w http.ResponseWriter, r *http.Request) {
 
 func (s *Srvr) HandleTrkInfo(w http.ResponseWriter, r *http.Request) {
 	trk := strings.ReplaceAll(r.PathValue("trk"), "%2F", "/")
-	j, _ := json.Marshal(s.C.TrkInfo(trk, true))
+	j, _ := json.Marshal(s.C.TrkInfo(trk))
 	io.WriteString(w, string(j))
 }
 
@@ -89,7 +89,7 @@ func (s *Srvr) HandleBatchTrkInfo(w http.ResponseWriter, r *http.Request) {
 	qb.Trks = append(qb.Trks, trks...)
 
 	for _, trk := range trks {
-		qb.TIs = append(qb.TIs, s.C.TrkInfo(trk, true))
+		qb.TIs = append(qb.TIs, s.C.TrkInfo(trk))
 	}
 	j, _ := json.Marshal(qb)
 	io.WriteString(w, string(j))

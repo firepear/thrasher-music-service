@@ -32,6 +32,7 @@ var (
 	conf        *tmc.Config
 	lastCatMod  time.Time
 	catNum      int
+	ver         bool
 )
 
 func init() {
@@ -50,7 +51,13 @@ func init() {
 	flag.StringVar(&srvrPorts, "sp", "", "port range for spawned servers")
 	flag.BoolVar(&tls, "tls", false, "build redirect URLs with https")
 	flag.IntVar(&srvrTTL, "ttl", 0, "spawned server TTL in seconds")
+	flag.BoolVar(&ver, "v", false, "display version number")
 	flag.Parse()
+
+	if ver {
+		fmt.Println(tms.Version)
+		os.Exit(0)
+	}
 
 	// get the initial modtime of the catalog file
 	s, err := os.Stat(conf.DbFile)

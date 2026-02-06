@@ -32,11 +32,9 @@ var (
 	conf        *tmc.Config
 	lastCatMod  time.Time
 	catNum      int
-	version     string
 )
 
 func init() {
-	version = "v0.16.0"
 	// read config file, if it exists
 	var err error
 	conf, err = tmc.ReadConfig()
@@ -173,7 +171,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	addr := conf.ListenIF + ":" + ssport
 	raddr := conf.RedirHost + ":" + ssport
 	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.RedirHost,
-		Port: ssport, OrigPort: conf.ListenPort, C: c, Version: version}
+		Port: ssport, OrigPort: conf.ListenPort, C: c, Version: tms.Version}
 	mux := http.NewServeMux()
 	// set up its handlers
 	mux.Handle("/", http.FileServer(http.Dir(clientDir)))

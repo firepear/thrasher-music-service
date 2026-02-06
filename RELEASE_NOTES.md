@@ -1,6 +1,6 @@
 # Release notes
 
-## v0.17.0 (2026-02-05)
+## v0.17.0 (2026-02-06)
 
 - Build script updated to allow test builds
 - `conf.Clientdir` is ignored, with defaults now provided and CLI

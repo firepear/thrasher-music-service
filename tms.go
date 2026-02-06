@@ -12,6 +12,8 @@ import (
 	tmc "github.com/firepear/thrasher-music-catalog"
 )
 
+var Version := "v0.17.0"
+
 type Srvr struct {
 	Http     *http.Server
 	C        *tmc.Catalog

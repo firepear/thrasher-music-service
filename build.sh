@@ -61,12 +61,17 @@ config["srvr-ports"]=$(jq -r '.["srvr-ports"]' "${cf}")
 
 # complain if any values are null
 for attr in "${!config[@]}"; do
-    if [[ config["${attr}" == "" ]]; then
+    if [[ "${config[${attr}]}" == "" ]]; then
            echo "error: config attribute '${attr}' cannot be null"
            echo "       please edit config file and rerun build.sh"
            exit 2
     fi
 done
+# and if musicdir doesn't exist
+if [[ ! -d "${config['musicdir']}" ]]; then
+    echo "error: musicdir (${musicdir}) must exist and be a directory"
+    exit 2
+fi
 
 # edit config values if needed
 if [[ "${config['musicdir']}" != "/Music" ]] || [[ "${config['listen-if']}" != "0.0.0.0" ]]; then

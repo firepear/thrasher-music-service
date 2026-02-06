@@ -37,19 +37,16 @@ that sorted, come back here.
 For all the usual safety and ease-of-use reasons, it is preferred to
 run `tms-backend` in a container. To do this, run the build script
 (`./build.sh`), which should be compatible with both Docker and
-Podman. You'll need to run it as root if you aren't setup for rootless
-Podman.
+Podman, though you'll need to run it as root if you aren't setup for
+rootless Podman.
 
-If there is no file `./tmc.json` then the script will copy the config
-file you created for running the tool (`/etc/tmc.json`) and use
-that. Some changes will be needed before you'll get a container that
-serves music as expected:
+The build script will use the config file you set up to create your
+catalog (`/etc/tmc.json`) to get the info it needs to build an image
+and container. You shouldn't need to change anything if you already
+have a working setup.
 
-- `musicdir` must be `"/Music"`
-- `listen-if` should likely be `"0.0.0.0"`
-
-If the build process fails, or the container isn't behaving as
-expected, make edits as required and then re-run the build script.
+If the build process fails, or the container isn't behaving properly,
+make edits to `/etc/tmc.json` and re-run the build script.
 
 ### Non-continerized
 
@@ -65,17 +62,24 @@ go run .
 
 ## Proxies/PWA
 
-To use the mobile UI in PWA mode, it must be served from an `https`
-URL with a non-self-signed cert. The easiest way to do this is to run
-nginx as a proxy, using a configuration like:
+The TMS mobile client UI can be used standalone or as a PWA. If you
+don't want to use the PWA functionality, then Thrasher is a wholly
+self-contained system, requiring no extra running software.
+
+TMS itself also doesn't speak HTTPS (by design), so to use it as a PWA
+you'll need an HTTPS proxy server to handle the cert and provide TLS
+termination.
+
+Documented here is one way to do this is, by running nginx with a
+configuration like:
 
 ```
 server {
-    server_name HOSTNAME;
-    listen IP:LISTEN ssl; # the connection server, running on LISTEN port
+    server_name REDIR-HOST;
+    listen LISTEN-IF:LISTEN-PORT ssl; # the connection server
 
-    listen IP:PORT_0 ssl; # first player server, using the first port in
-                          # PORTS. repeat this line for all other PORTS
+    listen LISTEN-IF:SERVER-PORTS[0] ssl; # first port in srvr-ports
+                                          # repeat this line for all others
 
     ssl_certificate     /etc/letsencrypt/live/HOSTNAME/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/HOSTNAME/privkey.pem;
@@ -93,7 +97,8 @@ server {
 
     # no changes needed in proxy config
     location / {
-        proxy_pass http://127.0.0.1:$server_port;
+        proxy_pass http://127.0.0.1:$server_port; # assumes tms-backend is running on
+                                                  # the same machine; change if not
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -103,16 +108,9 @@ server {
 }
 ```
 
-And a TMC config file like:
-
-```
-{ "artist_cutoff": 4,
-  "musicdir": "/path/to/music",
-  "dbfile": "/path/to/thrashermusic.db",
-  "listen": "127.0.0.1:7189",
-  "ports": "7190-7199",
-  "hostname": "HOSTNAME" }
-```
+You'll also need to set `"tls": true` in `/etc/tmc.json` so that
+redirects use a scheme of `https` after we rebuild the container in a
+few more steps.
 
 Next, in `/PATH/TO/thrasher_music_service/client` do
 
@@ -120,7 +118,7 @@ Next, in `/PATH/TO/thrasher_music_service/client` do
 
 and edit them to supply the correct values for your system.
 
-Finally, run the server with https redirects enabled: `go run . -tls`
+Finally, re-run `build.sh` so that all these changes take effect.
 
 
 

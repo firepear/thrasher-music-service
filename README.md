@@ -17,13 +17,11 @@ that sorted, come back here.
 
 ## Running the backend
 
-- The server uses the same config file as
-  [thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
-  for most configuration points. See its README for config file
-  documentation (and how to build/manage your catalog)
-- The server should not be run as root. Point it at non-privileged
-  ports in your config
-- Do `go run ./cmd/tms-backend -h` to see all server command line options
+The server uses the same config file as
+[thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
+for most configuration points. See its README for config file
+documentation (and how to build/manage your catalog)
+
 - Point a browser at the `host:listen` that you speficied to
   launch a player instance
   - Each connection on the `listen` port spawns a new player
@@ -45,13 +43,21 @@ catalog (`/etc/tmc.json`) to get the info it needs to build an image
 and container. You shouldn't need to change anything if you already
 have a working setup.
 
+That said, the tool will happily operate with a minimal config, while
+`tms-backend` needs all values populated.
+
 If the build process fails, or the container isn't behaving properly,
 make edits to `/etc/tmc.json` and re-run the build script.
 
 ### Non-continerized
 
-If you do not want to run the backend containerized, running under
-`tmux` is recommended.
+WARNING: non-containerized usage should be considered deprecated, and
+may be removed in future versions. If you do not want to run the
+backend containerized, running under `tmux` is recommended.
+
+To see available CLI options:  `go run ./cmd/tms-backend -h`
+
+To run:
 
 ```
 cd cmd/tms-backend

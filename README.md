@@ -2,7 +2,7 @@
 Spotify for your personal music collection.
 
 Linux and Mac OS (with
-[`container`](https://github.com/apple/container) are supported.
+[`container`](https://github.com/apple/container)) are supported.
 
 - [Server/Backend](#server)
 - [Client](#client)
@@ -23,33 +23,31 @@ See its README for config file documentation, and how to create and
 manage your catalog. When you're done, come back here to start
 listening.
 
-For all the usual safety and ease-of-use reasons, it is preferred to
-run `tms-backend` in a container. To do this, run the build script
-(`./build.sh`), which should be compatible with both Docker and
-Podman, though you'll need to run it as root if you aren't setup for
-rootless Podman.
+Currently, `tms-backend` runs in a container. Creating and launching
+the container is handled by the build script (`./build.sh`), which
+is compatible with Docker, Podman, and Apple's `container`.
 
-The build script will use the config file you set up to create your
-catalog (`/etc/tmc.json`) to get the info it needs to build an image
-and container. You shouldn't need to change anything if you already
-have a working setup.
-
-That said, the tool will happily operate with a minimal config, while
-`tms-backend` needs all values populated.
+The script will use the config file you set up to create your catalog
+(`/etc/tmc.json`) to get the info it needs to build and run the
+service. You shouldn't need to change anything if you already have a
+working setup, though all fields marked as 'RFS' do need a value.
 
 If the build process fails, or the container isn't behaving properly,
-make edits to `/etc/tmc.json` and re-run the build script.
+make edits as needed to `/etc/tmc.json` and re-run the build script.
 
 
 ## Client
 
-- Point a browser at the `host:listen` that you speficied to
-  launch a player instance
-  - Each connection on the `listen` port spawns a new player
-    server on an unused port from the `ports` range
-  - This is to enable support for mTLS in the future
-- There is a compact, more finger-friendly mobile UI at
-  `host:listen/m.html`
+Point a browser at the `REDIR-HOST:LISTEN-PORT` that you speficied to
+launch a player instance
+
+![Desktop client](https://github.com/firepear/thrasher-music-tool/docs/dt.jpg)
+
+There is a compact, more finger-friendly mobile UI at
+`REDIR-HOST:LISTEN-PORT/m.html`. This is the interface that can be
+presented as a PWA
+
+![Mobile client](https://github.com/firepear/thrasher-music-tool/docs/m.jpg)
 
 
 ## Proxies/PWA

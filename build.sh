@@ -59,7 +59,7 @@ else
         exit 1
     fi
 fi
-echo ${cf}
+
 # extract some values from config
 declare -A config
 config["musicdir"]=$(jq -r .musicdir "${cf}")
@@ -95,9 +95,9 @@ fi
 
 # contianer and image maintenance
 echo ">> Pre-build cleanup"
-${dockercmd} container stop "${name}" && \
-    ${dockercmd} container rm "${name}" && \
-    ${dockercmd} image rm "${name}"
+${dockercmd} container stop "${name}"
+${dockercmd} container rm "${name}"
+${dockercmd} image rm "${name}"
 ${dockercmd} image prune -f
 
 echo ">> Building image ${name}"

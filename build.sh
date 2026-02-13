@@ -8,8 +8,8 @@ if [[ "${BASH_VERSINFO[0]}" < "5" ]]; then
     exit 1
 fi
 
-# find a way to build containers
-echo -n "looking for container tool... "
+# try to find a way to build containers
+echo -n "[BUILD] Looking for containerization tool... "
 for cmd in "docker" "podman" "container"; do
     dockercmd=$(which "${cmd}" 2>&1 || true)
     if [[ "${dockercmd}" =~ ^/ ]]; then
@@ -94,26 +94,32 @@ if [[ -f go.work ]]; then
 fi
 
 # contianer and image maintenance
-echo ">> Pre-build cleanup"
-${dockercmd} container stop "${name}"
-${dockercmd} container rm "${name}"
-${dockercmd} image rm "${name}"
-${dockercmd} image prune -f
+echo "[BUILD] Pre-build cleanup"
+${dockercmd} stop "${name}"
+${dockercmd} rm "${name}" || true
+${dockercmd} image rm "${name}" || true
+if [[ "${dockercmd}" =~ container$ ]]; then
+    ${dockercmd} image prune
+else
+    ${dockercmd} image prune -f
+fi
 
-echo ">> Building image ${name}"
+
 # do the actual build
+echo "[BUILD] Building image ${name}"
 ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
              --build-arg tmsports="${config['srvr-ports']}" \
              --build-arg configfile="${bcf}" --tag "${name}" .
 
-echo ">> Starting container ${name}"
-${dockercmd} run --name "${name}" -d --restart unless-stopped \
+# start the container
+echo "[BUILD] Starting container ${name}"
+${dockercmd} run --name "${name}" -d --restart always \
              -p "${config['listen-port']}:${config['listen-port']}" \
              -p "${config['srvr-ports']}:${config['srvr-ports']}" \
              -v "${config['musicdir']}:/Music:ro" "${name}"
 
 # clean up
-echo ">> Post-build cleanup"
+echo "[BUILD] Post-build cleanup"
 ${dockercmd} image prune -f
 if [[ "${custom}" == "false" ]]; then
     rm "${cf}"

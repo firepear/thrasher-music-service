@@ -18,9 +18,9 @@ Linux and Mac OS are supported.
 
 ## Server
 
-_N.B. There is no security or authentication built into this project
-at the present time. It should only be run on private/unroutable
-networks until v1.0.0. See the Roadmap for more information._
+_N.B. In the future, secure playback anywhere will be possible. For
+now however, TMS should only be run on private/unroutable
+networks. See the Roadmap for more information._
 
 The server uses the same config file as
 [thrasher-music-tool](https://github.com/firepear/thrasher-music-tool).

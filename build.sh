@@ -3,8 +3,8 @@
 set -e
 
 # check bash version
-if [[ "${BASH_VERSINFO[0]}" < "5" ]]; then
-    echo "error: bash v5.x+ needed; this is v${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}"
+if [[ ${BASH_VERSINFO[0]} -lt 5 ]]; then
+    echo "error: bash v5+ needed; this is v${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}"
     exit 1
 fi
 

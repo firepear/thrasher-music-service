@@ -119,7 +119,7 @@ ${dockercmd} run --name "${name}" -d \
              -v "${config['musicdir']}:/Music:ro" "${name}"
 # and if we're not using 'container', set restart policy
 if [[ ! "${dockercmd}" =~ container$ ]]; then
-    ${dockercmd} update --restart always
+    ${dockercmd} update --restart always "${name}"
 fi
 
 # clean up

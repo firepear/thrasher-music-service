@@ -41,13 +41,13 @@ make edits as needed to `/etc/tmc.json` and re-run the build script.
 Point a browser at the `REDIR-HOST:LISTEN-PORT` that you speficied to
 launch a player instance
 
-![Desktop client](https://github.com/firepear/thrasher-music-tool/docs/dt.jpg)
+![Desktop client](https://github.com/firepear/thrasher-music-tool/tree/main/docs/dt.jpg)
 
 There is a compact, more finger-friendly mobile UI at
 `REDIR-HOST:LISTEN-PORT/m.html`. This is the interface that can be
 presented as a PWA
 
-![Mobile client](https://github.com/firepear/thrasher-music-tool/docs/m.jpg)
+![Mobile client](https://github.com/firepear/thrasher-music-tool/tree/main/docs/m.jpg)
 
 
 ## Proxies/PWA

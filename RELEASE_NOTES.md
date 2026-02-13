@@ -1,5 +1,12 @@
 # Release notes
 
+## v0.18.0 (2026-02-13)
+
+- Running server uncontainerized is deprecated
+- Container now builds and runs on Mac OS under `container`
+- Additional small build improvements
+
+
 ## v0.17.0 (2026-02-07)
 
 - Build script improvements

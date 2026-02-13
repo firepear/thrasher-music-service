@@ -1,16 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
-# find 'docker' or 'podman'
-dockercmd=$(which docker 2>&1 || true)
-if [[ "${dockercmd}" =~ ^which ]]; then
-    dockercmd=$(which podman 2>&1 || true)
+# check bash version
+if [[ ${BASH_VERSINFO[0]} -lt 5 ]]; then
+    echo "error: bash v5+ needed; this is v${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}"
+    exit 1
 fi
-if [[ "${dockercmd}" =~ ^which ]]; then
-    echo "error: neither docker or podman found in PATH"
+
+# try to find a way to build containers
+echo -n "[BUILD] Looking for containerization tool... "
+for cmd in "docker" "podman" "container"; do
+    dockercmd=$(which "${cmd}" 2>&1 || true)
+    if [[ "${dockercmd}" =~ ^/ ]]; then
+        break
+    fi
+done
+if [[ "${dockercmd}" == "" ]]; then
+    echo "error: no container tool found in PATH"
     exit 2
 fi
+echo "${dockercmd}"
 
 # check for other pre-reqs
 preqs="jq sed"
@@ -41,9 +51,7 @@ if [[ "${custom}" == "false" ]]; then
         echo "error: no config found at /etc/tmc.json; exiting"
         exit 1
     fi
-    if [[ ! -f "${cf}" ]]; then
-        jq . /etc/tmc.json > "${cf}"
-    fi
+    jq . /etc/tmc.json > "${cf}"
 else
     # custom config specified; make sure it exists
     if [[ ! -f "${cf}" ]]; then
@@ -69,7 +77,7 @@ for attr in "${!config[@]}"; do
 done
 # and if musicdir doesn't exist
 if [[ ! -d "${config['musicdir']}" ]]; then
-    echo "error: musicdir (${musicdir}) must exist and be a directory"
+    echo "error: musicdir (${config['musicdir']}) must exist and be a directory"
     exit 2
 fi
 
@@ -86,27 +94,41 @@ if [[ -f go.work ]]; then
 fi
 
 # contianer and image maintenance
-echo ">> Pre-build cleanup"
-${dockercmd} container stop "${name}" && \
-    ${dockercmd} container rm "${name}" && \
-    ${dockercmd} image rm "${name}"
-${dockercmd} image prune -f
+echo "[BUILD] Pre-build cleanup"
+${dockercmd} stop "${name}"
+${dockercmd} rm "${name}" || true
+${dockercmd} image rm "${name}" || true
+if [[ "${dockercmd}" =~ container$ ]]; then
+    ${dockercmd} image prune
+else
+    ${dockercmd} image prune -f
+fi
 
-echo ">> Building image ${name}"
+
 # do the actual build
+echo "[BUILD] Building image ${name}"
 ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
              --build-arg tmsports="${config['srvr-ports']}" \
              --build-arg configfile="${bcf}" --tag "${name}" .
 
-echo ">> Starting container ${name}"
-${dockercmd} run --name "${name}" -d --restart unless-stopped \
+# start the container
+echo "[BUILD] Starting container ${name}"
+${dockercmd} run --name "${name}" -d \
              -p "${config['listen-port']}:${config['listen-port']}" \
              -p "${config['srvr-ports']}:${config['srvr-ports']}" \
              -v "${config['musicdir']}:/Music:ro" "${name}"
+# and if we're not using 'container', set restart policy
+if [[ ! "${dockercmd}" =~ container$ ]]; then
+    ${dockercmd} update --restart always
+fi
 
 # clean up
-echo ">> Post-build cleanup"
-${dockercmd} image prune -f
+echo "[BUILD] Post-build cleanup"
+if [[ "${dockercmd}" =~ container$ ]]; then
+    ${dockercmd} image prune
+else
+    ${dockercmd} image prune -f
+fi
 if [[ "${custom}" == "false" ]]; then
     rm "${cf}"
 fi

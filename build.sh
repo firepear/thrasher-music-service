@@ -113,14 +113,22 @@ ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
 
 # start the container
 echo "[BUILD] Starting container ${name}"
-${dockercmd} run --name "${name}" -d --restart always \
+${dockercmd} run --name "${name}" -d \
              -p "${config['listen-port']}:${config['listen-port']}" \
              -p "${config['srvr-ports']}:${config['srvr-ports']}" \
              -v "${config['musicdir']}:/Music:ro" "${name}"
+# and if we're not using 'container', set restart policy
+if [[ ! "${dockercmd}" =~ container$ ]]; then
+    ${dockercmd} update --restart always
+fi
 
 # clean up
 echo "[BUILD] Post-build cleanup"
-${dockercmd} image prune -f
+if [[ "${dockercmd}" =~ container$ ]]; then
+    ${dockercmd} image prune
+else
+    ${dockercmd} image prune -f
+fi
 if [[ "${custom}" == "false" ]]; then
     rm "${cf}"
 fi

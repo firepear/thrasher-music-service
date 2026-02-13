@@ -1,36 +1,27 @@
 # thrasher-music-service
-UI client and service for Thrasher
+Spotify for your personal music collection.
 
-This is the piece you need to listen to music with Thrasher. You'll
-need
-[thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
-(and its docs) to create and manage your music catalog. Once you have
-that sorted, come back here.
+Linux and Mac OS (with
+[`container`](https://github.com/apple/container) are supported.
 
-- [Running the backend](#running-the-backend)
-  - [Containerized](#containerized)
-  - [Non-containerized](#non-containerized)
+- [Server/Backend](#server)
+- [Client](#client)
 - [PWA Mode](#proxiespwa)
 - [Roadmap](#roadmap)
 - [Attributions](#attributions)
 
 
-## Running the backend
+## Server
 
-The server uses the same config file as
-[thrasher-music-tool](https://github.com/firepear/thrasher-music-tool)
-for most configuration points. See its README for config file
-documentation (and how to build/manage your catalog)
+_N.B. There is no security or authentication built into this project
+at the present time. It should only be run on private/unroutable
+networks until v1.0.0. See the Roadmap for more information._
 
-- Point a browser at the `host:listen` that you speficied to
-  launch a player instance
-  - Each connection on the `listen` port spawns a new player
-    server on an unused port from the `ports` range
-  - This is to enable support for mTLS in the future
-- There is a compact, more finger-friendly mobile UI at
-  `host:listen/m.html`
-
-### Containerized
+The server (AKA `tms-backend`) uses the same config file as
+[thrasher-music-tool](https://github.com/firepear/thrasher-music-tool).
+See its README for config file documentation, and how to create and
+manage your catalog. When you're done, come back here to start
+listening.
 
 For all the usual safety and ease-of-use reasons, it is preferred to
 run `tms-backend` in a container. To do this, run the build script
@@ -49,21 +40,16 @@ That said, the tool will happily operate with a minimal config, while
 If the build process fails, or the container isn't behaving properly,
 make edits to `/etc/tmc.json` and re-run the build script.
 
-### Non-continerized
 
-WARNING: non-containerized usage should be considered deprecated, and
-may be removed in future versions. If you do not want to run the
-backend containerized, running under `tmux` is recommended.
+## Client
 
-To see available CLI options:  `go run ./cmd/tms-backend -h`
-
-To run:
-
-```
-cd cmd/tms-backend
-go run .
-```
-
+- Point a browser at the `host:listen` that you speficied to
+  launch a player instance
+  - Each connection on the `listen` port spawns a new player
+    server on an unused port from the `ports` range
+  - This is to enable support for mTLS in the future
+- There is a compact, more finger-friendly mobile UI at
+  `host:listen/m.html`
 
 
 ## Proxies/PWA
@@ -130,23 +116,24 @@ Finally, re-run `build.sh` so that all these changes take effect.
 
 ## Roadmap
 
-### v1.0.0
-
-- v1.0 will be released when mTLS is implemented and well-tested
-- All other initially planned functionality is in place, as of v0.10.0
-  - Any releases between v0.10 and v1.0 will be for bugfixes, polish,
-    and tweaks
-
-### Post-1.0
-
-There are some additional pieces of functionality that I have thought
-about adding post-1.0, like:
-
-- Support for other audio formats
-- Supporting music being held in multiple subtrees
-
-But at the moment there are no concrete plans for that, and no plans
-at all for larger scale changes.
+- **Post-v0.14 to v1.0**
+  - Everything until the 1.0 work will be polish and bugfixing
+    work. No new features or capabilities are planned
+- **v1.0.0**
+  - Version 1.0.0 will happen when mTLS is put in place
+  - This is what will allow the server to safely exist on the open
+    internet, using X.509 style certs to bidirectionally authenticate
+    clients and the server to each other
+  - Some of the requirements for this have long been in place, for
+    example each client getting its own server upon connecting
+  - There is not presently a timeline for the remaining work
+- **Post-1.0**
+  - There are some additional pieces of functionality that I have
+    thought about adding post-1.0
+    - Support for other audio formats
+    - Supporting music being held in multiple subtrees
+  - But at the moment there are no concrete plans for that, and no
+    plans at all for larger scale changes.
 
 
 

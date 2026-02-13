@@ -2,8 +2,12 @@
 Spotify for your personal music collection -- search, filter, and
 playback on demand.
 
-Linux and Mac OS (with
-[`container`](https://github.com/apple/container)) are supported.
+TMS is one part of the Thrasher system, which forms a complete music
+library management system that supports tagging music in whatever way
+makes sense to you, and keeps ID3 tags in sync with music catalog
+changes so they're always your source of truth.
+
+Linux and Mac OS are supported.
 
 - [Server/Backend](#server)
 - [Client](#client)
@@ -18,15 +22,15 @@ _N.B. There is no security or authentication built into this project
 at the present time. It should only be run on private/unroutable
 networks until v1.0.0. See the Roadmap for more information._
 
-The server (AKA `tms-backend`) uses the same config file as
+The server uses the same config file as
 [thrasher-music-tool](https://github.com/firepear/thrasher-music-tool).
 See its README for config file documentation, and how to create and
 manage your catalog. When you're done, come back here to start
 listening.
 
-Currently, `tms-backend` runs in a container. Creating and launching
-the container is handled by the build script (`./build.sh`), which
-is compatible with Docker, Podman, and Apple's `container`.
+TMS's server component (`tms-backend`) runs in a container. Creating
+and launching the container is handled by the script `./build.sh`,
+which is compatible with Docker, Podman, and Apple's `container`.
 
 The script will use the config file you set up to create your catalog
 (`/etc/tmc.json`) to get the info it needs to build and run the

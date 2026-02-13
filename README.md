@@ -1,5 +1,6 @@
 # thrasher-music-service
-Spotify for your personal music collection.
+Spotify for your personal music collection -- search, filter, and
+playback on demand.
 
 Linux and Mac OS (with
 [`container`](https://github.com/apple/container)) are supported.
@@ -46,9 +47,11 @@ launch a player instance
 - Select options in the Facets pane to queue music by facet
 - Select options in the Artists pane to queue music by artist
   - Use the Filter box to narrow down the artist list
-- Type a query filter in the Search box to queue tracks that match the
+- Type a query filter in the 'Search' box to queue tracks that match the
   filter specified
-- Click the Recent button to queue the 25 most recenty added albums
+- Click the 'Recent' button to queue the 25 most recenty added albums
+- 'Clear' will unselect everything and clear the playback queue
+- Click cover art to see a bigger version (and click again to dismiss)
 - Type `h` or `?` to see a keybindings popup
 
 There is a compact, more finger-friendly mobile UI at

@@ -43,6 +43,14 @@ launch a player instance
 
 ![Desktop client](https://github.com/firepear/thrasher-music-service/blob/main/docs/dt.jpg)
 
+- Select options in the Facets pane to queue music by facet
+- Select options in the Artists pane to queue music by artist
+  - Use the Filter box to narrow down the artist list
+- Type a query filter in the Search box to queue tracks that match the
+  filter specified
+- Click the Recent button to queue the 25 most recenty added albums
+- Type `h` or `?` to see a keybindings popup
+
 There is a compact, more finger-friendly mobile UI at
 `REDIR-HOST:LISTEN-PORT/m.html`. This is the interface that can be
 presented as a PWA

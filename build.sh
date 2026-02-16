@@ -98,12 +98,6 @@ echo "[BUILD] Pre-build cleanup"
 ${dockercmd} stop "${name}"
 ${dockercmd} rm "${name}" || true
 ${dockercmd} image rm "${name}" || true
-if [[ "${dockercmd}" =~ container$ ]]; then
-    ${dockercmd} image prune
-else
-    ${dockercmd} image prune -f
-fi
-
 
 # do the actual build
 echo "[BUILD] Building image ${name}"
@@ -124,11 +118,6 @@ fi
 
 # clean up
 echo "[BUILD] Post-build cleanup"
-if [[ "${dockercmd}" =~ container$ ]]; then
-    ${dockercmd} image prune
-else
-    ${dockercmd} image prune -f
-fi
 if [[ "${custom}" == "false" ]]; then
     rm "${cf}"
 fi

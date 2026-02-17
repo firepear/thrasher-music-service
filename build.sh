@@ -112,7 +112,7 @@ else
     # custom/dev build
     ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
                  --build-arg tmsports="${config['srvr-ports']}" \
-                 --build-arg env="dev" \
+                 --build-arg envi="dev" \
                  --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile ..
 fi
 

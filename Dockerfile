@@ -25,12 +25,12 @@ FROM docker.io/alpine:latest
 ARG tmslisten
 ARG tmsports
 ARG configfile
-ARG env=prod
+ARG envi=prod
 RUN apk --no-cache add busybox sqlite jq
-RUN echo "listen '$tmslisten' ports '$tmsports' clientdir '$clientdir' cf '$configfile' builder_$env"
-COPY --from=builder_$env /tms/thrasher-music-service/cmd/tms-backend/tms-backend /usr/local/bin/
-COPY --from=builder_$env /tms/thrasher-music-service/$configfile /etc/tmc.json
-COPY --from=builder_$env /tms/thrasher-music-service/client/ /var/local/tms-backend
+RUN echo "listen '$tmslisten' ports '$tmsports' clientdir '$clientdir' cf '$configfile' builder_$envi"
+COPY --from=builder_$envi /tms/thrasher-music-service/cmd/tms-backend/tms-backend /usr/local/bin/
+COPY --from=builder_$envi /tms/thrasher-music-service/$configfile /etc/tmc.json
+COPY --from=builder_$envi /tms/thrasher-music-service/client/ /var/local/tms-backend
 EXPOSE $tmslisten
 EXPOSE $tmsports
 CMD ["/usr/local/bin/tms-backend"]

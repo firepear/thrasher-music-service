@@ -38,13 +38,9 @@ cf="tmc.json"  # stock config file name
 bcf="tmc.json" # config included in build
 custom="false"
 if [[ "${1}" != "" ]]; then
-    # welcome to the undocumented feature: custom/dev
-    # builds. providing an argument turns on $custom and sets the
-    # value of the TMC config file to ARG.json
-    #
-    # this *also* calls the actual build with an extra (docker) ARG,
-    # which then causes a conditional copy of the Catalog codebase
-    # into the build stage, so that go.work will do the right thing
+    # undocumented feature 1: multiple builds. providing an
+    # argument modifies the config file we're using and the name of
+    # the container
     name="${name}-${1}"
     cf="${1}.json"
     custom="true"
@@ -104,6 +100,10 @@ ${dockercmd} image rm "${name}" || true
 # do the actual build
 echo "[BUILD] Building image ${name}"
 if [[ -f ./go.work ]]; then
+    # undocumented feature 2: dev builds. the presence of go.work
+    # requires having the Catalog code in the build image, and until
+    # Apple's 'container' supports "COPY --parents" we have to have a
+    # separate Dockerfile for this use case
     ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
                  --build-arg tmsports="${config['srvr-ports']}" \
                  --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile.dev ..

@@ -1,5 +1,11 @@
 # Release notes
 
+## v0.19.0 (2026-02-20)
+
+- Removed `prune` ops from Dockerfile
+- Other container build improvements
+
+
 ## v0.18.0 (2026-02-13)
 
 - Running server uncontainerized is deprecated

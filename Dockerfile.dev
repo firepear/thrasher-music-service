@@ -1,9 +1,10 @@
-# tms-backend prod dockerfile
+# tms-backend dev dockerfile
 #
 
 FROM docker.io/golang:alpine as builder
 RUN apk --no-cache add gcc musl-dev
 WORKDIR /tms
+COPY ./thrasher-music-catalog /tms/thrasher-music-catalog
 COPY ./thrasher-music-service /tms/thrasher-music-service
 WORKDIR /tms/thrasher-music-service
 ENV CGO_ENABLED=1 CGO_CFLAGS="-DSQLITE_ENABLE_JSON1"

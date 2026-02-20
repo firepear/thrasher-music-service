@@ -38,6 +38,9 @@ cf="tmc.json"  # stock config file name
 bcf="tmc.json" # config included in build
 custom="false"
 if [[ "${1}" != "" ]]; then
+    # undocumented feature 1: multiple builds. providing an
+    # argument modifies the config file we're using and the name of
+    # the container
     name="${name}-${1}"
     cf="${1}.json"
     custom="true"
@@ -88,35 +91,33 @@ if [[ "${config['musicdir']}" != "/Music" ]] || [[ "${config['listen-if']}" != "
     bcf="${cf}.new"
 fi
 
-# go.work will screw up the build, so hide it for this process
-if [[ -f go.work ]]; then
-    mv go.work go.notwork
-fi
-
 # contianer and image maintenance
 echo "[BUILD] Pre-build cleanup"
-${dockercmd} stop "${name}"
+${dockercmd} stop "${name}" || true
 ${dockercmd} rm "${name}" || true
 ${dockercmd} image rm "${name}" || true
-if [[ "${dockercmd}" =~ container$ ]]; then
-    ${dockercmd} image prune
-else
-    ${dockercmd} image prune -f
-fi
-
 
 # do the actual build
 echo "[BUILD] Building image ${name}"
-${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
-             --build-arg tmsports="${config['srvr-ports']}" \
-             --build-arg configfile="${bcf}" --tag "${name}" .
-
+if [[ -f ./go.work ]]; then
+    # undocumented feature 2: dev builds. the presence of go.work
+    # requires having the Catalog code in the build image, and until
+    # Apple's 'container' supports "COPY --parents" we have to have a
+    # separate Dockerfile for this use case
+    ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
+                 --build-arg tmsports="${config['srvr-ports']}" \
+                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile.dev ..
+else
+    ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
+                 --build-arg tmsports="${config['srvr-ports']}" \
+                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile ..
+fi
 # start the container
 echo "[BUILD] Starting container ${name}"
-${dockercmd} run --name "${name}" -d \
-             -p "${config['listen-port']}:${config['listen-port']}" \
-             -p "${config['srvr-ports']}:${config['srvr-ports']}" \
-             -v "${config['musicdir']}:/Music:ro" "${name}"
+    ${dockercmd} run --name "${name}" -d \
+                 -p "${config['listen-port']}:${config['listen-port']}" \
+                 -p "${config['srvr-ports']}:${config['srvr-ports']}" \
+                 -v "${config['musicdir']}:/Music:ro" "${name}"
 # and if we're not using 'container', set restart policy
 if [[ ! "${dockercmd}" =~ container$ ]]; then
     ${dockercmd} update --restart always "${name}"
@@ -124,17 +125,9 @@ fi
 
 # clean up
 echo "[BUILD] Post-build cleanup"
-if [[ "${dockercmd}" =~ container$ ]]; then
-    ${dockercmd} image prune
-else
-    ${dockercmd} image prune -f
-fi
 if [[ "${custom}" == "false" ]]; then
     rm "${cf}"
 fi
 if [[ "${bcf}" != "${cf}" ]]; then
     rm "${bcf}"
-fi
-if [[ -f go.notwork ]]; then
-    mv go.notwork go.work
 fi

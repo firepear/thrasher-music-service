@@ -103,16 +103,21 @@ ${dockercmd} image rm "${name}" || true
 
 # do the actual build
 echo "[BUILD] Building image ${name}"
-${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
-             --build-arg tmsports="${config['srvr-ports']}" \
-             --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile ..
-
+if [[ -f ./go.work ]]; then
+    ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
+                 --build-arg tmsports="${config['srvr-ports']}" \
+                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile.dev ..
+else
+    ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
+                 --build-arg tmsports="${config['srvr-ports']}" \
+                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile ..
+fi
 # start the container
 echo "[BUILD] Starting container ${name}"
-${dockercmd} run --name "${name}" -d \
-             -p "${config['listen-port']}:${config['listen-port']}" \
-             -p "${config['srvr-ports']}:${config['srvr-ports']}" \
-             -v "${config['musicdir']}:/Music:ro" "${name}"
+    ${dockercmd} run --name "${name}" -d \
+                 -p "${config['listen-port']}:${config['listen-port']}" \
+                 -p "${config['srvr-ports']}:${config['srvr-ports']}" \
+                 -v "${config['musicdir']}:/Music:ro" "${name}"
 # and if we're not using 'container', set restart policy
 if [[ ! "${dockercmd}" =~ container$ ]]; then
     ${dockercmd} update --restart always "${name}"

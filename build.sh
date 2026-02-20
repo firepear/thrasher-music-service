@@ -103,18 +103,9 @@ ${dockercmd} image rm "${name}" || true
 
 # do the actual build
 echo "[BUILD] Building image ${name}"
-if [[ "${custom}" == "false" ]]; then
-    # normal build
-    ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
-                 --build-arg tmsports="${config['srvr-ports']}" \
-                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile ..
-else
-    # custom/dev build
-    ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
-                 --build-arg tmsports="${config['srvr-ports']}" \
-                 --build-arg envi="dev" \
-                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile ..
-fi
+${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
+             --build-arg tmsports="${config['srvr-ports']}" \
+             --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile ..
 
 # start the container
 echo "[BUILD] Starting container ${name}"

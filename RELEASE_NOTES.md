@@ -1,6 +1,6 @@
 # Release notes
 
-## v0.19.0 (2026-02-16)
+## v0.19.0 (2026-02-20)
 
 - Removed `prune` ops from Dockerfile
 - Other container build improvements

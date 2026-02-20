@@ -1,36 +1,23 @@
 # tms-backend dockerfile
 #
 
-FROM docker.io/golang:alpine as builder_dev
+FROM docker.io/golang:alpine as builder
 RUN apk --no-cache add gcc musl-dev
-WORKDIR /tms/thrasher-music-catalog
-COPY ./thrasher-music-catalog /tms/thrasher-music-catalog
+WORKDIR /tms
+COPY --parents ./thrasher-music-* /tms
 WORKDIR /tms/thrasher-music-service
-COPY ./thrasher-music-service /tms/thrasher-music-service
-WORKDIR /tms/thrasher-music-service/cmd/tms-backend
 ENV CGO_ENABLED=1 CGO_CFLAGS="-DSQLITE_ENABLE_JSON1"
-RUN go build
-
-
-FROM docker.io/golang:alpine as builder_prod
-RUN apk --no-cache add gcc musl-dev
-WORKDIR /tms/thrasher-music-service
-COPY ./thrasher-music-service /tms/thrasher-music-service
-WORKDIR /tms/thrasher-music-service/cmd/tms-backend
-ENV CGO_ENABLED=1 CGO_CFLAGS="-DSQLITE_ENABLE_JSON1"
-RUN go build
-
+RUN go build ./cmd/tms-backend
 
 FROM docker.io/alpine:latest
 ARG tmslisten
 ARG tmsports
 ARG configfile
-ARG envi=prod
 RUN apk --no-cache add busybox sqlite jq
 RUN echo "listen '$tmslisten' ports '$tmsports' clientdir '$clientdir' cf '$configfile' builder_$envi"
-COPY --from=builder_$envi /tms/thrasher-music-service/cmd/tms-backend/tms-backend /usr/local/bin/
-COPY --from=builder_$envi /tms/thrasher-music-service/$configfile /etc/tmc.json
-COPY --from=builder_$envi /tms/thrasher-music-service/client/ /var/local/tms-backend
+COPY --from=builder /tms/thrasher-music-service/tms-backend /usr/local/bin/
+COPY --from=builder /tms/thrasher-music-service/$configfile /etc/tmc.json
+COPY --from=builder /tms/thrasher-music-service/client/ /var/local/tms-backend
 EXPOSE $tmslisten
 EXPOSE $tmsports
 CMD ["/usr/local/bin/tms-backend"]

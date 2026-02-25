@@ -4,6 +4,7 @@ var proto = window.location.protocol;
 var host = window.location.host;
 var port = window.location.port;
 var oport = 0;
+var pinger;
 var els = {};
 var facetdivs = [];
 var artistdivs = [];
@@ -26,7 +27,7 @@ elnames.forEach((name) => ( els[name] = document.getElementById(name) ));
 
 // listeners and global setup
 window.addEventListener("keydown", (event) => handleKey(event));
-setInterval(pingHost, 20000);
+pinger = setInterval(pingHost, 20000);
 
 async function pingHost() {
     try {
@@ -619,6 +620,7 @@ function errorHandler(id, err, x) {
         // player error is likely a deeper problem. report and reload
         // the UI
         playing = "no";
+        clearInterval(pinger);
         alertify.alert()
             .setting({
                 'title': 'Playback error',
@@ -631,6 +633,7 @@ function errorHandler(id, err, x) {
         // ping errors are usually the first indication of a network
         // error or server death. report and reload
         playing = "no";
+        clearInterval(pinger);
         alertify.alert()
             .setting({
                 'title': 'Network error',
@@ -642,6 +645,7 @@ function errorHandler(id, err, x) {
     } else if (x.type == "filter") {
         // filter errors are user-generated
         playing = "no";
+        clearInterval(pinger);
         alertify.alert()
             .setting({
                 'title': 'Filter error',

@@ -1,5 +1,10 @@
 # Release notes
 
+## v0.20.0 (2026-02-25)
+
+- Client now halts pings on fatal errors, preventing further errors
+
+
 ## v0.19.0 (2026-02-20)
 
 - Removed `prune` ops from Dockerfile

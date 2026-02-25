@@ -12,7 +12,7 @@ import (
 	tmc "github.com/firepear/thrasher-music-catalog"
 )
 
-var Version = "v0.19.0"
+var Version = "v0.20.0"
 
 type Srvr struct {
 	Http     *http.Server

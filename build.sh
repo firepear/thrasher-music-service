@@ -106,11 +106,11 @@ if [[ -f ./go.work ]]; then
     # separate Dockerfile for this use case
     ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
                  --build-arg tmsports="${config['srvr-ports']}" \
-                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile.dev ..
+                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Containerfile.dev ..
 else
     ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
                  --build-arg tmsports="${config['srvr-ports']}" \
-                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Dockerfile ..
+                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Containerfile ..
 fi
 # start the container
 echo "[BUILD] Starting container ${name}"

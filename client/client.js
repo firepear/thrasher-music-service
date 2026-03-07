@@ -129,6 +129,9 @@ function handleKey(evt) {
     case "7":
     case "8":
     case "9":
+        // ignore if modifiers are active
+        
+        // set volume
         els["vol"].value = evt.key * 10;
         setVol();
         break;

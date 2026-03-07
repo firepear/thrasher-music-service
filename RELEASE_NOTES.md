@@ -1,5 +1,14 @@
 # Release notes
 
+## v0.21.0 (2026-03-xx)
+
+- tms-backend
+  - `Dockerfile` -> `Containerfile`
+- Client
+  - Volume keys (0-9) are now ignored when a modifier is also pressed,
+    to avoid unintentional volume changes when using keyboard
+    shortcuts to switch browser tabs
+
 ## v0.20.0 (2026-02-25)
 
 - Client now halts pings on fatal errors, preventing further errors

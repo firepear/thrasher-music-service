@@ -1,4 +1,6 @@
 // terser client.js --compress --mangle > client.js.min
+const modifierKeys = ["Control", "Meta", "Alt", "AltGraph"];
+
 var tag;
 var proto = window.location.protocol;
 var host = window.location.host;
@@ -78,10 +80,23 @@ async function initThrasher(plat) {
     setFilterNet("a:a\\\\b", true);
 }
 
+
+function isModifierKeyPressed(evt) {
+  return modifierKeys.some((key) => evt.getModifierState(key));
+}
+
 function handleKey(evt) {
+    // ignore the artist and filter textboxes
     if (els["filter"] === document.activeElement || els["artistfilter"] === document.activeElement) {
-        return
+        return;
     }
+
+    // ignore if modifiers are active to protect against browser
+    // tab changes via keyboard shortcuts
+    if (isModifierKeyPressed(evt)) {
+        return;
+    }
+
     switch (evt.key) {
     case "?":
     case "h":
@@ -129,15 +144,17 @@ function handleKey(evt) {
     case "7":
     case "8":
     case "9":
-        els["vol"].value = evt.key * 10;
-        setVol();
-        break;
     case "0":
-        els["vol"].value = 100;
+        // set volume
+        if (evt.key == "0") {
+            els["vol"].value = 100;
+        } else {
+            els["vol"].value = evt.key * 10;
+        }
         setVol();
         break;
-    //default:
-    //    console.log(evt.key);
+        //default:
+        //    console.log(evt.key);
     }
 }
 

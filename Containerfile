@@ -1,14 +1,16 @@
-# tms-backend prod dockerfile
-#
+# tms-backend containerfile
 
+# first-stage (builder) image is where we build tms-backend itself
 FROM docker.io/golang:alpine as builder
 RUN apk --no-cache add gcc musl-dev
 WORKDIR /tms
-COPY ./thrasher-music-service /tms/thrasher-music-service
+COPY --parents ./thrasher-music-* /tms
 WORKDIR /tms/thrasher-music-service
 ENV CGO_ENABLED=1 CGO_CFLAGS="-DSQLITE_ENABLE_JSON1"
 RUN go build ./cmd/tms-backend
 
+# second stage: copy things from various places into a clean image
+# with bo build deps
 FROM docker.io/alpine:latest
 ARG tmslisten
 ARG tmsports

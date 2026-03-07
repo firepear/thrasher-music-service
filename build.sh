@@ -99,19 +99,10 @@ ${dockercmd} image rm "${name}" || true
 
 # do the actual build
 echo "[BUILD] Building image ${name}"
-if [[ -f ./go.work ]]; then
-    # undocumented feature 2: dev builds. the presence of go.work
-    # requires having the Catalog code in the build image, and until
-    # Apple's 'container' supports "COPY --parents" we have to have a
-    # separate Dockerfile for this use case
-    ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
-                 --build-arg tmsports="${config['srvr-ports']}" \
-                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Containerfile.dev ..
-else
-    ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
-                 --build-arg tmsports="${config['srvr-ports']}" \
-                 --build-arg configfile="${bcf}" --tag "${name}" -f ./Containerfile ..
-fi
+${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
+             --build-arg tmsports="${config['srvr-ports']}" \
+             --build-arg configfile="${bcf}" --tag "${name}" -f ./Containerfile ..
+
 # start the container
 echo "[BUILD] Starting container ${name}"
     ${dockercmd} run --name "${name}" -d \

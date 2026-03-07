@@ -2,12 +2,16 @@
 
 ## v0.21.0 (2026-03-xx)
 
-- tms-backend
-  - `Dockerfile` -> `Containerfile`
 - Client
   - Volume keys (0-9) are now ignored when a modifier is also pressed,
     to avoid unintentional volume changes when using keyboard
     shortcuts to switch browser tabs
+- tms-backend
+  - `Dockerfile` -> `Containerfile`
+  - `build.sh` script simplified and `Containerfile.dev` removed, as
+    Apple's `container` supports `COPY --parents` as of v0.10 (macOS
+    26.3)
+
 
 ## v0.20.0 (2026-02-25)
 

@@ -1,6 +1,15 @@
 # Release notes
 
-## v0.21.0 (2026-03-xx)
+## v0.22.0 (2026-03-07)
+
+- tms-backend
+  - Change default build IP to `127.0.0.1`; add config's `listen-if`
+    to container port publishing spec
+    - This avoids binding to `0.0.0.0`, which creates a complex port
+      management situation when in `tls` mode
+
+
+## v0.21.0 (2026-03-07)
 
 - Client
   - Volume keys (0-9) are now ignored when a modifier is also pressed,

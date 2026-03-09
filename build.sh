@@ -85,9 +85,9 @@ if [[ ! -d "${config['musicdir']}" ]]; then
 fi
 
 # edit config values if needed
-if [[ "${config['musicdir']}" != "/Music" ]] || [[ "${config['listen-if']}" != "0.0.0.0" ]]; then
-    jq '.musicdir = "/Music" | .["listen-if"] = "0.0.0.0"' "${cf}" > "${cf}.new"
-    config['listen-if']="0.0.0.0"
+if [[ "${config['musicdir']}" != "/Music" ]] || [[ "${config['listen-if']}" != "127.0.0.1" ]]; then
+    jq '.musicdir = "/Music" | .["listen-if"] = "127.0.0.1"' "${cf}" > "${cf}.new"
+    config['listen-if']="127.0.0.1"
     bcf="${cf}.new"
 fi
 
@@ -106,8 +106,8 @@ ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
 # start the container
 echo "[BUILD] Starting container ${name}"
     ${dockercmd} run --name "${name}" -d \
-                 -p "${config['listen-port']}:${config['listen-port']}" \
-                 -p "${config['srvr-ports']}:${config['srvr-ports']}" \
+                 -p "${config['listen-if']}:${config['listen-port']}:${config['listen-port']}" \
+                 -p "${config['listen-if']}:${config['srvr-ports']}:${config['srvr-ports']}" \
                  -v "${config['musicdir']}:/Music:ro" "${name}"
 # and if we're not using 'container', set restart policy
 if [[ ! "${dockercmd}" =~ container$ ]]; then

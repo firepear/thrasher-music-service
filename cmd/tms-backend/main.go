@@ -31,7 +31,6 @@ var (
 	srvrTTL     int
 	conf        *tmc.Config
 	lastCatMod  time.Time
-	catNum      int
 	ver         bool
 )
 
@@ -111,8 +110,8 @@ func init() {
 	pchunks := strings.Split(conf.PortRange, "-")
 	portLo, _ = strconv.Atoi(strings.TrimSpace(pchunks[0]))
 	portHi, _ = strconv.Atoi(strings.TrimSpace(pchunks[1]))
-	// get just the hostname for server spawning
 
+	// set up a map to hold Srvrs we'll spawn later
 	srvrs = map[int]*tms.Srvr{}
 }
 
@@ -145,10 +144,9 @@ func statCat() {
 		for port, s := range srvrs {
 			s.Http.Close()
 			s.C.Close()
-			delete(srvrs, port)
 		}
-		lastCatMod = s.ModTime()
-		catNum++
+		// die off, to be restarted by container management
+		os.Exit(0)
 	}
 }
 
@@ -160,7 +158,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create new Catalog
-	c, err := tmc.New(conf, "tmssrvr"  + strconv.Itoa(catNum))
+	c, err := tmc.New(conf, "tmssrvr")
 	if err != nil {
 		log.Println(err)
 		io.WriteString(w, fmt.Sprintf("oops: %s", err))

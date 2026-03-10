@@ -141,7 +141,7 @@ func statCat() {
 	s, _ := os.Stat(conf.DbFile)
 	if s.ModTime().Sub(lastCatMod) != 0 {
 		log.Printf("catalog update; killing all spawned servers")
-		for port, s := range srvrs {
+		for _, s := range srvrs {
 			s.Http.Close()
 			s.C.Close()
 		}

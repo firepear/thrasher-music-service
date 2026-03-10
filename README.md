@@ -11,16 +11,15 @@ Linux and Mac OS are supported.
 
 - [Server/Backend](#server)
 - [Client](#client)
-- [PWA Mode](#proxiespwa)
+- [Security](#security)
+  - [TLS](#tlsproxy)
+  - [PWA mode](#pwamode)
+  - [Basic Auth](#basicauth)
 - [Roadmap](#roadmap)
 - [Attributions](#attributions)
 
 
 ## Server
-
-_N.B. In the future, secure playback anywhere will be possible. For
-now however, TMS should only be run on private/unroutable
-networks. See the Roadmap for more information._
 
 The server uses the same config file as
 [thrasher-music-tool](https://github.com/firepear/thrasher-music-tool).
@@ -65,23 +64,21 @@ presented as a PWA
 ![Mobile client](https://github.com/firepear/thrasher-music-service/blob/main/docs/m.jpg)
 
 
-## Proxies/PWA
+## Security
 
-The TMS mobile client UI can be used standalone or as a PWA. If you
-don't want to use the PWA functionality, then Thrasher is a wholly
-self-contained system, requiring no extra running software.
+TMS, currently, doesn't speak HTTPS. So when it is run "naked" there
+is no security. As such, it should only be run like this on private
+networks.
 
-TMS itself also doesn't speak HTTPS (by design), so to use it as a PWA
-you'll need an HTTPS proxy server to handle the cert and provide TLS
-termination.
+### TLS Proxy
 
-Documented here is one way to do this is, by running `nginx` with a
-configuration like:
+To deploy TMS on a public network, you'll need an SSL/TLS terminating
+proxy in front of it, like Nginx with a configuration like:
 
 ```
 server {
     server_name REDIR-HOST;
-    listen LISTEN-IF:LISTEN-PORT ssl; # the connection server
+    listen LISTEN-IF:443 ssl;             # the connection server
 
     listen LISTEN-IF:SERVER-PORTS[0] ssl; # first port in srvr-ports
                                           # repeat this line for all others
@@ -113,18 +110,49 @@ server {
 }
 ```
 
-You'll also need to set `"tls": true` in `/etc/tmc.json` so that
-redirects use a scheme of `https` after we rebuild the container in a
-few more steps.
+> Note: this document assumes you are running Nginx as an OS-level
+> service, rather than in a container of its own. Tweaking
+> configurations to support other modes of operations is too broad to
+> be covered here.
 
-Next, in `/PATH/TO/thrasher_music_service/client` do
+Once Nginx is set up correctly, you'll also need to set `"tls": true`
+in `/etc/tmc.json` and rebuild the TMS container.
+
+### PWA mode
+
+With TLS enabled, the TMS mobile client UI can be used as a
+[Progressice Web App](https://web.dev/learn/pwa/welcome) on platforms
+which support them.  To enable this, in
+`/PATH/TO/thrasher_music_service/client`, do:
 
 `cp app.webmanifest.sample app.webmanifest && cp 500.html.sample 500.html`
 
-and edit them to supply the correct values for your system.
+Then edit those files to supply the correct values for your
+system. Once satisfied, rebuild the container to have the changes take
+effect.
 
-Finally, re-run `build.sh` so that all these changes take effect.
+When you load up the client, you should be able to install it
+as "Thrasher".
 
+### Basic auth
+
+Eventually (see below in _Roadmap_) TMS will support mTLS
+authentication and no longer need a proxy for TLS termination. Until
+then, to deploy a public-facing instance with some level of security,
+configure your proxy to use Basic Authentication by adding these lines
+to the `location / {` block of your Nginx config:
+
+```
+            auth_basic "Thrasher login";
+            auth_basic_user_file "/PATH/TO/.htpasswd";
+```
+
+(Setting up the `htpasswd` file is left as an exercise for the
+reader.)
+
+Then restart Nginx and login. It is irritating that you'll have to
+login on every port that a server can be spawned on, until your
+browser has seen them all, but this is very much a stopgap solution.
 
 
 ## Roadmap

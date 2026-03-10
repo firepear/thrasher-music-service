@@ -16,7 +16,7 @@ ARG tmslisten
 ARG tmsports
 ARG configfile
 RUN apk --no-cache add busybox sqlite jq
-RUN echo "listen '$tmslisten' ports '$tmsports' clientdir '$clientdir' cf '$configfile' builder_$envi"
+RUN echo "listen '$tmslisten' ports '$tmsports' clientdir '$clientdir' cf '$configfile'"
 COPY --from=builder /tms/thrasher-music-service/tms-backend /usr/local/bin/
 COPY --from=builder /tms/thrasher-music-service/$configfile /etc/tmc.json
 COPY --from=builder /tms/thrasher-music-service/client/ /var/local/tms-backend

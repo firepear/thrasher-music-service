@@ -43,6 +43,7 @@ if [[ "${1}" != "" ]]; then
     # the container
     name="${name}-${1}"
     cf="${1}.json"
+    bcf="${cf}"
     custom="true"
 fi
 
@@ -69,6 +70,7 @@ config["musicdir"]=$(jq -r .musicdir "${cf}")
 config["listen-if"]=$(jq -r '.["listen-if"]' "${cf}")
 config["listen-port"]=$(jq -r '.["listen-port"]' "${cf}")
 config["srvr-ports"]=$(jq -r '.["srvr-ports"]' "${cf}")
+config["tls"]=$(jq -r '.["tls"]' "${cf}")
 
 # complain if any values are null
 for attr in "${!config[@]}"; do
@@ -84,11 +86,20 @@ if [[ ! -d "${config['musicdir']}" ]]; then
     exit 2
 fi
 
-# edit config values if needed
-if [[ "${config['musicdir']}" != "/Music" ]] || [[ "${config['listen-if']}" != "127.0.0.1" ]]; then
-    jq '.musicdir = "/Music" | .["listen-if"] = "127.0.0.1"' "${cf}" > "${cf}.new"
+# set config attrs to container-appropriate values if needed
+if [[ "${config['musicdir']}" != "/Music" ]];then
+    # inside a container, musicdir is always /Music
+    jq '.musicdir = "/Music"' "${bcf}" > "${cf}.build1"
+    bcf="${cf}.build1"
+    echo "${bcf}"
+fi
+if [[ "${config['tls']}" == "true" ]]; then
+    # only force-set listen interface in tls mode. our proxy will be
+    # handling the routable side of things and needs those ports
+    jq '.["listen-if"] = "127.0.0.1"' "${bcf}" > "${cf}.build2"
     config['listen-if']="127.0.0.1"
-    bcf="${cf}.new"
+    bcf="${cf}.build2"
+    echo "${bcf}"
 fi
 
 # contianer and image maintenance
@@ -120,5 +131,5 @@ if [[ "${custom}" == "false" ]]; then
     rm "${cf}"
 fi
 if [[ "${bcf}" != "${cf}" ]]; then
-    rm "${bcf}"
+    rm "${cf}."*
 fi

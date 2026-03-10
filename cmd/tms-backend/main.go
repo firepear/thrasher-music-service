@@ -175,7 +175,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	ssport := strconv.Itoa(sport)
 
 	// make a new Srvr and mux
-	addr := conf.ListenIF + ":" + ssport
+	addr := "0.0.0.0:" + ssport
 	raddr := conf.RedirHost + ":" + ssport
 	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.RedirHost,
 		Port: ssport, OrigPort: conf.ListenPort, C: c, Version: tms.Version}
@@ -225,5 +225,5 @@ func main() {
 	mainSrv := http.NewServeMux()
 	mainSrv.HandleFunc("GET /", handleSpawn)
 	log.Printf("listening on %s:%d", conf.ListenIF, conf.ListenPort)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", conf.ListenIF, conf.ListenPort), mainSrv))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", conf.ListenPort), mainSrv))
 }

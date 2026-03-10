@@ -75,7 +75,7 @@ TMS itself also doesn't speak HTTPS (by design), so to use it as a PWA
 you'll need an HTTPS proxy server to handle the cert and provide TLS
 termination.
 
-Documented here is one way to do this is, by running nginx with a
+Documented here is one way to do this is, by running `nginx` with a
 configuration like:
 
 ```

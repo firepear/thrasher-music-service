@@ -31,7 +31,6 @@ var (
 	srvrTTL     int
 	conf        *tmc.Config
 	lastCatMod  time.Time
-	catNum      int
 	ver         bool
 )
 
@@ -111,8 +110,8 @@ func init() {
 	pchunks := strings.Split(conf.PortRange, "-")
 	portLo, _ = strconv.Atoi(strings.TrimSpace(pchunks[0]))
 	portHi, _ = strconv.Atoi(strings.TrimSpace(pchunks[1]))
-	// get just the hostname for server spawning
 
+	// set up a map to hold Srvrs we'll spawn later
 	srvrs = map[int]*tms.Srvr{}
 }
 
@@ -142,13 +141,12 @@ func statCat() {
 	s, _ := os.Stat(conf.DbFile)
 	if s.ModTime().Sub(lastCatMod) != 0 {
 		log.Printf("catalog update; killing all spawned servers")
-		for port, s := range srvrs {
+		for _, s := range srvrs {
 			s.Http.Close()
 			s.C.Close()
-			delete(srvrs, port)
 		}
-		lastCatMod = s.ModTime()
-		catNum++
+		// die off, to be restarted by container management
+		os.Exit(0)
 	}
 }
 
@@ -160,7 +158,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create new Catalog
-	c, err := tmc.New(conf, "tmssrvr"  + strconv.Itoa(catNum))
+	c, err := tmc.New(conf, "tmssrvr")
 	if err != nil {
 		log.Println(err)
 		io.WriteString(w, fmt.Sprintf("oops: %s", err))
@@ -175,7 +173,7 @@ func handleSpawn(w http.ResponseWriter, r *http.Request) {
 	ssport := strconv.Itoa(sport)
 
 	// make a new Srvr and mux
-	addr := conf.ListenIF + ":" + ssport
+	addr := "0.0.0.0:" + ssport
 	raddr := conf.RedirHost + ":" + ssport
 	s := &tms.Srvr{Http: &http.Server{Addr: addr}, Host: conf.RedirHost,
 		Port: ssport, OrigPort: conf.ListenPort, C: c, Version: tms.Version}
@@ -225,5 +223,5 @@ func main() {
 	mainSrv := http.NewServeMux()
 	mainSrv.HandleFunc("GET /", handleSpawn)
 	log.Printf("listening on %s:%d", conf.ListenIF, conf.ListenPort)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", conf.ListenIF, conf.ListenPort), mainSrv))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", conf.ListenPort), mainSrv))
 }

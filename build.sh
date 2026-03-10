@@ -43,6 +43,7 @@ if [[ "${1}" != "" ]]; then
     # the container
     name="${name}-${1}"
     cf="${1}.json"
+    bcf="${cf}"
     custom="true"
 fi
 
@@ -69,6 +70,7 @@ config["musicdir"]=$(jq -r .musicdir "${cf}")
 config["listen-if"]=$(jq -r '.["listen-if"]' "${cf}")
 config["listen-port"]=$(jq -r '.["listen-port"]' "${cf}")
 config["srvr-ports"]=$(jq -r '.["srvr-ports"]' "${cf}")
+config["tls"]=$(jq -r '.["tls"]' "${cf}")
 
 # complain if any values are null
 for attr in "${!config[@]}"; do
@@ -84,11 +86,19 @@ if [[ ! -d "${config['musicdir']}" ]]; then
     exit 2
 fi
 
-# edit config values if needed
-if [[ "${config['musicdir']}" != "/Music" ]] || [[ "${config['listen-if']}" != "0.0.0.0" ]]; then
-    jq '.musicdir = "/Music" | .["listen-if"] = "0.0.0.0"' "${cf}" > "${cf}.new"
-    config['listen-if']="0.0.0.0"
-    bcf="${cf}.new"
+# set config attrs to container-appropriate values if needed
+if [[ "${config['musicdir']}" != "/Music" ]];then
+    # inside a container, musicdir is always /Music
+    jq '.musicdir = "/Music"' "${bcf}" > "${cf}.build1"
+    bcf="${cf}.build1"
+fi
+if [[ "${config['tls']}" == "true" ]]; then
+    # in tls mode, force-set listen interface; our proxy will be
+    # handling the routable side of things and needs those ports. also
+    # force listen-port to 443
+    jq '.["listen-if"] = "127.0.0.1" | .["listen-port"] = 443' "${bcf}" > "${cf}.build2"
+    config['listen-if']="127.0.0.1"
+    bcf="${cf}.build2"
 fi
 
 # contianer and image maintenance
@@ -106,8 +116,8 @@ ${dockercmd} build --build-arg tmslisten="${config['listen-port']}" \
 # start the container
 echo "[BUILD] Starting container ${name}"
     ${dockercmd} run --name "${name}" -d \
-                 -p "${config['listen-port']}:${config['listen-port']}" \
-                 -p "${config['srvr-ports']}:${config['srvr-ports']}" \
+                 -p "${config['listen-if']}:${config['listen-port']}:${config['listen-port']}" \
+                 -p "${config['listen-if']}:${config['srvr-ports']}:${config['srvr-ports']}" \
                  -v "${config['musicdir']}:/Music:ro" "${name}"
 # and if we're not using 'container', set restart policy
 if [[ ! "${dockercmd}" =~ container$ ]]; then
@@ -120,5 +130,5 @@ if [[ "${custom}" == "false" ]]; then
     rm "${cf}"
 fi
 if [[ "${bcf}" != "${cf}" ]]; then
-    rm "${bcf}"
+    rm "${cf}."*
 fi

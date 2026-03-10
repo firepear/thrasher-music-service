@@ -1,6 +1,19 @@
 # Release notes
 
-## v0.21.0 (2026-03-xx)
+## v0.22.0 (2026-03-10)
+
+- tms-backend
+  - When in `tls` mode, within build context:
+    - Set default build IP to `127.0.0.1` to leave routable ports open
+      for proxy
+    - Set `listen-port` to `443`
+  - Add config's `listen-if` to container port publishing spec
+  - Srvrs now always bind to `0.0.0.0` inside container
+  - tms-backend now respawns on catalog update, relying on container
+    management instead of handling updates internally
+
+
+## v0.21.0 (2026-03-07)
 
 - Client
   - Volume keys (0-9) are now ignored when a modifier is also pressed,

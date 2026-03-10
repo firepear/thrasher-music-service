@@ -1,12 +1,14 @@
 # Release notes
 
-## v0.22.0 (2026-03-07)
+## v0.22.0 (2026-03-10)
 
 - tms-backend
-  - Change default build IP to `127.0.0.1`; add config's `listen-if`
-    to container port publishing spec
-    - This avoids binding to `0.0.0.0`, which creates a complex port
-      management situation when in `tls` mode
+  - When in `tls` mode, change default build IP to `127.0.0.1` to
+    leave routable ports open for proxy
+  - Add config's `listen-if` to container port publishing spec
+  - Srvrs now always bind to `0.0.0.0` inside container
+  - tms-backend now respawns on catalog update, relying on container
+    management instead of handling updates internally
 
 
 ## v0.21.0 (2026-03-07)

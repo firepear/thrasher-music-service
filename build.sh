@@ -94,9 +94,10 @@ if [[ "${config['musicdir']}" != "/Music" ]];then
     echo "${bcf}"
 fi
 if [[ "${config['tls']}" == "true" ]]; then
-    # only force-set listen interface in tls mode. our proxy will be
-    # handling the routable side of things and needs those ports
-    jq '.["listen-if"] = "127.0.0.1"' "${bcf}" > "${cf}.build2"
+    # in tls mode, force-set listen interface; our proxy will be
+    # handling the routable side of things and needs those ports. also
+    # force listen-port to 443
+    jq '.["listen-if"] = "127.0.0.1" | .["listen-port"] = 443' "${bcf}" > "${cf}.build2"
     config['listen-if']="127.0.0.1"
     bcf="${cf}.build2"
     echo "${bcf}"

@@ -91,7 +91,6 @@ if [[ "${config['musicdir']}" != "/Music" ]];then
     # inside a container, musicdir is always /Music
     jq '.musicdir = "/Music"' "${bcf}" > "${cf}.build1"
     bcf="${cf}.build1"
-    echo "${bcf}"
 fi
 if [[ "${config['tls']}" == "true" ]]; then
     # in tls mode, force-set listen interface; our proxy will be
@@ -100,7 +99,6 @@ if [[ "${config['tls']}" == "true" ]]; then
     jq '.["listen-if"] = "127.0.0.1" | .["listen-port"] = 443' "${bcf}" > "${cf}.build2"
     config['listen-if']="127.0.0.1"
     bcf="${cf}.build2"
-    echo "${bcf}"
 fi
 
 # contianer and image maintenance
